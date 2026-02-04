@@ -1,0 +1,16 @@
+{
+  "template": "https://github.com/lelegod/cookiecutter-course-template.git",
+  "commit": "f33330be76f67f5713a46ac22dbd0aae45eb034a",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_name": "Computational Data Analysis",
+      "project_slug": "computational_data_analysis",
+      "author_name": "Kyle Nathan Yahya",
+      "python_version": "3.12",
+      "_template": "https://github.com/lelegod/cookiecutter-course-template.git",
+      "_commit": "f33330be76f67f5713a46ac22dbd0aae45eb034a"
+    }
+  },
+  "directory": null
+}
