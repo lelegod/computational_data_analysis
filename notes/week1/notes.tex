@@ -1,0 +1,24 @@
+Expected prediction error (EPE):
+
+\begin{align*}
+    EPE(\hat{f}) = \mathbb{E}[(Y - \hat{f}(X))^2]
+\end{align*}
+$EPE > 0$ even for a perfectmodel.
+\begin{itemize}
+    \item True process: $Y=f(X)+\epsilon$
+    \item Noise ($\epsilon$) = randomness (measurement error, hidden variables)
+    \item Irreducible error: $\sigma^2 = Var(\epsilon)$
+\end{itemize}
+\begin{align*}
+    Total Error = Reducible Error + \sigma^2
+\end{align*}
+Decomposing EPE:
+\begin{align*}
+    EPE(x_0) & = E_{y, D|x_0}||y(x_0)-\hat{f}(x_0;D)||^2 \\
+    & = \sigma_e^2 + bias^2(\hat{f}(x_0;D)) + variance(\hat{f}(x_0;D))
+\end{align*}
+\begin{enumerate}
+    \item Irreducible error $\sigma_e^2 = E_y(y(x_0)-f(x_0))^2$
+    \item $bias^2(\hat{f}(x_0;D)) = (E_D(\hat{f}(x_0;D)) - f(x_0))^2$
+    \item $variance(\hat{f}(x_0;D)) = E_D(\hat{f}(x_0;D) - E_D(\hat{f(x_0;D)}))^2$
+\end{enumerate}
