@@ -29,8 +29,8 @@ def generate_data(n, rho, sigma):
     2. Generate y = X @ beta_true + noise.
     '''
     # YOUR CODE HERE
-    mean: list[int] = [0, 0]
-    cov: list[list[int]] = [[1, rho], [rho, 1]]
+    mean = [0, 0]
+    cov = [[1, rho], [rho, 1]]
     X = np.random.multivariate_normal(mean, cov, n)
     y = X @ beta_true + np.random.normal(0, sigma)
     return X, y
@@ -42,10 +42,12 @@ all_preds = []
 
 print('Running simulations...')
 for _ in range(n_simulations):
-    X, y = generate_data(...)
+    X, y = generate_data(n_simulations, rho, sigma)
     model = LinearRegression().fit(X, y)
-    # Store results
 
+    # Store results
+    all_betas.append(model.coef_)
+    all_preds.append(model.predict(x_test))
 
 # --- SECTION 3: Calculations ---
 # TASK: Calculate the following metrics:
