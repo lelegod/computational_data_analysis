@@ -17,6 +17,7 @@ def install(c: Context):
         run_cmd = lambda cmd: c.run(f"conda run -n {COURSE_NAME} {cmd}", echo=True, pty=not WINDOWS)
 
     run_cmd("pip install -r requirements.txt")
+    run_cmd("pip install -r requirements_project.txt")
     if SPECIAL_PACKAGES:
         run_cmd(f"pip install {' '.join(SPECIAL_PACKAGES)}")
 
@@ -30,11 +31,13 @@ def create_env(c: Context, path=None):
         pip_exe = os.path.join(env_path, "Scripts", "pip.exe") if WINDOWS else os.path.join(env_path, "bin", "pip")
         
         c.run(f'"{pip_exe}" install -r requirements.txt', echo=True, pty=not WINDOWS)
+        c.run(f'"{pip_exe}" install -r requirements_project.txt', echo=True, pty=not WINDOWS)
         if SPECIAL_PACKAGES:
             c.run(f'"{pip_exe}" install {' '.join(SPECIAL_PACKAGES)}', echo=True, pty=not WINDOWS)
     else:
         c.run(f'conda create -n {COURSE_NAME} python={PYTHON_VERSION} pip --no-default-packages --yes', echo=True, pty=not WINDOWS)
         c.run(f"conda run -n {COURSE_NAME} pip install -r requirements.txt", echo=True, pty=not WINDOWS)
+        c.run(f"conda run -n {COURSE_NAME} pip install -r requirements_project.txt", echo=True, pty=not WINDOWS)
         if SPECIAL_PACKAGES:
             c.run(f"conda run -n {COURSE_NAME} pip install {' '.join(SPECIAL_PACKAGES)}", echo=True, pty=not WINDOWS)
 
