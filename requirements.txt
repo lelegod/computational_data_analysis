@@ -8,3 +8,4 @@ seaborn
 cruft
 ipykernel
 simple-term-menu
+pick
