@@ -32,7 +32,7 @@ def generate_data(n, rho, sigma):
     mean = [0, 0]
     cov = [[1, rho], [rho, 1]]
     X = np.random.multivariate_normal(mean, cov, n)
-    y = X @ beta_true + np.random.normal(0, sigma)
+    y = X @ beta_true + np.random.normal(0, sigma, n)
     return X, y
 
 # --- SECTION 2: Simulation ---
@@ -42,12 +42,15 @@ all_preds = []
 
 print('Running simulations...')
 for _ in range(n_simulations):
-    X, y = generate_data(n_simulations, rho, sigma)
+    X, y = generate_data(n_samples, rho, sigma)
     model = LinearRegression().fit(X, y)
 
     # Store results
     all_betas.append(model.coef_)
-    all_preds.append(model.predict(x_test))
+    all_preds.append(model.predict(x_test)[0])
+
+all_betas = np.array(all_betas)
+all_preds = np.array(all_preds)
 
 # --- SECTION 3: Calculations ---
 # TASK: Calculate the following metrics:
@@ -55,8 +58,27 @@ for _ in range(n_simulations):
 # 2. The Bias^2 at x_test.
 # 3. The Variance at x_test.
 
-# bias_sq = (np.mean(all_preds) - target_val)**2
-# variance = np.var(all_preds)
+mean = np.mean(all_betas, axis=0)
+var = np.var(all_betas, axis=0)
+
+bias_sq = (np.mean(all_preds) - target_val)**2
+variance = np.var(all_preds)
+epe = bias_sq + variance + sigma**2
+
+print(f"True betas: {beta_true}")
+print(f"Mean of estimated betas: {mean}")
+print(f"variance of estimated betas: {var}")
+print(f"bias^2: {bias_sq:4.3f}")
+print(f"variance: {variance:4.3f}")
+print(f"EPE: {epe:4.3f}")
 
 # --- SECTION 4: Visualization ---
 # TASK: Create a histogram of estimated Beta 1 and Beta 2.
+fig, ax = plt.subplots(1, 1, figsize=(10, 6))
+ax.hist(all_betas[:, 0], bins=30, alpha=0.5, label="Beta1 (True=2)")
+ax.hist(all_betas[:, 1], bins=30, alpha=0.5, label="Beta2 (True=0)")
+ax.axvline(beta_true[0], linestyle='--', color='blue')
+ax.axvline(beta_true[1], linestyle='--', color='orange')
+ax.set(title=rf'Instability of OLS with $\rho=${rho}')
+ax.legend()
+plt.show()
