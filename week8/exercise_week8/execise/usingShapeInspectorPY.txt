@@ -1,0 +1,5 @@
+Hello, good thing you're here.
+To use the shape inspector, you will need Qt5 on your computer (python library).
+use pip for it. So in terminal go "pip install pyqt5"
+
+Look up Qt while you're at it, its an extremely strong GUI tool, for many different languages.
