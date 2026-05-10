@@ -27,7 +27,7 @@
 | Multiway models (PARAFAC/Tucker/CORCONDIA) | 12 | Q16 | Q17 | — | 2/3 | Core tensor, CORCONDIA |
 | Model selection (AIC/BIC/Information criteria) | 2 | — | Q6 | Q5, Q8 | 2/3 | BIC penalizes complexity more |
 | High-dimensional data (p >> n) | 1–2 | Q2 | Q2 | — | 2/3 | SVM, Elastic Net, RF, PCA |
-| Norm definitions (L1, L2) | 2 | Q11 | — | — | 1/3 | ||β||_2^2 = β^Tβ |
+| Norm definitions (L1, L2) | 2 | Q11 | — | — | 1/3 | $\|\|\beta\|\|_2^2 = \beta^T\beta$ |
 | Confusion matrix / Sensitivity/Specificity | 4 | Q13 | — | — | 1/3 | Bayes theorem application |
 | Self-Organizing Maps / Manifold | 8 | Q12 | — | — | 1/3 | Blessings of dimensionality |
 | K-medoids | 9 | — | — | Q15 | 1/3 | Robustness to outliers |
@@ -53,7 +53,7 @@
 - **Question**: Which methods can handle data with fewer observations than dimensions?
 - **Official Answer**: A (SVM), C (Random Forest), D (PCA)
 - **Verification**: ✓ Correct
-- **Notes**: SVM works via the dual formulation (depends on n, not p). Random Forest uses random subsets of features, so p >> n is manageable. PCA reduces dimensionality. Logistic regression WITHOUT regularization cannot handle p > n (non-invertible X^TX).
+- **Notes**: SVM works via the dual formulation (depends on n, not p). Random Forest uses random subsets of features, so p >> n is manageable. PCA reduces dimensionality. Logistic regression WITHOUT regularization cannot handle p > n (non-invertible $X^TX$).
 
 ### Q3: LDA Statements
 - **Question**: Which statements are true for LDA?
@@ -65,19 +65,19 @@
 - **Question**: Too large lambda in ridge regularization — effect on model?
 - **Official Answer**: A (High bias)
 - **Verification**: ✓ Correct
-- **Notes**: Large lambda over-shrinks coefficients toward zero → underfitting → high bias, low variance. This is a fundamental bias-variance tradeoff question.
+- **Notes**: Large $\lambda$ over-shrinks coefficients toward zero → underfitting → high bias, low variance. This is a fundamental bias-variance tradeoff question.
 
 ### Q5: Lasso — Too Small Lambda
 - **Question**: Too small lambda in lasso regularization — effect on model?
 - **Official Answer**: B (High variance), D (Low bias)
 - **Verification**: ✓ Correct
-- **Notes**: Small lambda means little regularization → model approximates OLS → low bias but high variance. Both B and D are simultaneously correct (they are two sides of the same coin at small lambda). This question correctly identifies that both can be marked.
+- **Notes**: Small $\lambda$ means little regularization → model approximates OLS → low bias but high variance. Both B and D are simultaneously correct (they are two sides of the same coin at small lambda). This question correctly identifies that both can be marked.
 
 ### Q6: Lasso Estimation
 - **Question**: How are lasso estimates calculated?
 - **Official Answer**: C (Solved numerically, no analytical solution)
 - **Verification**: ✓ Correct
-- **Notes**: The L1 norm (||β||_1) is not differentiable at zero, so no closed-form analytical solution exists. Algorithms like coordinate descent or LARS are used. Option A is the ridge solution. Option B is OLS. Option D describes ridge, not lasso (wrong norm).
+- **Notes**: The L1 norm ($\|\beta\|_1$) is not differentiable at zero, so no closed-form analytical solution exists. Algorithms like coordinate descent or LARS are used. Option A is the ridge solution. Option B is OLS. Option D describes ridge, not lasso (wrong norm).
 
 ### Q7: SVM — Linear or Non-linear?
 - **Question**: Is SVM linear or non-linear?
@@ -104,10 +104,10 @@
 - **Notes**: A is the primary purpose of Bonferroni. C is correct — Bonferroni is more conservative, so BH at same alpha level will call more findings significant. D is the direct consequence of C — more findings means more false positives (by design, BH allows up to 5% of discoveries to be false). B is wrong: Bonferroni REDUCES the chance of accepting a false positive (it raises the bar to reject H0), so it actually reduces the chance of rejecting the null, not accepting it.
 
 ### Q11: L2 Norm Squared
-- **Question**: What is ||β||_2^2 equal to?
-- **Official Answer**: B (Σ βi²), C (β^T β)
+- **Question**: What is $\|\beta\|_2^2$ equal to?
+- **Official Answer**: B ($\sum \beta_i^2$), C ($\beta^T \beta$)
 - **Verification**: ✓ Correct
-- **Notes**: Both B and C are equivalent definitions of the squared L2 norm. A is the L1 norm. D is the max norm squared (L∞ type). The question asks for the squared L2 norm which is the sum of squares = β^T β.
+- **Notes**: Both B and C are equivalent definitions of the squared L2 norm. A is the L1 norm. D is the max norm squared (L∞ type). The question asks for the squared L2 norm which is the sum of squares = $\beta^T \beta$.
 
 ### Q12: Self-Organizing Maps and Blessings of Dimensionality
 - **Question**: SOMs illustrate which blessing of dimensionality?
@@ -120,9 +120,9 @@
 - **Official Answer**: D (297)
 - **Verification**: ✓ Correct
 - **Calculation**:
-  - True positives: 100 × 0.99 = 99
-  - False positives: 9900 × 0.02 = 198
-  - Total positives: 99 + 198 = **297**
+  - True positives: $100 \times 0.99 = 99$
+  - False positives: $9900 \times 0.02 = 198$
+  - Total positives: $99 + 198 = \mathbf{297}$
 - **Notes**: This requires applying both sensitivity (99%) and false positive rate (2%) to their respective populations. A common trap is to only count true positives (99) or only round to 100.
 
 ### Q14: Random Forest Bias-Variance
@@ -169,7 +169,7 @@
 - **Question**: Describe the steps of the Random Forest algorithm and how they contribute to performance.
 - **Key points for full marks**:
   1. Bootstrap sampling (bagging) — creates diverse training sets, reduces variance
-  2. Random feature selection at each split (m << p) — decorrelates trees, further reduces variance
+  2. Random feature selection at each split ($m \ll p$) — decorrelates trees, further reduces variance
   3. Grow deep (unpruned) trees — low bias per tree
   4. Average predictions (regression) or majority vote (classification) — reduces variance without increasing bias
   5. OOB (out-of-bag) error estimate — free internal validation
@@ -201,7 +201,7 @@
 - **Question**: Which methods handle more variables than observations well?
 - **Official Answer**: A (Elastic Net), B (PCA), D (Random Forest)
 - **Verification**: ✓ Correct
-- **Notes**: Elastic Net (L1+L2 regularization) handles high-dimensional data. PCA reduces dimensionality first. RF uses random subsets of features. OLS (C) fails when p > n (singular X^TX). Note: All three correct answers (A, B, D) are valid.
+- **Notes**: Elastic Net (L1+L2 regularization) handles high-dimensional data. PCA reduces dimensionality first. RF uses random subsets of features. OLS (C) fails when p > n (singular $X^TX$). Note: All three correct answers (A, B, D) are valid.
 
 ### Q3: Random Forest True Statements
 - **Question**: True statements about Random Forest?
@@ -213,13 +213,13 @@
 - **Question**: Too small lambda in lasso — effect?
 - **Official Answer**: B (High variance), D (Low bias)
 - **Verification**: ✓ Correct
-- **Notes**: Same logic as 2022 Q5. Small lambda = weak regularization = near-OLS solution = low bias, high variance.
+- **Notes**: Same logic as 2022 Q5. Small $\lambda$ = weak regularization = near-OLS solution = low bias, high variance.
 
 ### Q5: Regularized Regression Algorithms
 - **Question**: True statements about regularized regression?
 - **Official Answer**: B (Lasso is a path algorithm), C (Path algorithm provides solutions for all relevant lambda values)
 - **Verification**: ✓ Correct
-- **Notes**: A is wrong — Lasso has no closed-form solution (L1 non-differentiable). B is correct — LARS/LASSO is a path algorithm. C is correct — path algorithms efficiently trace the full regularization path. D is wrong — closed-form solutions (like ridge: (X^TX + λI)^{-1}X^TY) do not require asymptotic theory; they are exact for finite n.
+- **Notes**: A is wrong — Lasso has no closed-form solution (L1 non-differentiable). B is correct — LARS/LASSO is a path algorithm. C is correct — path algorithms efficiently trace the full regularization path. D is wrong — closed-form solutions (like ridge: $(X^TX + \lambda I)^{-1}X^TY$) do not require asymptotic theory; they are exact for finite n.
 
 ### Q6: Information Criteria Statements
 - **Question**: True statements about information criteria?
@@ -237,7 +237,7 @@
 - **Question**: True statements about multiple testing?
 - **Official Answer**: A (BH controls upper bound of FDR)
 - **Verification**: ✓ Correct
-- **Notes**: A is the defining property of BH. B is wrong — family-wise error rate is the probability of AT LEAST ONE false rejection (not "at most α/M"). C is wrong — Bonferroni is most useful when there are FEWER tests (more tests make it too conservative). D is wrong — the plug-in FDR estimate IS a consistent estimate under certain conditions (specifically, it tends to overestimate FDR, making it conservative, which is actually desirable).
+- **Notes**: A is the defining property of BH. B is wrong — family-wise error rate is the probability of AT LEAST ONE false rejection (not "at most $\alpha/M$"). C is wrong — Bonferroni is most useful when there are FEWER tests (more tests make it too conservative). D is wrong — the plug-in FDR estimate IS a consistent estimate under certain conditions (specifically, it tends to overestimate FDR, making it conservative, which is actually desirable).
 
 ### Q9: Classification Statements
 - **Question**: True statements about classification?
@@ -249,7 +249,7 @@
 - **Question**: True statements about boosting?
 - **Official Answer**: B (Forward stagewise: consecutively adding trees), C (AdaBoost.M1 approximates exponential loss in forward stagewise)
 - **Verification**: ✓ Correct
-- **Notes**: A is wrong — forward stagewise does NOT update weights of previous trees; once added, a tree's weight is fixed. B is correct — new tree+weight pairs are added sequentially without changing existing ones. C is correct — this is a key theoretical result (Friedman et al. 2000). D is wrong — the exponential loss gives HIGHER weight to misclassified observations (e-^{-y_i f(x_i)} grows large when f and y disagree), compared to misclassification loss which gives equal weight to all misclassified.
+- **Notes**: A is wrong — forward stagewise does NOT update weights of previous trees; once added, a tree's weight is fixed. B is correct — new tree+weight pairs are added sequentially without changing existing ones. C is correct — this is a key theoretical result (Friedman et al. 2000). D is wrong — the exponential loss gives HIGHER weight to misclassified observations ($e^{-y_i f(x_i)}$ grows large when f and y disagree), compared to misclassification loss which gives equal weight to all misclassified.
 
 ### Q11: RF Variable Importance
 - **Question**: True statements about RF variable importance?
@@ -262,11 +262,11 @@
 - **Official Answer**: A (Autoencoder loss = difference between input and output), C (parameter count = 31)
 - **Verification**: ⚠️ Parameter count needs checking
 - **Parameter count calculation (2024 Q12)**:
-  - 10 inputs → 2 hidden units (layer 1): 10×2 weights + 2 biases = 22
-  - 2 hidden (layer 1) → 2 hidden units (layer 2): 2×2 weights + 2 biases = 6
-  - 2 hidden (layer 2) → 1 output: 2×1 weights + 1 bias = 3
-  - Total: 22 + 6 + 3 = **31** ✓
-- **Notes**: A is correct — autoencoder minimizes reconstruction error ||x - x̂||². B is wrong — neural networks are notorious for overfitting. C is correct. D is wrong (40 is simply wrong arithmetic).
+  - 10 inputs → 2 hidden units (layer 1): $10 \times 2$ weights + 2 biases = 22
+  - 2 hidden (layer 1) → 2 hidden units (layer 2): $2 \times 2$ weights + 2 biases = 6
+  - 2 hidden (layer 2) → 1 output: $2 \times 1$ weights + 1 bias = 3
+  - Total: $22 + 6 + 3 = \mathbf{31}$ ✓
+- **Notes**: A is correct — autoencoder minimizes reconstruction error $\|x - \hat{x}\|^2$. B is wrong — neural networks are notorious for overfitting. C is correct. D is wrong (40 is simply wrong arithmetic).
 
 ### Q13: Least Angle Regression vs Coordinate Descent for Lasso
 - **Question**: Comparing LARS and Coordinate Descent for Lasso?
@@ -299,7 +299,7 @@
 - **Question**: True statements about multiway models?
 - **Official Answer**: A (CONCORDIA close to 100 → PARAFAC has suitable components because core tensor is close to diagonal), D (Dimensionality of Tucker core defines ranks in modes)
 - **Verification**: ✓ Correct
-- **Notes**: A is the defining interpretation of CORCONDIA. B is wrong — CORCONDIA is defined relative to PARAFAC (not Tucker). C is wrong — the Tucker core is NOT super-diagonal; the super-diagonal core is the PARAFAC model's ideal case. D is correct — the Tucker core has dimensionality R1 × R2 × R3 for a 3-mode tensor, and these define the rank in each mode.
+- **Notes**: A is the defining interpretation of CORCONDIA. B is wrong — CORCONDIA is defined relative to PARAFAC (not Tucker). C is wrong — the Tucker core is NOT super-diagonal; the super-diagonal core is the PARAFAC model's ideal case. D is correct — the Tucker core has dimensionality $R_1 \times R_2 \times R_3$ for a 3-mode tensor, and these define the rank in each mode.
 
 ### Q18: DNA Microarray — Cancer Type Clustering
 - **Question**: 1000 features, 820 individuals with known cancer types; investigate if similar DNA expression shares same cancer type?
@@ -323,7 +323,7 @@
 - **Question**: Demonstrate whether ICA is unique, describe independent components, and favored distributions.
 - **Key points for full marks**:
   1. ICA is NOT unique up to: (a) permutation of components, (b) scaling/sign of components. These are fundamental indeterminacies.
-  2. Independent components: components are statistically independent (joint pdf = product of marginals): p(s1, s2) = p(s1)·p(s2)
+  2. Independent components: components are statistically independent (joint pdf = product of marginals): $p(s_1, s_2) = p(s_1) \cdot p(s_2)$
   3. ICA requires non-Gaussian sources — Central Limit Theorem causes mixtures to be MORE Gaussian; ICA exploits this by finding the "least Gaussian" directions
   4. Favored distributions: super-Gaussian (heavy-tailed, high kurtosis) or sub-Gaussian distributions. Standard Gaussian cannot be used as a source distribution because ICA is unidentifiable for Gaussian sources.
   5. FastICA uses negentropy or kurtosis as the contrast function.
@@ -346,19 +346,19 @@
 - **Question**: Which component is NOT affected by model complexity?
 - **Official Answer**: (c) Irreducible error
 - **Verification**: ✓ Correct
-- **Notes**: The irreducible error (σ² — noise in the data) is a property of the data-generating process and cannot be reduced by any model. Bias decreases with complexity, variance increases with complexity, EPE is their sum plus irreducible error. Training error also changes with complexity (decreases).
+- **Notes**: The irreducible error ($\sigma^2$ — noise in the data) is a property of the data-generating process and cannot be reduced by any model. Bias decreases with complexity, variance increases with complexity, EPE is their sum plus irreducible error. Training error also changes with complexity (decreases).
 
 ### Q2: Kernel Trick in SVM
 - **Question**: The kernel trick in SVM allows?
 - **Official Answer**: (b) Computation in high-dimensional feature space without explicit transformation
 - **Verification**: ✓ Correct
-- **Notes**: The kernel trick K(x,x') = φ(x)·φ(x') allows implicit computation in a (possibly infinite-dimensional) feature space using only dot products in the original space. No feature selection, no automatic regularization, no speed increase in general.
+- **Notes**: The kernel trick $K(x,x') = \phi(x) \cdot \phi(x')$ allows implicit computation in a (possibly infinite-dimensional) feature space using only dot products in the original space. No feature selection, no automatic regularization, no speed increase in general.
 
 ### Q3: Not Matrix Factorization-Based
 - **Question**: Which method is NOT matrix factorization-based?
 - **Official Answer**: (d) K-means
 - **Verification**: ✓ Correct
-- **Notes**: NMF (X ≈ WH), PCA (SVD), ICA (X = AS, matrix mixing model), Archetypal Analysis (X ≈ XZS, matrix formulation) are all matrix factorization methods. K-means is a clustering algorithm based on distance to centroids — it minimizes within-cluster sum of squares; it is NOT a matrix factorization (though it can be loosely related to a special case of NMF, it is not natively expressed as one).
+- **Notes**: NMF ($X \approx WH$), PCA (SVD), ICA ($X = AS$, matrix mixing model), Archetypal Analysis ($X \approx XZS$, matrix formulation) are all matrix factorization methods. K-means is a clustering algorithm based on distance to centroids — it minimizes within-cluster sum of squares; it is NOT a matrix factorization (though it can be loosely related to a special case of NMF, it is not natively expressed as one).
 
 ### Q4: IID Assumption for Cross-Validation
 - **Question**: Implicit assumption behind standard CV validity?
@@ -370,7 +370,7 @@
 - **Question**: Best distinction between information criteria and CV in terms of assumptions?
 - **Official Answer**: (a) AIC/BIC assumes correctly specified likelihood model; CV makes fewer assumptions
 - **Verification**: ✓ Correct
-- **Notes**: AIC = -2 log L + 2p requires you to specify and maximize a likelihood. BIC is similar. CV is model-agnostic and only requires the ability to compute a prediction error. B is wrong — CV makes no normality or linearity assumption. C is wrong — AIC/BIC estimate in-sample corrected error; CV estimates out-of-sample error.
+- **Notes**: AIC $= -2 \log L + 2p$ requires you to specify and maximize a likelihood. BIC is similar. CV is model-agnostic and only requires the ability to compute a prediction error. B is wrong — CV makes no normality or linearity assumption. C is wrong — AIC/BIC estimate in-sample corrected error; CV estimates out-of-sample error.
 
 ### Q6: When is Nested CV Preferred?
 - **Question**: When is nested CV preferred?
@@ -385,22 +385,22 @@
 - **Notes**: Ridge's L2 penalty shrinks all coefficients toward zero proportionally but never exactly to zero (the circular constraint region touches the axes only at infinity). Lasso's L1 penalty has corners at the axes, enabling exact zeros. This is a fundamental geometric distinction.
 
 ### Q8: Model Criterion That Penalizes Complexity Most as N → ∞
-- **Question**: Which criterion penalizes complexity most as N → ∞?
+- **Question**: Which criterion penalizes complexity most as $N \to \infty$?
 - **Official Answer**: (b) BIC
 - **Verification**: ✓ Correct
-- **Notes**: AIC penalty = 2p (constant in N). BIC penalty = p·log(N), which grows without bound as N increases. Cp is related to AIC. Cross-validation has no explicit penalty term. Therefore BIC penalizes complexity increasingly harshly as sample size grows → consistent model selection.
+- **Notes**: AIC penalty $= 2p$ (constant in N). BIC penalty $= p \cdot \log(N)$, which grows without bound as N increases. Cp is related to AIC. Cross-validation has no explicit penalty term. Therefore BIC penalizes complexity increasingly harshly as sample size grows → consistent model selection.
 
 ### Q9: Why LDA Boundary is Linear
 - **Question**: LDA decision boundary is linear because?
 - **Official Answer**: (e) It assumes equal class covariances
 - **Verification**: ✓ Correct
-- **Notes**: When class covariances are equal (Σ_k = Σ for all k), the quadratic terms in the log-posterior ratio cancel, leaving a linear function of x. With unequal covariances (QDA), the boundary is quadratic. Equal priors (b) alone do not cause linearity.
+- **Notes**: When class covariances are equal ($\Sigma_k = \Sigma$ for all k), the quadratic terms in the log-posterior ratio cancel, leaving a linear function of x. With unequal covariances (QDA), the boundary is quadratic. Equal priors (b) alone do not cause linearity.
 
 ### Q10: BH vs Bonferroni
 - **Question**: Best distinction between BH and Bonferroni?
 - **Official Answer**: (a) BH controls expected proportion of false discoveries (FDR); Bonferroni controls probability of at least one false discovery (FWER)
 - **Verification**: ✓ Correct
-- **Notes**: This is the defining theoretical distinction. BH controls FDR = E[V/R], where V = false discoveries, R = total discoveries. Bonferroni controls FWER = P(V ≥ 1). BH is less conservative than Bonferroni, resulting in more rejections.
+- **Notes**: This is the defining theoretical distinction. BH controls $\text{FDR} = E[V/R]$, where V = false discoveries, R = total discoveries. Bonferroni controls $\text{FWER} = P(V \geq 1)$. BH is less conservative than Bonferroni, resulting in more rejections.
 
 ### Q11: Why ICA Can Recover Sources PCA Cannot
 - **Question**: Why can ICA recover sources PCA cannot?
@@ -413,10 +413,10 @@
 - **Official Answer**: (d) 29
 - **Verification**: ✓ Correct
 - **Calculation**:
-  - Input (3) → Hidden 1 (4): 3×4 weights + 4 biases = 12 + 4 = 16
-  - Hidden 1 (4) → Hidden 2 (2): 4×2 weights + 2 biases = 8 + 2 = 10
-  - Hidden 2 (2) → Output (1): 2×1 weights + 1 bias = 2 + 1 = 3
-  - Total: 16 + 10 + 3 = **29** ✓
+  - Input (3) → Hidden 1 (4): $3 \times 4$ weights + 4 biases = $12 + 4 = 16$
+  - Hidden 1 (4) → Hidden 2 (2): $4 \times 2$ weights + 2 biases = $8 + 2 = 10$
+  - Hidden 2 (2) → Output (1): $2 \times 1$ weights + 1 bias = $2 + 1 = 3$
+  - Total: $16 + 10 + 3 = \mathbf{29}$ ✓
 - **Notes**: Contrast with 2024 Q12 (10→2→2→1 = 31). Always count: (inputs_to_layer × units_in_layer) + units_in_layer (for biases).
 
 ### Q13: K-means vs GMM Key Difference
@@ -426,10 +426,10 @@
 - **Notes**: A is wrong (reversed — GMM allows different covariances; K-means implicitly assumes spherical). B is wrong (reversed — K-means assigns hard labels; GMM assigns soft memberships via posterior probabilities). D is wrong — GMM uses means, not medians. E is wrong — K-means uses iterative assignment, not likelihood; GMM uses EM (likelihood maximization).
 
 ### Q14: PCA Variance Explained
-- **Question**: Eigenvalues λ1=6, λ2=2. Fraction explained by first PC?
+- **Question**: Eigenvalues $\lambda_1 = 6$, $\lambda_2 = 2$. Fraction explained by first PC?
 - **Official Answer**: (d) 75%
 - **Verification**: ✓ Correct
-- **Calculation**: 6/(6+2) = 6/8 = 0.75 = **75%** ✓
+- **Calculation**: $6/(6+2) = 6/8 = 0.75 = \mathbf{75\%}$ ✓
 
 ### Q15: K-medoids vs K-means Fundamental Difference
 - **Question**: Fundamental difference between K-medoids and K-means?
@@ -439,7 +439,7 @@
 
 ### Q16: NMF Defining Characteristic
 - **Question**: Defining characteristic of NMF?
-- **Official Answer**: (b) NMF seeks W and H such that X ≈ WH, with all entries of W and H constrained to be non-negative
+- **Official Answer**: (b) NMF seeks W and H such that $X \approx WH$, with all entries of W and H constrained to be non-negative
 - **Verification**: ✓ Correct
 - **Notes**: The key constraint is non-negativity of BOTH factor matrices W and H. This is NOT the same as requiring X to be non-negative (though in practice X is usually non-negative). A is wrong — NMF solutions are generally not unique. C is wrong — no orthogonality constraints in standard NMF. D is wrong — the constraint is on W and H, not only X. E is wrong — X need not be square.
 
@@ -503,29 +503,29 @@
 - **Correct statement**: Proximity plots measure similarity between observations. Variable importance measures assess variables. The official solution including C appears to contain an error; D and A should be the accepted answers.
 
 ### 2024 Q8 (Bonferroni — Number of Tests)
-- **Issue**: Official answer A says "Bonferroni correction is useful when the number of tests is large but can be too conservative for small number of tests." The reality is the opposite: Bonferroni is most conservative (and appropriate) when the number of tests M is LARGE (it divides α by M). For SMALL M, it is barely conservative. For LARGE M, it becomes extremely conservative, losing power. Official answer A states it backwards.
+- **Issue**: Official answer A says "Bonferroni correction is useful when the number of tests is large but can be too conservative for small number of tests." The reality is the opposite: Bonferroni is most conservative (and appropriate) when the number of tests M is LARGE (it divides $\alpha$ by M). For SMALL M, it is barely conservative. For LARGE M, it becomes extremely conservative, losing power. Official answer A states it backwards.
 - **Correct statement**: Bonferroni is useful when M is SMALL; it becomes overly conservative when M is LARGE. The official answer to Q8 should be A (BH controls FDR upper bound), which it is — so the overall answer A is correct, but the specific text of option C about Bonferroni and number of tests is misleading in the question. This is a question wording issue, not a solution error.
 
 ---
 
 ## High-Yield Topics (most frequently tested)
 
-1. **Bias-Variance Tradeoff / EPE decomposition** — Week 1 — appears in 3/3 exams — Know EPE = Bias² + Variance + σ². Know which direction lambda pushes each.
-2. **Lasso vs Ridge** — Week 2 — appears in 3/3 exams — Lasso: no closed form, L1, sparsity; Ridge: closed form (X^TX + λI)^{-1}X^TY, L2, no sparsity. Too large λ = high bias. Too small λ = high variance.
+1. **Bias-Variance Tradeoff / EPE decomposition** — Week 1 — appears in 3/3 exams — Know $\text{EPE} = \text{Bias}^2 + \text{Variance} + \sigma^2$. Know which direction $\lambda$ pushes each.
+2. **Lasso vs Ridge** — Week 2 — appears in 3/3 exams — Lasso: no closed form, L1, sparsity; Ridge: closed form $(X^TX + \lambda I)^{-1}X^TY$, L2, no sparsity. Too large $\lambda$ = high bias. Too small $\lambda$ = high variance.
 3. **Cross-Validation Design** — Week 1–2 — appears in 3/3 exams — Never normalize before CV. Nested CV for unbiased post-tuning error. Dependent observations must stay in same fold. Personalized vs generalized model = within-subject vs leave-subject-out.
-4. **Multiple Testing (Bonferroni / BH)** — Week 3 — appears in 3/3 exams — Bonferroni: FWER control (α/M threshold). BH: FDR control (more powerful, more discoveries, more false positives than Bonferroni at same α).
+4. **Multiple Testing (Bonferroni / BH)** — Week 3 — appears in 3/3 exams — Bonferroni: FWER control ($\alpha/M$ threshold). BH: FDR control (more powerful, more discoveries, more false positives than Bonferroni at same $\alpha$).
 5. **LDA** — Week 4 — appears in 3/3 exams — Linear because equal covariance assumption cancels quadratic terms. Probabilistic method (Gaussian class-conditionals + Bayes). More sensitive to outliers than logistic regression.
 6. **GMM / Clustering** — Weeks 4, 9 — appears in 3/3 exams — Unsupervised. EM algorithm. Soft assignments. Allows elliptical clusters (vs spherical K-means).
 7. **SVM / Kernel Trick** — Week 7 — appears in 3/3 exams — Linearity depends on kernel. Kernel trick = implicit high-dim computation. Dual formulation enables kernels. KernelPCA also uses kernel trick.
 8. **Random Forest** — Weeks 5–6 — appears in 2/3 exams — Bias = individual tree bias → use deep trees. Variance reduced by averaging + random feature selection. Cannot parallelize? WRONG — trees are independent. OOB error is free validation.
-9. **Archetypal Analysis / NMF** — Weeks 9–10 — appears in 3/3 exams — AA: archetypes = convex combinations of extreme data points; data = convex combinations of archetypes. NMF: W, H ≥ 0; not unique; requires non-negative data.
+9. **Archetypal Analysis / NMF** — Weeks 9–10 — appears in 3/3 exams — AA: archetypes = convex combinations of extreme data points; data = convex combinations of archetypes. NMF: $W, H \geq 0$; not unique; requires non-negative data.
 10. **Neural Networks** — Weeks 10–11 — appears in 2/3 exams — Parameter count = (inputs×units + units) per layer. Autoencoders minimize reconstruction loss. Tend to overfit.
 
 ---
 
 ## Pattern Notes
 
-- **Lasso lambda direction is tested every year.** Both 2022 and 2024 ask the SAME question (too small lambda in lasso). Know: too small λ = low bias, high variance; too large λ = high bias, low variance.
+- **Lasso lambda direction is tested every year.** Both 2022 and 2024 ask the SAME question (too small lambda in lasso). Know: too small $\lambda$ = low bias, high variance; too large $\lambda$ = high bias, low variance.
 
 - **The cross-validation design question (Q22 in 2022 and 2024, Q22 in 2025) involves the same wearable biosignal dataset.** The 2024 and 2025 Q22 are nearly identical in setup. Master the personalized vs. generalized model distinction and the leave-one-individual-out vs within-individual CV design.
 
@@ -537,7 +537,7 @@
 
 - **Boosting uses SHALLOW trees (stumps), not deep trees.** Bagging/RF uses DEEP trees. This distinction is a common trap and appears in multiple questions.
 
-- **BIC grows as log(N) → penalizes complexity more than AIC (constant 2p) as N increases.** This is tested in 2025 Q8.
+- **BIC grows as $\log(N)$ → penalizes complexity more than AIC (constant $2p$) as N increases.** This is tested in 2025 Q8.
 
 - **The 2022 exam is the only one with multiple answers per question AND a 2-point scoring system.** The 2024 exam uses +1/-1 per option. The 2025 exam uses single correct answers. Exam format changes have real strategy implications.
 

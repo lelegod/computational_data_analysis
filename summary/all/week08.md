@@ -10,29 +10,29 @@ This week covers four related methods for finding low-dimensional subspaces in d
 ### Key Concepts
 - **Goal:** Find a low-dimensional linear subspace that captures maximum variance in X.
 - **Unsupervised:** Uses only X, ignores any response variable y.
-- PCA finds directions v (loading vectors) such that the projected scores Xv have maximum variance.
+- PCA finds directions $v$ (loading vectors) such that the projected scores $Xv$ have maximum variance.
 - Principal components are **orthogonal** to each other.
-- The loadings (eigenvectors) are orthonormal: vᵢ^T vⱼ = 0 for i ≠ j.
-- Scores matrix S = XV (projections of data onto loading vectors).
+- The loadings (eigenvectors) are orthonormal: $v_i^T v_j = 0$ for $i \neq j$.
+- Scores matrix $S = XV$ (projections of data onto loading vectors).
 
 ### Formulas
-- **PCA objective:** `max_v Var(Xv)` subject to `‖v‖ = 1`
-- **Covariance matrix decomposition (EVD):** `Σ = VΛV^T`
-  - V: matrix of eigenvectors (loading vectors / principal axes)
-  - Λ: diagonal matrix of eigenvalues (variance along each PC)
-- **SVD of data matrix:** `X = UDV^T`
-  - U: left singular vectors (scores, up to scaling)
-  - D: diagonal matrix of singular values
-  - V: right singular vectors = loading vectors (same as from EVD of covariance)
-  - Relationship: eigenvalues λᵢ = dᵢ²/(n−1), scores S = UD
-- **Variance explained by component k:** `λₖ / Σⱼ λⱼ`
-- **Standard deviations from SVD:** `σₗ = dₗ/√(n−1)` where dₗ is the l-th singular value.
-- **Mode of variation at ±2.5 SD:** `μ ± 2.5σₗ vₗ` (mean face ± 2.5 standard deviations along PC l)
+- **PCA objective:** $\max_v \text{Var}(Xv)$ subject to $\|v\| = 1$
+- **Covariance matrix decomposition (EVD):** $\Sigma = V\Lambda V^T$
+  - $V$: matrix of eigenvectors (loading vectors / principal axes)
+  - $\Lambda$: diagonal matrix of eigenvalues (variance along each PC)
+- **SVD of data matrix:** $X = UDV^T$
+  - $U$: left singular vectors (scores, up to scaling)
+  - $D$: diagonal matrix of singular values
+  - $V$: right singular vectors = loading vectors (same as from EVD of covariance)
+  - Relationship: eigenvalues $\lambda_i = d_i^2/(n-1)$, scores $S = UD$
+- **Variance explained by component $k$:** $\lambda_k / \sum_j \lambda_j$
+- **Standard deviations from SVD:** $\sigma_l = d_l/\sqrt{n-1}$ where $d_l$ is the $l$-th singular value.
+- **Mode of variation at $\pm 2.5$ SD:** $\mu \pm 2.5\sigma_l v_l$ (mean face ± 2.5 standard deviations along PC $l$)
 
 ### EVD vs SVD
-- **EVD** is computed on the **correlation or covariance matrix** Σ (size p×p).
-- **SVD** is computed on the **data matrix** X itself (size n×p).
-- Both give the same loading vectors V; use SVD for efficiency when n < p.
+- **EVD** is computed on the **correlation or covariance matrix** $\Sigma$ (size $p \times p$).
+- **SVD** is computed on the **data matrix** $X$ itself (size $n \times p$).
+- Both give the same loading vectors $V$; use SVD for efficiency when $n < p$.
 
 ### Pitfall: Scaling
 - PCA on **unscaled data**: dominated by high-variance features (units matter).
@@ -44,7 +44,7 @@ This week covers four related methods for finding low-dimensional subspaces in d
 ## 2. Sparse PCA
 
 ### Key Concepts
-- Standard PCA loadings use all p features (no zeros) — hard to interpret.
+- Standard PCA loadings use all $p$ features (no zeros) — hard to interpret.
 - Sparse PCA forces many loadings to be **exactly zero** → interpretable components.
 - Trade-off: sparse components explain less variance but are more interpretable.
 - Sparsity breaks the exact orthogonality of loadings (scores may also become correlated).
@@ -52,7 +52,7 @@ This week covers four related methods for finding low-dimensional subspaces in d
 ### Three Methods for Sparse PCA (as taught in exercises)
 
 #### Method A: Thresholding
-- Run standard PCA, then zero out all loadings with |loading| < threshold (e.g., 0.15).
+- Run standard PCA, then zero out all loadings with $|\text{loading}| < \text{threshold}$ (e.g., 0.15).
 - Scores must be **recomputed** after thresholding (using the modified loading matrix).
 - Warning: uncorrelatedness of scores is no longer guaranteed after thresholding.
 
@@ -70,8 +70,8 @@ This week covers four related methods for finding low-dimensional subspaces in d
 - Unlike Varimax, this can produce more anatomically interpretable components.
 
 ### Formulas
-- **Varimax criterion:** Maximize `Σⱼ Σₖ (vⱼₖ⁴) − (Σⱼ vⱼₖ²)²` (simplified) — maximizes variance of squared loadings.
-- **Elastic Net:** adds `λ₁‖v‖₁ + λ₂‖v‖₂²` penalty to induce sparsity.
+- **Varimax criterion:** Maximize $\sum_j \sum_k (v_{jk}^4) - (\sum_j v_{jk}^2)^2$ (simplified) — maximizes variance of squared loadings.
+- **Elastic Net:** adds $\lambda_1 \|v\|_1 + \lambda_2 \|v\|_2^2$ penalty to induce sparsity.
 
 ---
 
@@ -85,66 +85,65 @@ This week covers four related methods for finding low-dimensional subspaces in d
 - PLS fixes this by finding directions that **maximize covariance with y**.
 
 ### Objective
-- **PCA objective:** `max_v Var(Xv)`
-- **PLS objective:** `max_{u,v} Cov(Xu, Yv)` (for multivariate Y)
-- For univariate y: `max_α Corr²(y, Xα) · Var(Xα)`
-- Key identity: `Cov(Xu, Yv)² = Var(Xu) · Var(Yv) · Corr²(Xu, Yv)` — PLS explicitly balances variance and correlation.
-- The m-th PLS direction αₘ solves: `max_α Corr²(y, Xα) · Var(Xα)` subject to `‖α‖ = 1` and orthogonality to previous components.
+- **PCA objective:** $\max_v \text{Var}(Xv)$
+- **PLS objective:** $\max_{u,v} \text{Cov}(Xu, Yv)$ (for multivariate $Y$)
+- For univariate $y$: $\max_\alpha \text{Corr}^2(y, X\alpha) \cdot \text{Var}(X\alpha)$
+- Key identity: $\text{Cov}(Xu, Yv)^2 = \text{Var}(Xu) \cdot \text{Var}(Yv) \cdot \text{Corr}^2(Xu, Yv)$ — PLS explicitly balances variance and correlation.
+- The $m$-th PLS direction $\alpha_m$ solves: $\max_\alpha \text{Corr}^2(y, X\alpha) \cdot \text{Var}(X\alpha)$ subject to $\|\alpha\| = 1$ and orthogonality to previous components.
 
 ### PLS Algorithm (Iterative)
 
 **Variable Definitions:**
-- X ∈ ℝⁿˣᵖ: Standardized feature matrix (n samples, p features)
-- y ∈ ℝⁿ: Standardized target vector
-- M: Desired number of latent components (M ≤ p)
-- m: Current iteration counter (m = 1,...,M)
-- xⱼ^(m−1): j-th feature column after m−1 deflations
-- φ̂ₘⱼ: Weight (covariance) of feature j for component m
-- zₘ ∈ ℝⁿ: The m-th extracted latent component (score vector)
-- θ̂ₘ: Scalar regression coefficient for component m
-- ŷ^(m): Prediction vector at iteration m
+- $X \in \mathbb{R}^{n \times p}$: Standardized feature matrix ($n$ samples, $p$ features)
+- $y \in \mathbb{R}^n$: Standardized target vector
+- $M$: Desired number of latent components ($M \leq p$)
+- $m$: Current iteration counter ($m = 1,\ldots,M$)
+- $x_j^{(m-1)}$: $j$-th feature column after $m-1$ deflations
+- $\hat{\phi}_{mj}$: Weight (covariance) of feature $j$ for component $m$
+- $z_m \in \mathbb{R}^n$: The $m$-th extracted latent component (score vector)
+- $\hat{\theta}_m$: Scalar regression coefficient for component $m$
+- $\hat{y}^{(m)}$: Prediction vector at iteration $m$
 
 **Step 0: Initialization**
 - Standardize columns of X (mean 0, variance 1)
 - Standardize y (mean 0, variance 1)
-- Initialize: `ŷ^(0) = μ_y = 0` (since y is standardized)
-- Initialize features: `xⱼ^(0) = xⱼ` for j = 1,...,p
+- Initialize: $\hat{y}^{(0)} = \mu_y = 0$ (since y is standardized)
+- Initialize features: $x_j^{(0)} = x_j$ for $j = 1,\ldots,p$
 
-**Loop for m = 1 to M:**
+**Loop for $m = 1$ to $M$:**
 
 Step 1 — Calculate Weights (Covariance):
-```
-φ̂ₘⱼ = xⱼ^(m−1)^T y
-```
+
+$$\hat{\phi}_{mj} = x_j^{(m-1)^T} y$$
+
 Features highly correlated with y get larger weights.
 
 Step 2 — Construct Latent Component:
-```
-zₘ = Σⱼ φ̂ₘⱼ xⱼ^(m−1)
-```
-Weighted sum of features — the m-th PLS score.
+
+$$z_m = \sum_j \hat{\phi}_{mj} x_j^{(m-1)}$$
+
+Weighted sum of features — the $m$-th PLS score.
 
 Step 3 — Calculate Regression Coefficient:
-```
-θ̂ₘ = zₘ^T y / (zₘ^T zₘ)
-```
-OLS regression of y onto zₘ.
+
+$$\hat{\theta}_m = z_m^T y / (z_m^T z_m)$$
+
+OLS regression of $y$ onto $z_m$.
 
 Step 4 — Update Prediction:
-```
-ŷ^(m) = ŷ^(m−1) + θ̂ₘ zₘ
-```
+
+$$\hat{y}^{(m)} = \hat{y}^{(m-1)} + \hat{\theta}_m z_m$$
 
 Step 5 — Orthogonalize (Deflation):
-```
-xⱼ^(m) = xⱼ^(m−1) − (zₘ^T xⱼ^(m−1) / zₘ^T zₘ) zₘ    for j = 1,...,p
-```
-Strips variance explained by zₘ so the next component captures entirely new information.
+
+$$x_j^{(m)} = x_j^{(m-1)} - \frac{z_m^T x_j^{(m-1)}}{z_m^T z_m} z_m \quad \text{for } j = 1,\ldots,p$$
+
+Strips variance explained by $z_m$ so the next component captures entirely new information.
 
 **Key Properties of PLS:**
-- PLS latent components zᵢ and zⱼ are **uncorrelated** (orthogonal): `zᵢ^T zⱼ = 0` for i ≠ j.
-- **OLS Equivalence:** If M = p (keep all components), PLS predictions = OLS predictions.
-- Choosing M < p provides dimensionality reduction and regularization.
+- PLS latent components $z_i$ and $z_j$ are **uncorrelated** (orthogonal): $z_i^T z_j = 0$ for $i \neq j$.
+- **OLS Equivalence:** If $M = p$ (keep all components), PLS predictions = OLS predictions.
+- Choosing $M < p$ provides dimensionality reduction and regularization.
 
 ### Example Intuition
 - Wrist OCD data: X = wearable biosignals, y = OCD severity.
@@ -159,55 +158,54 @@ Strips variance explained by zₘ so the next component captures entirely new in
 ## 4. Canonical Correlation Analysis (CCA)
 
 ### Key Concepts
-- **Goal:** Find associations between **two data matrices** X (n×p) and Y (n×q).
-- Finds pairs of linear combinations (canonical variates) U = Xu and V = Yv that maximize correlation.
+- **Goal:** Find associations between **two data matrices** $X$ ($n \times p$) and $Y$ ($n \times q$).
+- Finds pairs of linear combinations (canonical variates) $U = Xu$ and $V = Yv$ that maximize correlation.
 - Unlike PLS, CCA **ignores internal variance** of X and Y; focuses purely on **cross-correlation**.
-- CCA produces at most `min(p, q)` canonical variate pairs.
+- CCA produces at most $\min(p, q)$ canonical variate pairs.
 
 ### Objective
-```
-max_{u,v}  Corr²(Yu_m, Xv_m)
-subject to  uₘ^T uⱼ = 0  and  vₘ^T vⱼ = 0  for m ≠ j
-```
+
+$$\max_{u,v} \; \text{Corr}^2(Yu_m, Xv_m) \quad \text{subject to} \quad u_m^T u_j = 0 \text{ and } v_m^T v_j = 0 \text{ for } m \neq j$$
+
 The linear combinations are uncorrelated across different pairs.
 
 ### CCA Formulation (Optimization)
-- Seek canonical variates U = Xu and V = Yv.
+- Seek canonical variates $U = Xu$ and $V = Yv$.
 - **Objective (ratio form):**
-```
-max_{u,v}  (u^T Σ_XY v) / sqrt(u^T Σ_XX u · v^T Σ_YY v)
-```
+
+$$\max_{u,v} \; \frac{u^T \Sigma_{XY} v}{\sqrt{u^T \Sigma_{XX} u \cdot v^T \Sigma_{YY} v}}$$
+
 Where:
-  - Σ_XY = X^T Y: cross-covariance matrix
-  - Σ_XX = X^T X: within-X covariance
-  - Σ_YY = Y^T Y: within-Y covariance
+  - $\Sigma_{XY} = X^T Y$: cross-covariance matrix
+  - $\Sigma_{XX} = X^T X$: within-X covariance
+  - $\Sigma_{YY} = Y^T Y$: within-Y covariance
 
 ### CCA Derivation: Lagrangian
-Maximize covariance subject to unit variance constraints: `u^T Σ_XX u = 1` and `v^T Σ_YY v = 1`.
+Maximize covariance subject to unit variance constraints: $u^T \Sigma_{XX} u = 1$ and $v^T \Sigma_{YY} v = 1$.
 
 Lagrangian:
-```
-L(u, v, λ₁, λ₂) = u^T Σ_XY v − (λ₁/2)(u^T Σ_XX u − 1) − (λ₂/2)(v^T Σ_YY v − 1)
-```
-Why constrain variance? Without constraints, algorithm scales u, v to infinity to make covariance arbitrarily large. Constraints force focus on structural relationship, not magnitude.
+
+$$L(u, v, \lambda_1, \lambda_2) = u^T \Sigma_{XY} v - \frac{\lambda_1}{2}(u^T \Sigma_{XX} u - 1) - \frac{\lambda_2}{2}(v^T \Sigma_{YY} v - 1)$$
+
+Why constrain variance? Without constraints, algorithm scales $u$, $v$ to infinity to make covariance arbitrarily large. Constraints force focus on structural relationship, not magnitude.
 
 ### CCA Solution: Generalized Eigenvalue Problem
 Taking partial derivatives and substituting yields:
-```
-Σ_XY Σ_YY⁻¹ Σ_YX u = λ² Σ_XX u
-```
-- u: canonical weights (eigenvectors)
-- λ: canonical correlation (sqrt of eigenvalues)
+
+$$\Sigma_{XY} \Sigma_{YY}^{-1} \Sigma_{YX} u = \lambda^2 \Sigma_{XX} u$$
+
+- $u$: canonical weights (eigenvectors)
+- $\lambda$: canonical correlation (sqrt of eigenvalues)
 - Python: `M = inv(S_XX) @ S_XY @ inv(S_YY) @ S_YX; eig_vals, eig_vecs = np.linalg.eig(M)`
   - Equivalent to `sklearn.cross_decomposition.CCA`
 
 ### Sparse and Regularized CCA
-- **Problem:** CCA requires inverting Σ_XX and Σ_YY. When p >> n, Σ_XX is **singular** (non-invertible) — CCA crashes.
-- **Regularized CCA (Ridge):** `(Σ_XX + λ_X I)⁻¹ Σ_XY ...` (adds λI to make invertible)
+- **Problem:** CCA requires inverting $\Sigma_{XX}$ and $\Sigma_{YY}$. When $p \gg n$, $\Sigma_{XX}$ is **singular** (non-invertible) — CCA crashes.
+- **Regularized CCA (Ridge):** $(\Sigma_{XX} + \lambda_X I)^{-1} \Sigma_{XY} \ldots$ (adds $\lambda I$ to make invertible)
   - References: Vinod 1976, Leurgans et al. 1993
-- **Sparse CCA (PMD — Penalized Matrix Decomposition):** Applies L1 penalties to u and v to yield sparse canonical vectors. Solves the invertibility problem + selects informative features.
+- **Sparse CCA (PMD — Penalized Matrix Decomposition):** Applies L1 penalties to $u$ and $v$ to yield sparse canonical vectors. Solves the invertibility problem + selects informative features.
   - Reference: Witten et al. 2009
-- Example: 3000 audio features, 50 patients → Σ_XX is singular. Sparse CCA solves this while zeroing out uninformative features.
+- Example: 3000 audio features, 50 patients → $\Sigma_{XX}$ is singular. Sparse CCA solves this while zeroing out uninformative features.
 
 ---
 
@@ -215,10 +213,10 @@ Taking partial derivatives and substituting yields:
 
 | Method | Objective | Supervised? | Two matrices? |
 |--------|-----------|-------------|---------------|
-| PCA | max Var(Xv) | No | No |
-| Sparse PCA | max Var(Xv) + sparsity | No | No |
-| PLS | max Cov(Xu, Yv) | Yes (y) | Optional |
-| CCA | max Corr²(Xu, Yv) | — | Yes (X and Y) |
+| PCA | $\max \text{Var}(Xv)$ | No | No |
+| Sparse PCA | $\max \text{Var}(Xv)$ + sparsity | No | No |
+| PLS | $\max \text{Cov}(Xu, Yv)$ | Yes (y) | Optional |
+| CCA | $\max \text{Corr}^2(Xu, Yv)$ | — | Yes (X and Y) |
 
 - **PCA vs PLS:** PCA maximizes variance in X only; PLS maximizes covariance between X and y.
 - **PLS vs CCA:** PLS balances variance and correlation; CCA ignores internal variance, focuses only on cross-correlation.
@@ -230,16 +228,16 @@ Taking partial derivatives and substituting yields:
 
 | Concept | Formula |
 |---------|---------|
-| PCA objective | `max_v Var(Xv)` s.t. `‖v‖=1` |
-| PLS objective | `max_{u,v} Cov(Xu, Yv)` |
-| PLS m-th direction | `max_α Corr²(y, Xα)·Var(Xα)` s.t. `‖α‖=1` |
-| CCA objective | `max_{u,v} (u^T Σ_XY v)/sqrt(u^T Σ_XX u · v^T Σ_YY v)` |
-| CCA eigenvalue problem | `Σ_XY Σ_YY⁻¹ Σ_YX u = λ² Σ_XX u` |
-| PLS weight step | `φ̂ₘⱼ = xⱼ^(m−1)^T y` |
-| PLS score | `zₘ = Σⱼ φ̂ₘⱼ xⱼ^(m−1)` |
-| PLS regression coeff | `θ̂ₘ = zₘ^T y / zₘ^T zₘ` |
-| PLS deflation | `xⱼ^(m) = xⱼ^(m−1) − (zₘ^T xⱼ^(m−1)/zₘ^T zₘ) zₘ` |
-| PLS orthogonality | `zᵢ^T zⱼ = 0` for i≠j |
-| Regularized CCA | `(Σ_XX + λI)⁻¹ Σ_XY ...` |
-| Variance explained | `λₖ/Σλⱼ` |
-| SVD standard deviation | `σₗ = dₗ/√(n−1)` |
+| PCA objective | $\max_v \text{Var}(Xv)$ s.t. $\|v\|=1$ |
+| PLS objective | $\max_{u,v} \text{Cov}(Xu, Yv)$ |
+| PLS $m$-th direction | $\max_\alpha \text{Corr}^2(y, X\alpha)\cdot\text{Var}(X\alpha)$ s.t. $\|\alpha\|=1$ |
+| CCA objective | $\max_{u,v} (u^T \Sigma_{XY} v)/\sqrt{u^T \Sigma_{XX} u \cdot v^T \Sigma_{YY} v}$ |
+| CCA eigenvalue problem | $\Sigma_{XY} \Sigma_{YY}^{-1} \Sigma_{YX} u = \lambda^2 \Sigma_{XX} u$ |
+| PLS weight step | $\hat{\phi}_{mj} = x_j^{(m-1)^T} y$ |
+| PLS score | $z_m = \sum_j \hat{\phi}_{mj} x_j^{(m-1)}$ |
+| PLS regression coeff | $\hat{\theta}_m = z_m^T y / z_m^T z_m$ |
+| PLS deflation | $x_j^{(m)} = x_j^{(m-1)} - (z_m^T x_j^{(m-1)}/z_m^T z_m) z_m$ |
+| PLS orthogonality | $z_i^T z_j = 0$ for $i \neq j$ |
+| Regularized CCA | $(\Sigma_{XX} + \lambda I)^{-1} \Sigma_{XY} \ldots$ |
+| Variance explained | $\lambda_k/\sum_j \lambda_j$ |
+| SVD standard deviation | $\sigma_l = d_l/\sqrt{n-1}$ |
