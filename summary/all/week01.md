@@ -35,6 +35,37 @@ $$= \sigma^2 + (E[\hat{f}] - f)^2 + E[(\hat{f} - E[\hat{f}])^2]$$
 
 Steps use: $E(y) = f$, linearity of expectation, $E(X^2) = E(X)^2$ for constants, cross-terms vanish.
 
+**Why the cross-terms vanish — full derivation:**
+
+Let $A = \varepsilon$, $B = (f - E[\hat{f}])$, $C = (E[\hat{f}] - \hat{f})$. The expansion of $(A+B+C)^2$ produces three cross-terms: $2E[AB]$, $2E[BC]$, $2E[AC]$.
+
+**Term 1 — Noise × Bias: $2E[AB] = 2E[\varepsilon \cdot (f - E[\hat{f}])]$**
+
+$(f - E[\hat{f}])$ is a constant (true $f$ is fixed; $E[\hat{f}]$ is fixed). Pull it out:
+
+$$2(f - E[\hat{f}]) \cdot E[\varepsilon] = 0$$
+
+because $E[\varepsilon] = 0$ by assumption. Random noise averages to zero regardless of model bias.
+
+**Term 2 — Bias × Model Deviation: $2E[BC] = 2E[(f - E[\hat{f}]) \cdot (E[\hat{f}] - \hat{f})]$**
+
+Again $(f - E[\hat{f}])$ is constant, so:
+
+$$2(f - E[\hat{f}]) \cdot E[E[\hat{f}] - \hat{f}] = 2(f - E[\hat{f}]) \cdot (E[\hat{f}] - E[\hat{f}]) = 0$$
+
+The average deviation of a model from its own average is zero by definition.
+
+**Term 3 — Noise × Model Deviation: $2E[AC] = 2E[\varepsilon \cdot (E[\hat{f}] - \hat{f})]$**
+
+$\varepsilon$ comes from the **test point**; $\hat{f}$ was built from **training data**. They are independent, so $E[XY] = E[X]E[Y]$:
+
+$$2\,E[\varepsilon] \cdot E[E[\hat{f}] - \hat{f}] = 2 \cdot 0 \cdot 0 = 0$$
+
+**Three conditions required for cross-terms to vanish:**
+1. $E[\varepsilon] = 0$ — noise is zero-mean
+2. Linearity of $E$ — expectation passes through sums
+3. Independence — test noise $\varepsilon$ is independent of training data used to build $\hat{f}$
+
 ### Bias-Variance Tradeoff
 - **Complex models** (many parameters): Low bias, high variance.
 - **Simple models** (few parameters): High bias, low variance.
@@ -51,10 +82,25 @@ Steps use: $E(y) = f$, linearity of expectation, $E(X^2) = E(X)^2$ for constants
 - OLS is unbiased: $E[\hat{\boldsymbol{\beta}}] = \boldsymbol{\beta}$
 - OLS has the smallest variance among all linear unbiased estimators (Gauss-Markov theorem)
 
+**Proof that OLS is unbiased:**
+
+Assume the true model is $\mathbf{y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{\varepsilon}$ with $E[\boldsymbol{\varepsilon}] = 0$. Substitute into the OLS formula:
+
+$$\hat{\boldsymbol{\beta}} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T(\mathbf{X}\boldsymbol{\beta} + \boldsymbol{\varepsilon}) = \underbrace{(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{X}}_{\mathbf{I}}\boldsymbol{\beta} + (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\boldsymbol{\varepsilon} = \boldsymbol{\beta} + (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\boldsymbol{\varepsilon}$$
+
+The estimate = truth + scaled noise. Take expectations ($\mathbf{X}$ is fixed):
+
+$$E[\hat{\boldsymbol{\beta}}] = \boldsymbol{\beta} + (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T E[\boldsymbol{\varepsilon}] = \boldsymbol{\beta} + 0 = \boldsymbol{\beta}$$
+
+**Two assumptions required:**
+1. **Correct specification** — the true relationship is linear ($\mathbf{y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{\varepsilon}$). Missing variables or nonlinearity causes bias.
+2. **Exogeneity** — $E[\boldsymbol{\varepsilon} \mid \mathbf{X}] = 0$. If $\boldsymbol{\varepsilon}$ is correlated with $\mathbf{X}$ (omitted variable bias), $E[\boldsymbol{\varepsilon}]$ does not drop out and OLS is biased.
+
 ### Problems with OLS
-- When $p$ is large or predictors are correlated, $(\mathbf{X}^T \mathbf{X})$ may be nearly singular → large variance.
+- When $p$ is large or predictors are correlated, $(\mathbf{X}^T \mathbf{X})$ may be nearly singular → large variance (multicollinearity).
 - In high-dimensional settings ($p > n$), $(\mathbf{X}^T \mathbf{X})$ is not invertible.
 - OLS uses all features: no automatic variable selection.
+- **The trade-off**: OLS is unbiased but can have high variance. Ridge/Lasso intentionally introduce bias to reduce variance, often achieving lower overall EPE.
 
 ### Linear Fitting — Hat Matrix
 - Predictions: $\hat{\mathbf{Y}} = \mathbf{X}(\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{Y} = \mathbf{S}\mathbf{Y}$ where $\mathbf{S} = \mathbf{X}(\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T$ is the hat matrix.
