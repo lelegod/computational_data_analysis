@@ -24,7 +24,7 @@ The key differences: supervision, covariance structure, fitting method, goal.
 | Decision boundary | Linear | Quadratic (or nonlinear) |
 | Latent variables | None ($y_i$ observed) | $Z_i$ = unobserved cluster assignment |
 | Converges to global? | Yes (closed-form) | Local maximum only |
-| K selection | $K$ = number of classes (known) | $K$ chosen by BIC or CORCONDIA |
+| K selection | $K$ = number of classes (known) | $K$ chosen by BIC or AIC (CORCONDIA is for PARAFAC, not GMM) |
 
 ---
 

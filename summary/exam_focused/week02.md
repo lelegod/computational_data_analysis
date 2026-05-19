@@ -66,14 +66,16 @@
 - Generalises $C_p$ to models with any likelihood:
   $$AIC = -\frac{2}{N}\log L + \frac{2d}{N}$$
 - For the Gaussian case: $AIC(\lambda) = \overline{err}(\lambda) + 2\frac{d(\lambda)}{N}\hat{\sigma}_\varepsilon^2$ (same as $C_p$).
+- **AIC is asymptotically equivalent to leave-one-out cross-validation** (Stone, 1977).
 - Choose model with **minimum AIC**.
 
 ### BIC (Bayes Information Criterion)
 - Penalises complexity more aggressively than AIC for large $N$:
   $$BIC = -2\log L + d\log N$$
-- BIC penalty $\propto d\log N$ grows with $N$; AIC penalty $\propto 2d$ does not.
+- BIC penalty $\propto d\log N$ grows with $N$; AIC penalty $\propto 2d$ does not. (Both penalties stated in the unscaled $\times N$ form for comparison; the formula above uses the $1/N$-scaled form.)
 - For $N > e^2 \approx 7$: BIC penalises more than AIC → selects **simpler** models.
-- BIC is consistent (selects the true model as $N \to \infty$); AIC is not.
+- BIC is **consistent** (selects the true model as $N \to \infty$); AIC is **not consistent** (over-selects complex models asymptotically).
+- Use AIC when goal is **prediction**; use BIC when goal is **model identification** (true model believed to be in the candidate set).
 
 ---
 
@@ -103,6 +105,9 @@
 - ❌ Small $K$ in KNN means smoother boundaries → ✓ Small $K$ means JAGGED/complex boundaries (low bias); large $K$ is smoother (high bias)
 - ❌ BIC is consistent and so is AIC → ✓ BIC is consistent (recovers true model asymptotically); AIC is NOT consistent (overfits as $N \to \infty$)
 - ❌ $C_p$ and AIC are unrelated → ✓ For Gaussian models, $C_p$ and AIC are IDENTICAL
+- ❌ AIC and CV are unrelated → ✓ AIC is asymptotically equivalent to LOO-CV (Stone 1977)
+- ❌ BIC is consistent so AIC must be too → ✓ Only BIC is consistent; AIC over-selects at large $N$
+- ❌ Use BIC for prediction, AIC for model identification → ✓ It's the OPPOSITE: AIC = prediction, BIC = identification
 
 ---
 

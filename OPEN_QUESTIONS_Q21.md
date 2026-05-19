@@ -126,7 +126,7 @@ $$w \leftarrow E[\tilde{x}\,g(w^T\tilde{x})] - E[g'(w^T\tilde{x})]w, \quad w \le
 | Boundary | Linear | Nonlinear |
 | Latent vars | None | $Z_i$ = unobserved cluster |
 
-**Why LDA boundary is linear**: log-ratio $\log[P(C_k|x)/P(C_{k'}|x)]$ contains $-\frac{1}{2}x^T\Sigma^{-1}x$ in both terms → **cancels** when $\Sigma$ is shared → linear in $x$.
+**Why LDA boundary is linear**: log-ratio $\log[P(C_k|x)/P(C_{k'}|x)] = \log(\pi_k/\pi_{k'}) + x^T\Sigma^{-1}(\mu_k-\mu_{k'}) - \frac{1}{2}(\mu_k^T\Sigma^{-1}\mu_k - \mu_{k'}^T\Sigma^{-1}\mu_{k'})$ — the quadratic $-\frac{1}{2}x^T\Sigma^{-1}x$ term appears in both numerator and denominator and **cancels** when $\Sigma$ is shared → linear in $x$. (The prior term $\log(\pi_k/\pi_{k'})$ only vanishes if classes are equally frequent.)
 
 With unequal $\Sigma_k$ (QDA): quadratic terms don't cancel → quadratic boundary.
 

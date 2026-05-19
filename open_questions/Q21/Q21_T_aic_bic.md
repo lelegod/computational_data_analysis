@@ -48,7 +48,7 @@ $$\text{BIC} = -2\ell(\hat{\theta}) + p\log N$$
 | Consistent? | No — over-selects complex models as $N\to\infty$ | Yes — selects true model as $N\to\infty$ (if in candidate set) |
 | When true model in set | May over-select | Selects correctly for large $N$ |
 | When true model NOT in set | Better approximation | Worse (penalizes too much) |
-| Small $N$ | Can over-penalize with $\log N$ correction | May underpenalize for very small $N$ |
+| Small $N$ | Under-penalizes (AICc was introduced to correct this bias at small $N$) | May over-penalize for very small $N$ (large $\log N$ effect) |
 | Typical use | Predictive modeling, time series (ARIMA) | Model identification, variable selection |
 
 **Rule**: use AIC when you want the best predictive model. Use BIC when you believe the true model is in the candidate set and want to identify it.

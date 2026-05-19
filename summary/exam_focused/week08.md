@@ -18,7 +18,7 @@
 - Sparse PCA zeros out many loadings for interpretability.
 - **Three methods:** Thresholding, Varimax rotation, Elastic Net.
 - After **thresholding**, scores must be **recomputed** from the new loading matrix.
-- After thresholding or Varimax: **uncorrelatedness of scores is NOT guaranteed**.
+- After thresholding, Varimax, or Elastic Net: **uncorrelatedness of scores is NOT guaranteed** (all three methods break PCA orthogonality).
 - Elastic Net (L1 + L2 penalty) produces the most principled sparse solution.
 
 ### PLS
@@ -33,7 +33,7 @@
 
 ### CCA
 - CCA finds associations between **two matrices X and Y**.
-- CCA objective: $\max \text{Corr}^2(Yu_m, Xv_m)$ — pure correlation, no variance emphasis.
+- CCA objective: $\max \text{Corr}^2(Xu_m, Yv_m)$ — pure correlation, no variance emphasis ($u$ paired with $X$, $v$ with $Y$).
 - CCA ignores internal variance of X and Y; PLS does not.
 - CCA requires inverting $\Sigma_{XX}$ and $\Sigma_{YY}$ — fails when $p > n$ (singular matrices).
 - **Regularized CCA (Ridge):** adds $\lambda I$ to covariance matrices before inverting.

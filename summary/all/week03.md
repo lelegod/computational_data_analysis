@@ -304,21 +304,26 @@ Given $m$ tests with null hypotheses $H_1, \ldots, H_m$ and p-values $p_1, \ldot
 2. For chosen $q$, find: $k = \max\!\left\{i : p_{(i)} \leq \frac{i}{m}q\right\}$
 3. Reject $H_{(1)}, H_{(2)}, \ldots, H_{(k)}$ (all up to and including $k$).
 
-**Intuition**: Walk down sorted p-values. Reject while $\frac{i}{m}q$ is greater than or equal to $p_{(i)}$. Stop when it fails — do NOT continue after a failure. The threshold $\frac{i}{m}q$ increases linearly.
+**Intuition**: Find the LAST rank $k$ where $p_{(k)} \leq \frac{k}{m}q$, then reject all hypotheses 1 through $k$. The threshold $\frac{i}{m}q$ increases linearly. Do NOT stop at the first failure — a later rank might still pass (non-monotone crossing is possible). Always scan to the end and find the rightmost passing rank.
 
 **$q$ is your choice** of acceptable fraction of mistakes. Typically $\alpha = 0.05$ for single tests, but $q = 0.1$ or $0.2$ for FDR (different type of error control).
 
 ### BH Example 1 ($m=5$, $q=0.1$, p-values: 0.01, 0.05, 0.1, 0.4, 0.6)
 - $i=1$: $0.01 \leq \frac{1}{5}(0.1) = 0.02$ → ✓ (pass)
-- $i=2$: $0.05 \leq \frac{2}{5}(0.1) = 0.04$ → ✗ (fail — stop)
-- $k=1$, reject only $H_{(1)}$.
+- $i=2$: $0.05 \leq \frac{2}{5}(0.1) = 0.04$ → ✗
+- $i=3$: $0.10 \leq \frac{3}{5}(0.1) = 0.06$ → ✗
+- $i=4$: $0.40 \leq 0.08$ → ✗
+- $i=5$: $0.60 \leq 0.10$ → ✗
+- Last passing rank: $k=1$, reject only $H_{(1)}$.
 
 ### BH Example 2 ($m=5$, $q=0.20$, p-values: 0.01, 0.03, 0.15, 0.40, 0.50)
 Thresholds: $\frac{1}{5}\times 0.20=0.04$, $\frac{2}{5}\times 0.20=0.08$, $\frac{3}{5}\times 0.20=0.12$, $\frac{4}{5}\times 0.20=0.16$, $\frac{5}{5}\times 0.20=0.20$
 - $i=1$: $0.01 \leq 0.04$ → ✓
 - $i=2$: $0.03 \leq 0.08$ → ✓
-- $i=3$: $0.15 \leq 0.12$ → ✗ (fail — stop)
-- $k=2$, reject $H_{(1)}$ and $H_{(2)}$. **Answer B** (first and second).
+- $i=3$: $0.15 \leq 0.12$ → ✗
+- $i=4$: $0.40 \leq 0.16$ → ✗
+- $i=5$: $0.50 \leq 0.20$ → ✗
+- Last passing rank: $k=2$, reject $H_{(1)}$ and $H_{(2)}$.
 
 ### Comparison: Bonferroni vs BH
 | | Bonferroni | BH (FDR) |

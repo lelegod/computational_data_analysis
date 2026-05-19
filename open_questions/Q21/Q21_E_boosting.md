@@ -117,7 +117,7 @@ The base learner must:
 Yes, in the presence of noisy labels. If some $y_i$ are mislabeled, AdaBoost eventually concentrates all weight on those noisy points (exponential loss is unbounded) and memorizes them. Gradient boosting with shrinkage $\nu < 1$ and early stopping (via CV) avoids this.
 
 **Q: What is the AdaBoost training error bound?**
-$$\text{Training error} \leq \prod_m 2\sqrt{\text{err}_m(1-\text{err}_m)} = \prod_m \exp(-\gamma_m^2/2)$$
+$$\text{Training error} \leq \prod_m 2\sqrt{\text{err}_m(1-\text{err}_m)} = \prod_m \exp(-2\gamma_m^2)$$
 where $\gamma_m = 0.5 - \text{err}_m > 0$ is the edge above random. If each weak learner has edge $\gamma > 0$, training error decreases exponentially to zero. This is the **boosting theorem**.
 
 **Q: Compare AdaBoost to logistic regression.**

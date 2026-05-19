@@ -27,6 +27,14 @@
 - Mixing model: $x = As$; goal is to find $W \approx A^{-1}$ such that $\hat{s} = Wx$ separates sources
 - ICA CANNOT separate Gaussian-distributed sources — CLT argument breaks down for Gaussians
 - Strategy: find $W$ that maximizes non-Gaussianity of estimated signals
+- **Why maximizing non-Gaussianity works (the "paradox" resolved):**
+  - CLT and ICA run in **opposite directions**:
+    - Mixing direction: non-Gaussian sources $\xrightarrow{x = As}$ more Gaussian mixed signals (CLT)
+    - Unmixing direction: ICA finds $W$ that reverses this — recovering non-Gaussianity
+  - A **wrong** $W$: output is still a blend of multiple sources → still partially Gaussian
+  - The **correct** $W$: output = original sources → spiky/non-Gaussian (speech, images)
+  - Non-Gaussianity is a **compass needle** — it points toward the unmixed sources; maximizing it finds $A^{-1}$
+  - Gaussian sources are unidentifiable: all rotations of a multivariate Gaussian are equally Gaussian → no compass
 - Excess kurtosis $= \mu_4/\sigma^4 - 3$; Gaussian $= 0$; Laplace $= 3$; Uniform $= -1.2$
 - Whitening (pre-processing): transform data so $\mathbb{E}[\tilde{x}\tilde{x}^T] = I$ — makes $A$ orthogonal, reduces search to rotations only
 - FastICA iteration: $w_\text{new} \leftarrow \mathbb{E}[\tilde{x}\, g(w^T \tilde{x})] - \mathbb{E}[g'(w^T \tilde{x})]\, w$; then normalize $w \leftarrow w/\|w\|$

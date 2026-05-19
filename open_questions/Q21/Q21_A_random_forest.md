@@ -41,7 +41,7 @@ $$\text{Var}(\text{average}) = \rho\sigma^2 + \frac{1-\rho}{B}\sigma^2$$
 As $B\to\infty$: $\rho\sigma^2$ remains. Random feature subsampling reduces $\rho$ → reduces this irreducible floor.
 
 ### Step 5: OOB Error Estimate (Free Validation)
-- For observation $i$: predict using only the ~$B/3$ trees where $i$ was NOT in the bootstrap sample
+- For observation $i$: predict using only the ~$0.368B$ trees where $i$ was NOT in the bootstrap sample (each tree leaves out ~36.8% of observations, not $1/3$)
 - Aggregate these OOB predictions → OOB error
 - OOB error $\approx$ LOO-CV error — no extra computation needed
 

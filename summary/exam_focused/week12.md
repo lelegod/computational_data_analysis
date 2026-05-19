@@ -40,7 +40,7 @@
 - Scalar form: $x_{ijk} \approx \sum_{r=1}^R a_{ir}\, b_{jr}\, c_{kr}$
 - Matrix form: $X_{(1)} \approx A\,(C \odot B)^T$ (uses Khatri-Rao product $\odot$, NOT Kronecker)
 - ALS update for $A$: $A \leftarrow X_{(1)}\,(C \odot B)\,(C^T C * B^T B)^{-1}$
-- Note: $(C^T C * A^T A) = (C \odot A)^T(C \odot A)$ where $*$ = Hadamard (element-wise) product
+- General identity: $(P^T P * Q^T Q) = (P \odot Q)^T(P \odot Q)$ where $*$ = Hadamard product — applies to B-update denominator $(C^TC * A^TA)$ and C-update denominator $(B^TB * A^TA)$, not the A-update denominator $(C^TC * B^TB)$
 - PARAFAC IS essentially unique — a major advantage over Tucker
 - PARAFAC is good for RESOLVING ADDITIVE PHYSICAL PROFILES (spectra, kinetics)
 - PARAFAC components are NOT nested — changing $R$ changes all components

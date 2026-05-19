@@ -76,7 +76,7 @@
 | Formula | What it is | When to use |
 |---------|-----------|-------------|
 | $\|\boldsymbol{\beta}\|_2^2 = \sum_j \beta_j^2$ | $L_2$ norm (Ridge penalty) | Ridge regression |
-| $\|\boldsymbol{\beta}\|_1 = \sum_j \|\beta_j\|$ | $L_1$ norm (Lasso penalty) | Lasso regression |
+| $\|\boldsymbol{\beta}\|_1 = \sum_j |\beta_j|$ | $L_1$ norm (Lasso penalty) | Lasso regression |
 | Ridge: $\min\ (\mathbf{Y}-\mathbf{X}\boldsymbol{\beta})^T(\mathbf{Y}-\mathbf{X}\boldsymbol{\beta}) + \lambda\boldsymbol{\beta}^T\boldsymbol{\beta}$ | Ridge objective | Ridge |
 | Ridge solution: $\hat{\boldsymbol{\beta}} = (\mathbf{X}^T\mathbf{X}+\lambda\mathbf{I})^{-1}\mathbf{X}^T\mathbf{y}$ | Closed form | Ridge |
 | Lasso: $\min\ (\mathbf{Y}-\mathbf{X}\boldsymbol{\beta})^T(\mathbf{Y}-\mathbf{X}\boldsymbol{\beta}) + \lambda\|\boldsymbol{\beta}\|_1$ | Lasso objective | Lasso |

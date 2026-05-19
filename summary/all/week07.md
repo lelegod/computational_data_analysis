@@ -45,8 +45,8 @@ SVMs find the optimal hyperplane that maximally separates two classes by maximiz
 
 ### Key Concepts
 - **Canonical scaling / Canonical Hyperplane:** We fix the scale so that for Support Vectors: $|x_i^T \beta + \beta_0| = 1$
-- With canonical scaling, the margin width becomes: $C = 1/\|\beta\|$
-- To maximize $C = 1/\|\beta\|$, we minimize $\|\beta\|$, equivalently minimize $\|\beta\|^2$.
+- With canonical scaling, the half-margin (boundary to one support hyperplane) is $1/\|\beta\|$; the **total margin width** (full gap between support hyperplanes) is $2/\|\beta\|$.
+- To maximize the total margin $2/\|\beta\|$, we minimize $\|\beta\|$, equivalently minimize $\frac{1}{2}\|\beta\|^2$.
 
 ### Primal Formulation
 - **Geometric Goal**: $\arg\max_{\beta,\beta_0} C$ subject to $y_i(x_i^T \beta + \beta_0)/\|\beta\| \geq C \; \forall i$
@@ -182,7 +182,8 @@ $$
 |---------|---------|
 | Decision function | $\hat{y} = \text{sign}(\beta_0 + x^T \beta)$ |
 | Point-to-plane distance | $d = (x_i^T \beta + \beta_0) / \|\beta\|$ |
-| Margin width (canonical) | $C = 1/\|\beta\|$ |
+| Total margin width (canonical) | $2/\|\beta\|$ |
+| Half-margin (boundary to one support hyperplane) | $1/\|\beta\|$ |
 | Primal SVM | $\min \frac{1}{2}\|\beta\|^2$ s.t. $y_i(x_i^T \beta + \beta_0) \geq 1$ |
 | Lagrangian | $L_P = \frac{1}{2}\|\beta\|^2 - \sum_i \alpha_i[y_i(x_i^T \beta + \beta_0) - 1]$ |
 | Dual SVM | $\max_{\alpha} \sum_i \alpha_i - \frac{1}{2}\sum_i\sum_j \alpha_i\alpha_j y_i y_j \langle x_i, x_j \rangle$ |

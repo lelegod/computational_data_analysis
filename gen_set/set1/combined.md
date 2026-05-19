@@ -246,7 +246,7 @@ $$\min_{\beta,\beta_0} \frac{1}{2}\|\beta\|^2 \quad \text{subject to } y_i(x_i^T
 
 Which of the following statements are correct?
 
-A. The margin width in the canonical SVM is $C = 1/\|\beta\|$, so minimizing $\|\beta\|^2$ is equivalent to maximizing the margin.  
+A. The total margin width in the canonical SVM is $2/\|\beta\|$, so minimizing $\|\beta\|^2$ is equivalent to maximizing the margin.  
 B. Non-support vectors (points far from the margin) have Lagrange multipliers $\alpha_i > 0$, and support vectors have $\alpha_i = 0$.  
 C. The RBF (Gaussian) kernel $K(x, x') = \exp(-\gamma\|x - x'\|^2)$ mathematically corresponds to a dot product in an infinite-dimensional feature space.  
 D. The SVM dual formulation expresses the problem purely in terms of inner products $\langle x_i, x_j \rangle$, enabling the kernel trick.  
@@ -254,7 +254,7 @@ E. None of the above.
 
 #### Answer: **A, C, D**
 
-- **A ✓** — Margin width $= 1/\|\beta\|$; minimizing $(1/2)\|\beta\|^2$ maximizes the margin.
+- **A ✓** — Total margin width $= 2/\|\beta\|$ (distance from $+1$ support hyperplane to $-1$ support hyperplane); minimizing $(1/2)\|\beta\|^2$ maximizes this margin.
 - **B ✗** — Reversed. KKT: non-support vectors (bracket $> 0$) have $\alpha_i = 0$; support vectors (bracket $= 0$) have $\alpha_i > 0$.
 - **C ✓** — The RBF kernel corresponds to a dot product in an infinite-dimensional RKHS.
 - **D ✓** — Dual: $\max_\alpha \sum\alpha_i - (1/2)\sum_i\sum_j \alpha_i\alpha_j y_i y_j \langle x_i, x_j \rangle$ — data appear only as inner products.

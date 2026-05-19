@@ -5,7 +5,7 @@
 - SVM finds the hyperplane that **maximizes the margin** (distance to nearest points of each class).
 - Classes are labeled **+1 and −1** (not 0 and 1).
 - $\beta$ is **orthogonal (perpendicular)** to the hyperplane.
-- The margin width is $C = 1/\|\beta\|$ — maximizing margin = minimizing $\|\beta\|$.
+- The **total margin width** is $2/\|\beta\|$ (gap between the two support hyperplanes $x^T\beta+\beta_0 = \pm1$). The half-margin (boundary to one side) is $1/\|\beta\|$. Maximizing total margin = minimizing $\|\beta\|$.
 - The **primal SVM** minimizes $\frac{1}{2}\|\beta\|^2$ subject to $y_i(x_i^T\beta + \beta_0) \geq 1$.
 - The constraint $y_i(x_i^T\beta + \beta_0) \geq 1$ ensures each point is at least 1 canonical unit from the boundary.
 - SVM is solved by **Quadratic Programming** (convex objective, linear constraints).
@@ -31,7 +31,8 @@
 |---------|------------|-------------|
 | $\hat{y} = \text{sign}(\beta_0 + x^T \beta)$ | Decision function | Classifying new points |
 | $d = (x_i^T \beta + \beta_0) / \|\beta\|$ | Signed distance to hyperplane | Deriving margin |
-| $C = 1/\|\beta\|$ | Margin width (canonical scaling) | Understanding what SVM maximizes |
+| $2/\|\beta\|$ | Total margin width (canonical scaling) | Understanding what SVM maximizes |
+| $1/\|\beta\|$ | Half-margin (boundary to one support hyperplane) | Deriving the total margin |
 | $\min \frac{1}{2}\|\beta\|^2$ s.t. $y_i(x_i^T\beta+\beta_0)\geq 1$ | Primal SVM (OSH) | Setting up the optimization |
 | $L_P = \frac{1}{2}\|\beta\|^2 - \sum_i \alpha_i[y_i(x_i^T\beta+\beta_0)-1]$ | Lagrangian (primal) | Deriving dual |
 | $\max_{\alpha} \sum_i \alpha_i - \frac{1}{2}\sum_i\sum_j \alpha_i\alpha_j y_i y_j \langle x_i,x_j \rangle$ | Dual SVM | Kernel trick entry point |
@@ -51,7 +52,7 @@
 - **❌ The RBF kernel maps to a finite-dimensional space** → ✓ The RBF kernel corresponds to an infinite-dimensional feature space.
 - **❌ Weak duality means $d^* = p^*$** → ✓ Weak duality means $d^* \leq p^*$; strong duality means $d^* = p^*$.
 - **❌ $\beta$ is parallel to the hyperplane** → ✓ $\beta$ is orthogonal (perpendicular) to the hyperplane.
-- **❌ Maximizing the margin means maximizing $\|\beta\|$** → ✓ $C = 1/\|\beta\|$, so maximizing margin means MINIMIZING $\|\beta\|$.
+- **❌ Maximizing the margin means maximizing $\|\beta\|$** → ✓ Total margin $= 2/\|\beta\|$, so maximizing margin means MINIMIZING $\|\beta\|$ (equivalently minimizing $\frac{1}{2}\|\beta\|^2$).
 - **❌ The constraint is $y_i(x_i^T\beta+\beta_0) \geq 0$** → ✓ The canonical constraint is $\geq 1$ (not zero).
 - **❌ Labels are 0 and 1 in SVM** → ✓ Labels are **−1 and +1** in SVM math.
 

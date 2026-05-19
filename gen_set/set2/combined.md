@@ -165,7 +165,7 @@ $$\min_{\beta,\beta_0} \frac{1}{2}\|\beta\|^2 \quad \text{subject to} \quad y_i(
 
 Which of the following are correct?
 
-A. The margin width in the canonical formulation equals $1/\|\beta\|$.
+A. The total margin width in the canonical formulation equals $2/\|\beta\|$ (the half-margin from the decision boundary to one support hyperplane is $1/\|\beta\|$).
 B. A point $x_i$ is a support vector if and only if its Lagrange multiplier $\alpha_i > 0$.
 C. In the dual formulation, the training data appear only as pairwise dot products $\langle x_i, x_j \rangle$, enabling the kernel trick.
 D. Strong duality (zero duality gap) holds for the SVM problem because the problem is convex and Slater's condition is satisfied.
@@ -173,7 +173,7 @@ E. None of the above.
 
 #### Answer: **A, B, C, D**
 
-- **A ✓** — With canonical scaling $|x_i^T\beta + \beta_0| = 1$ for support vectors, the signed distance for a support vector is $1/\|\beta\|$, so the total margin (from $+1$ to $-1$ boundary) is $2/\|\beta\|$, and the half-margin is $1/\|\beta\|$.
+- **A ✓** — With canonical scaling $|x_i^T\beta + \beta_0| = 1$ for support vectors, the signed distance from the decision boundary to a support vector is $1/\|\beta\|$, so the total margin (from $+1$ support hyperplane to $-1$ support hyperplane) is $2/\|\beta\|$.
 - **B ✓** — This follows directly from KKT complementary slackness: $\alpha_i[y_i(x_i^T\beta+\beta_0)-1]=0$. If a point is not on the margin (bracket $> 0$), $\alpha_i$ must be 0. Support vectors have $\alpha_i > 0$, so they sit exactly on the margin.
 - **C ✓** — The dual objective $\sum\alpha_i - (1/2)\sum_i\sum_j \alpha_i\alpha_j y_i y_j \langle x_i, x_j \rangle$ contains $x_i$ only inside inner products — replacing $\langle x_i, x_j \rangle$ with $K(x_i, x_j)$ is the kernel trick.
 - **D ✓** — The SVM primal is convex (quadratic objective, linear constraints). Slater's condition (existence of strictly feasible point) holds for separable data, so strong duality applies.

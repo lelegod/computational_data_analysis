@@ -18,7 +18,7 @@ $$X \approx WH, \quad W^TW = I_K, \quad HH^T = \Lambda \text{ (diagonal)}$$
 
 **Objective**: Minimize $\|X - WH\|_F^2$ subject to orthogonality.
 
-**Solution**: $H$ = top $K$ right singular vectors of $X$; $W$ = scores $XV^T$.
+**Solution**: $H$ = top $K$ right singular vectors of $X$ (rows of $V^T$); $W$ = PC scores $XV = UD$.
 
 **Properties**:
 - Unique (up to sign flip per component)

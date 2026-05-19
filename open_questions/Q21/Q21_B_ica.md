@@ -23,6 +23,34 @@ $$x = As, \quad x \in \mathbb{R}^p, \; A \in \mathbb{R}^{p\times p}, \; s \in \m
 
 **Formal condition**: At most one source may be Gaussian for ICA to work.
 
+### The "Paradox" Resolved: CLT and ICA Run in Opposite Directions
+
+A common confusion: *ICA wants to maximize non-Gaussianity, but CLT says mixtures of non-Gaussian signals become more Gaussian — isn't that a contradiction?*
+
+They operate in **opposite directions**:
+
+```
+MIXING direction (what CLT describes):
+  non-Gaussian sources  →  mixed signals  →  more Gaussian
+  s₁, s₂ (spiky speech)     x = As           (CLT kicks in)
+
+UNMIXING direction (what ICA does):
+  mixed signals  →  search over W  →  recovered sources
+  x (more Gaussian)   Wx = ŝ            (non-Gaussian again)
+```
+
+The CLT tells you what **mixing destroys** (non-Gaussianity). ICA exploits that fact to **undo** the mixing.
+
+**Why maximizing non-Gaussianity finds the right $W$:**
+- If $W$ is **wrong**: $\hat{s} = Wx$ is still a partial blend of multiple sources → still looks relatively Gaussian (CLT effect not fully reversed)
+- If $W$ is **right**: $\hat{s} = A^{-1}x = s$, the original sources → spiky, high-kurtosis signals (speech, music, EEG artifacts)
+
+Non-Gaussianity acts as a **compass needle**: it increases monotonically as you approach the true $W = A^{-1}$. Maximizing it navigates you there.
+
+**Concrete example**: Two Uniform$[-1,1]$ sources (flat, very non-Gaussian). Mix them 50/50:
+$$x = 0.5s_1 + 0.5s_2 \sim \text{Triangular}[-1,1]$$
+The mixture is already more bell-shaped. Mix more sources: increasingly Gaussian. Now search for $W$: only the $W$ that perfectly separates the two uniforms recovers flat (non-Gaussian) outputs. Any partial unmixing still partially blends → still more Gaussian. The maximum non-Gaussianity is achieved exactly at $W = A^{-1}$.
+
 ---
 
 ## Measuring Non-Gaussianity

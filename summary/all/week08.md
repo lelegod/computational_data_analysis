@@ -165,7 +165,7 @@ Strips variance explained by $z_m$ so the next component captures entirely new i
 
 ### Objective
 
-$$\max_{u,v} \; \text{Corr}^2(Yu_m, Xv_m) \quad \text{subject to} \quad u_m^T u_j = 0 \text{ and } v_m^T v_j = 0 \text{ for } m \neq j$$
+$$\max_{u,v} \; \text{Corr}^2(Xu_m, Yv_m) \quad \text{subject to} \quad u_m^T u_j = 0 \text{ and } v_m^T v_j = 0 \text{ for } m \neq j$$
 
 The linear combinations are uncorrelated across different pairs.
 
