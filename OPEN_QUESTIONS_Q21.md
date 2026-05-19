@@ -765,3 +765,350 @@ Bias-variance control via $K$:
 As $K\to N$, predictions approach global mean/majority class.
 
 **High-dimensional caveat**: distance concentration and sparse local neighborhoods make vanilla KNN deteriorate quickly without feature scaling/reduction.
+
+---
+
+## AH — SPARSE CODING
+
+**Model**: $X \approx WH$ where $H$ has sparse columns. Objective:
+$$\min_{W,H} \tfrac{1}{2}\|X-WH\|_F^2 + \lambda\sum_i \|h_i\|_1 \quad \text{s.t. } \|w_k\|_2\le 1$$
+
+Alternating steps: (1) fix $W$, solve Lasso for each $h_i$; (2) fix $H$, constrained LS for $W$.
+
+**Key advantages over NMF**: allows overcomplete dictionaries ($K>p$), allows signed atoms.  
+**Key advantages over ICA**: no independence assumption, flexible atom count.  
+**Limitation**: not unique, non-convex, requires tuning $\lambda$ and $K$.
+
+---
+
+## AI — NON-NEGATIVE MATRIX FACTORIZATION (NMF)
+
+**Model**: $X \approx WH$ with $W,H\ge 0$. Frobenius objective: $\min_{W,H\ge 0}\tfrac{1}{2}\|X-WH\|_F^2$.
+
+**Lee-Seung multiplicative updates** (preserve non-negativity automatically):
+$$H\leftarrow H\odot\frac{W^TX}{W^TWH}, \qquad W\leftarrow W\odot\frac{XH^T}{WHH^T}$$
+
+**Parts-based interpretation**: non-negativity prevents cancellation → additive reconstruction.  
+**NOT unique**: for invertible $Q$ with $WQ^{-1}\ge 0$ and $QH\ge 0$, reconstruction is the same.  
+**vs PCA**: PCA uses signed global variance directions; NMF gives additive parts.
+
+---
+
+## AJ — ARCHETYPAL ANALYSIS (AA)
+
+**Model**: archetypes $Z=XS$ (convex combinations of data); observations $X\approx HZ=HXS$.  
+Objective: $\min_{S,H}\|X-HXS\|_F^2$ subject to convexity constraints on $S$ and $H$.
+
+**Key property**: archetypes lie on or near the convex hull boundary → extreme profiles.  
+**vs K-means**: K-means finds interior centroids; AA finds extremes.  
+**vs NMF**: NMF factors are not anchored to data; AA archetypes must be convex combinations of observed data points.  
+**Use case**: end-member analysis, extreme patient phenotypes, material mixtures.
+
+---
+
+## AK — N-MODE MULTIPLICATION AND TENSOR UNFOLDING
+
+**Mode-$n$ unfolding** reshapes $\mathcal{X}^{I\times J\times K}$ into $X_{(1)}\in\mathbb{R}^{I\times JK}$ (no info lost — pure reshape).
+
+**N-mode multiplication** compact form: $[\mathcal{X}\times_n M]_{(n)} = MX_{(n)}$
+
+**Tucker mode-1 unfolding**: $X_{(1)}\approx AG_{(1)}(C\otimes B)^T$ — uses **Kronecker** product.  
+**PARAFAC mode-1 unfolding**: $X_{(1)}\approx A(C\odot B)^T$ — uses **Khatri-Rao** product.  
+**ALS works** because fixing all factors except one reduces to ordinary matrix least squares after unfolding.
+
+Memory shortcut: Tucker = full core = full cross-talk = full **Kronecker**; PARAFAC = matched columns = **Khatri-Rao**.
+
+---
+
+## AL — LDA vs QDA vs RDA
+
+All three assume Gaussian class-conditionals $P(x\mid C_k)=\mathcal{N}(x;\mu_k,\Sigma_k)$.
+
+| | LDA | QDA | RDA |
+|--|-----|-----|-----|
+| Covariance | Shared $\Sigma$ | Per-class $\Sigma_k$ | Shrunk: $\alpha\hat\Sigma_k+(1-\alpha)\hat\Sigma$ |
+| Boundary | Linear | Quadratic | Usually quadratic |
+| Bias/Var | High bias / low var | Low bias / high var | Tunable |
+| Hyperparameters | None | None | $\alpha,\gamma$ |
+
+**Why LDA is linear**: equal covariances cancel the quadratic term in the log-posterior ratio.  
+**RDA reduces to LDA** at $\alpha=0$; to QDA at $\alpha=1$.  
+**Gamma shrinkage**: $(1-\gamma)\hat\Sigma_k(\alpha)+\gamma\frac{\text{tr}(\hat\Sigma_k(\alpha))}{p}I$ improves conditioning.
+
+---
+
+## AM — BAGGING vs RANDOM FOREST vs BOOSTING
+
+| | Bagging | Random Forest | Boosting |
+|--|---------|---------------|----------|
+| Training | Parallel | Parallel | Sequential |
+| Base learner | Deep trees | Deep trees | Weak/shallow trees |
+| Main effect | Variance reduction | More variance reduction (lower $\rho$) | Bias reduction |
+| OOB error | Yes | Yes | No |
+| Overfitting risk | Low | Low | Higher |
+
+**RF improves bagging** by adding random feature subsets at each split, reducing tree correlation $\rho$ in $\text{Var}=\rho\sigma^2+(1-\rho)\sigma^2/B$.  
+**Boosting builds additive model**: $F_M(x)=\sum_m\alpha_m h_m(x)$ — sequentially corrects errors.
+
+---
+
+## AN — K-MEANS vs GMM
+
+| | K-means | GMM |
+|--|---------|-----|
+| Assignment | Hard ($z_{ik}\in\{0,1\}$) | Soft ($\gamma_{ik}\in[0,1]$) |
+| Objective | Min WCSS | Max log-likelihood |
+| Fitting | Lloyd's algorithm | EM |
+| Cluster shape | Spherical | Ellipsoidal (full $\Sigma_k$) |
+| Density model | No | Yes |
+
+**K-means is a special case of GMM** when $\Sigma_k=\sigma^2 I$ (spherical) and assignments are hardened to 0/1.  
+**GMM selects $K$** using BIC; K-means uses silhouette or gap statistic.  
+**GMM can be degenerate**: if a component collapses ($|\Sigma_k|\to 0$), likelihood $\to\infty$.
+
+---
+
+## AO — GENERATIVE vs DISCRIMINATIVE CLASSIFIERS
+
+**Generative**: models $P(x\mid C_k)$ + Bayes' rule. Examples: LDA, QDA.  
+**Discriminative probabilistic**: models $P(C_k\mid x)$ directly. Example: Logistic regression.  
+**Discriminative geometric**: optimizes boundary margin. Example: SVM.
+
+| Method | Type | Boundary | Probabilities |
+|--------|------|----------|---------------|
+| LDA | Generative | Linear | Yes |
+| QDA | Generative | Quadratic | Yes |
+| Logistic | Discriminative | Linear | Yes |
+| SVM | Discriminative | Linear or kernel | No (without Platt) |
+
+**Efficiency vs robustness tradeoff**: generative methods are more efficient when assumptions hold; discriminative methods are more robust when they do not.  
+**All three linear methods** (LDA, Logistic, SVM) produce a linear boundary but for different reasons.
+
+---
+
+## AP — PCR vs PLS vs RIDGE
+
+All three stabilize regression under correlated predictors.
+
+| | PCR | PLS | Ridge |
+|--|-----|-----|-------|
+| Uses $y$ in step 1? | No | Yes | Yes (implicitly) |
+| Mechanism | Hard truncation of PCs | Supervised latent factors | Continuous shrinkage |
+| Direction selection | Max variance in $X$ | Max covariance with $y$ | Shrinks all directions |
+
+**PCR failure**: high-variance $X$ directions may have zero covariance with $y$ — PCR keeps them and discards the predictive signal.  
+**PLS fixes this**: $\max_\alpha\text{Corr}^2(y,X\alpha)\cdot\text{Var}(X\alpha)$ — uses $y$ to guide the projection.  
+**Ridge SVD view**: $\hat\beta_\text{ridge}=\sum_j\frac{d_j^2}{d_j^2+\lambda}v_j\frac{u_j^Ty}{d_j}$ (continuous shrinkage vs PCR hard cutoff).
+
+---
+
+## AQ — NMF vs ICA vs SPARSE CODING
+
+| | NMF | ICA | Sparse Coding |
+|--|-----|-----|---------------|
+| Main constraint | Non-negativity $W,H\ge 0$ | Independence + non-Gaussianity | $L_1$ sparsity on coefficients |
+| Signs | No | Yes | Yes |
+| Goal | Parts-based decomposition | Source separation | Sparse representation |
+| Unique? | No | Essentially yes | No |
+| Overcomplete? | Not typical | No | Yes ($K>p$ allowed) |
+
+**ICA has the strongest uniqueness claim** — if sources are non-Gaussian and independent, they are identifiable up to permutation/sign/scale.  
+**Sparse coding ↔ ICA**: ICA with super-Gaussian prior leads to $L_1$-type penalty — sparse coding is a related formulation.  
+**NMF is ideal for non-negative count/spectral data**; ICA for EEG/audio source separation; sparse coding for image patches.
+
+---
+
+## AR — AIC vs BIC vs CROSS-VALIDATION
+
+$$\text{AIC}=-2\ell+2p \qquad \text{BIC}=-2\ell+p\log N$$
+
+| | AIC | BIC | CV |
+|--|-----|-----|----|
+| Penalty | $2p$ | $p\log N$ | Implicit (held-out error) |
+| Goal | Prediction | Parsimony / identification | Prediction |
+| Consistent? | No | Yes | — |
+| Requires likelihood? | Yes | Yes | No |
+| Equivalent to | LOO-CV asymptotically | — | — |
+
+**BIC penalizes more** whenever $\log N>2$, i.e. $N>e^2\approx7$ — always in practice.  
+**Use CV over AIC/BIC** when the model is not likelihood-based, loss is non-standard, or preprocessing is part of the pipeline.  
+**AIC goal = prediction; BIC goal = identify the true model** (BIC is consistent; AIC is not).
+
+---
+
+## AS — BOOTSTRAP vs CROSS-VALIDATION vs OOB ERROR
+
+| | Bootstrap | Cross-Validation | OOB Error |
+|--|-----------|------------------|-----------|
+| Sampling | With replacement | Without replacement | Implicit in trees |
+| Main purpose | Uncertainty / SE / CI | Prediction error, model selection | Prediction error for RF/Bagging |
+| Extra cost | Yes | Yes | None |
+
+**Key distinction**: Bootstrap estimates sampling variability of an estimator; CV estimates out-of-sample prediction error; OOB is a free by-product of bagging.  
+OOB fraction: each bootstrap sample leaves out $\approx 36.8\%$ of observations ($1-1/e$).  
+**Not interchangeable**: using bootstrap to tune a model or CV to build CIs are both misuses.
+
+---
+
+## AT — KNN vs LDA vs LOGISTIC REGRESSION
+
+| | KNN | LDA | Logistic Regression |
+|--|-----|-----|---------------------|
+| Type | Nonparametric local | Generative parametric | Discriminative parametric |
+| Boundary | Nonlinear | Linear | Linear |
+| High-dim? | Poor | Better | Better (with regularization) |
+| Needs scaling? | Yes (critical) | Less so | Often yes |
+
+**KNN bias-variance**: small $K$ → low bias/high variance; large $K$ → high bias/low variance.  
+**LDA beats KNN on small data** if Gaussian assumptions approximately hold: lower variance wins.  
+**Logistic preferred over LDA** when Gaussian assumptions are doubtful but linear log-odds is still reasonable.  
+**KNN collapses in high dimensions**: distance concentration makes all neighbors equidistant.
+
+---
+
+## AU — PCA vs SPARSE PCA vs NMF
+
+| | PCA | Sparse PCA | NMF |
+|--|-----|------------|-----|
+| Objective | Max variance | Max variance + sparse loadings | Additive parts ($W,H\ge 0$) |
+| Orthogonal? | Yes | Not guaranteed | No |
+| Sparse loadings? | No | Yes | Indirectly |
+| Signs | Yes | Yes | No |
+| Best for | Compression | Interpretable variance factors | Parts-based decomposition |
+
+**Interpretability**: PCA components use all variables (hard to label); Sparse PCA zeros out most loadings; NMF uses additive non-negative parts.  
+**After thresholding/Varimax/Elastic Net** in Sparse PCA: scores must be recomputed and are no longer guaranteed to be uncorrelated.
+
+---
+
+## AV — ADABOOST vs GRADIENT BOOSTING
+
+Both build additive ensembles $F_M(x)=\sum_m\alpha_m h_m(x)$ sequentially.
+
+| | AdaBoost | Gradient Boosting |
+|--|----------|-------------------|
+| Loss | Exponential $e^{-yF}$ | Any differentiable loss |
+| Mechanism | Reweight misclassified obs | Fit negative gradient (pseudo-residuals) |
+| Task | Binary classification | Regression + classification |
+| Noise sensitivity | High | Lower with robust loss |
+
+**AdaBoost is a special case of gradient boosting** under exponential loss.  
+**Learner weight** (AdaBoost): $\alpha_m=\log\frac{1-\text{err}_m}{\text{err}_m}$; (FSAM derivation) $\beta_m=\frac{1}{2}\log\frac{1-\text{err}_m}{\text{err}_m}$.  
+**Exponential loss danger**: extreme upweighting of outliers/noisy labels; deviance loss is more robust.
+
+---
+
+## AW — HIERARCHICAL LINKAGE METHODS
+
+Agglomerative clustering merges the two closest clusters at each step. Linkage defines inter-cluster distance.
+
+| Linkage | Definition | Geometry | Risk |
+|---------|------------|----------|------|
+| Single | $\min_{i,j} d(x_i,x_j)$ | Elongated/chaining | Noise bridges |
+| Complete | $\max_{i,j} d(x_i,x_j)$ | Compact | Over-splits diffuse clusters |
+| Average | Mean pairwise distance | Balanced compromise | Less distinctive |
+| Ward | Min increase in WCSS | Compact, balanced | Euclidean only |
+
+**Ward is closest to K-means** (both optimize within-cluster variance); cutting Ward dendrogram at $K$ ≈ K-means result.  
+**Single linkage most prone to chaining**; complete linkage most compactness-seeking.  
+**Greedy**: cannot undo early merges — bad early decisions are irreversible.
+
+---
+
+## AX — NEURAL NETWORKS vs SVM vs RANDOM FOREST
+
+| | Neural Network | SVM | Random Forest |
+|--|----------------|-----|---------------|
+| Mechanism | Hierarchical learned features | Max-margin boundary | Averaged decorrelated trees |
+| Nonlinearity | Hidden layers | Kernels | Recursive splits |
+| Best setting | Rich nonlinear signal, lots of data | High-dim classification | Robust default |
+| Interpretability | Low | Low–moderate | Moderate |
+| Tuning burden | High | Moderate | Low–moderate |
+
+**SVM is strongest when $p\gg n$** and classification margin is central.  
+**RF is the robust default**: little preprocessing, handles nonlinear interactions, does not overfit as $B\to\infty$.  
+**Neural nets excel** when representation learning matters and sufficient data is available.
+
+---
+
+## AY — CORCONDIA vs SPLIT-HALF FMS
+
+Both are used to select rank $R$ in PARAFAC.
+
+$$\text{CORCONDIA}=100\!\left(1-\frac{\|\mathcal{I}-\tilde{\mathcal{G}}\|_F^2}{\|\mathcal{I}\|_F^2}\right)$$
+
+| | CORCONDIA | Split-half FMS |
+|--|-----------|----------------|
+| Measures | Model form validity (how diagonal is $\mathcal{G}$?) | Reproducibility of factors across data splits |
+| Near 100 / near $R$ | PARAFAC structure is appropriate | Components are stable |
+| Near 0 or negative / $\ll R$ | Rank too large, off-diagonal interactions | Rank too large, unstable |
+
+**Use both**: CORCONDIA checks structural validity; FMS checks statistical stability.  
+**CORCONDIA is PARAFAC-specific** (Tucker has a full core, so the same diagnostic does not apply).  
+Best practice: choose the largest $R$ before either metric drops sharply.
+
+---
+
+## AZ — LOGISTIC REGRESSION vs SVM
+
+| | Logistic Regression | SVM |
+|--|---------------------|-----|
+| Loss | Log loss: $\log(1+e^{-yF})$ | Hinge loss: $\max(0,1-yF)$ |
+| Output | Calibrated probability | Margin score |
+| All points matter? | Yes (log loss $>0$ everywhere) | Only support vectors |
+| Probabilistic? | Yes | No (Platt scaling needed) |
+| Kernel extension | Not standard | Natural and central |
+
+**Use logistic** when probabilities matter or coefficient interpretation is needed.  
+**Use SVM** when classification margin is the goal, $p\gg n$, or kernels are needed.  
+**Both regularizable** with $L_2$ penalty; SVM $C$ parameter: large $C$ = less regularization.
+
+---
+
+## BA — SILHOUETTE vs GAP STATISTIC vs BIC
+
+All three help choose the number of clusters $K$.
+
+$$s(i)=\frac{b(i)-a(i)}{\max(a(i),b(i))} \quad \text{Gap}(K)=\log U_K-\log W_K \quad \text{BIC}=-2\ell(\hat\theta_K)+p_K\log N$$
+
+| | Silhouette | Gap Statistic | BIC |
+|--|------------|---------------|-----|
+| Framework | Geometric (any clustering) | Geometric (compares to null data) | Model-based (GMM) |
+| Main idea | Within vs between cohesion | Better than random structure? | Likelihood + complexity penalty |
+| Most principled? | Heuristic | More principled | Principled for GMM |
+
+**For K-means**: use silhouette or gap statistic.  
+**For GMM**: use BIC (or AIC — NOT CORCONDIA, which is PARAFAC-specific).  
+**Gap selection rule**: choose smallest $K$ where $\text{Gap}(K)\ge\text{Gap}(K+1)-s'_{K+1}$.
+
+---
+
+## BB — PCA vs CCA
+
+| | PCA | CCA |
+|--|-----|-----|
+| Data blocks | One ($X$) | Two ($X$ and $Y$) |
+| Objective | $\max_v\text{Var}(Xv)$ | $\max_{u,v}\text{Corr}(Xu,Yv)$ |
+| Supervision | None | Two-view supervised |
+| Requires matrix inversion? | No | Yes ($\Sigma_{XX}^{-1}$, $\Sigma_{YY}^{-1}$) |
+| Fails when $p>n$? | No | Yes (singular covariance) |
+
+**PCA misses cross-block structure**: a low-variance direction of $X$ can be strongly correlated with $Y$ — CCA finds it; PCA does not.  
+**CCA high-dim fix**: Regularized CCA (Ridge: $\Sigma_{XX}+\lambda I$) or Sparse CCA (PMD, $L_1$ penalties on $u,v$).  
+**CCA vs PLS**: CCA maximizes correlation; PLS maximizes covariance (balances variance and correlation).
+
+---
+
+## BC — ARCHETYPAL ANALYSIS vs K-MEANS vs NMF
+
+| | K-means | Archetypal Analysis | NMF |
+|--|---------|---------------------|-----|
+| Representatives | Interior centroids | Extreme archetypes (convex hull) | Additive nonneg parts |
+| Assignment | Hard | Soft convex mixture | Soft additive mixture |
+| Prototype location | Interior | Boundary | Latent factors |
+| Requires non-negative data? | No | No | Yes |
+
+**K-means** finds averages; **AA** finds extremes; **NMF** finds additive parts.  
+**AA objective**: $\min_{S,H}\|X-HXS\|_F^2$ — archetypes $Z=XS$ must be convex combinations of data.  
+**Use AA** when end-member interpretation matters (extreme phenotypes, material mixtures).  
+**Use NMF** when data are naturally non-negative and parts-based additivity is meaningful.
