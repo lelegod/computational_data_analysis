@@ -1,4 +1,4 @@
-# Week 5 — CART (Continued) and Bagging (Exam Focus)
+# Week 5 — CART: Classification and Regression Trees + Bagging (Exam Focus)
 
 ## Must-Know Facts
 

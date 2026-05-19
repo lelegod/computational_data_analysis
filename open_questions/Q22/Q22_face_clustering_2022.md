@@ -21,25 +21,61 @@ The task is *discovery* of natural groupings in unlabelled data — the textbook
 
 ---
 
+## Feature Extraction — Method Comparison (Key Exam Upgrade)
+
+Slide 9 of Lecture 11 (Lee & Seung, Nature 1999) shows a direct three-way comparison of NMF vs VQ vs PCA on face images. This is the central demonstration of **why NMF matters for faces** and is exam-relevant.
+
+| Method | What the basis vectors look like | Why |
+|--------|----------------------------------|-----|
+| **PCA** | Holistic "ghostly" eigenfaces — blended whole faces, contain negative values | Maximises variance with no sign constraint |
+| **VQ** (Vector Quantization) | Whole prototype faces — one per cluster | Hard-assignment centroids |
+| **NMF** | Localised facial parts — eyes, nose patches, mouth region, cheekbones | Non-negativity forces additive, parts-based decomposition |
+
+**NMF wins for faces** because it learns the actual visual parts of a face, not a holistic blend. Each face image = a weighted sum of parts. This is both more interpretable and more consistent with how faces actually vary across identities (same nose structure, different eye shape, etc.).
+
+---
+
 ## Full Model Answer (Exam-Ready)
 
 ### Step 1: Feature Extraction
 
-Raw pixel images are high-dimensional ($p \gg n$ for small airports), and raw pixels capture irrelevant variation (lighting, background, expression). We need a compact, discriminative representation.
+Raw pixel images are high-dimensional ($p \gg n$ for small airports), and raw pixels capture irrelevant variation (lighting, background, expression). We need a compact representation. **Two valid approaches from the course — NMF is the better-justified one for faces.**
 
-**PCA / Eigenfaces (course-standard approach):**
+---
 
-1. Flatten each image to a vector $x_i \in \mathbb{R}^p$ (e.g., $100 \times 100 = 10{,}000$ pixels)
-2. Centre the data: $\tilde{X} = X - \bar{x}\mathbf{1}^T$
-3. Apply SVD: $\tilde{X} = U S V^T$
-4. Project onto first $k$ principal components (eigenfaces): $z_i = V_k^T x_i \in \mathbb{R}^k$
+**Recommended: NMF (Non-negative Matrix Factorization)**
 
-The eigenfaces $V_k$ capture the dominant modes of facial variation across all images. Choosing $k \ll p$ eliminates noise and irrelevant dimensions while preserving identity-discriminative structure.
+Represent the face image matrix $X \in \mathbb{R}_+^{p \times N}$ (pixels × images, all values ≥ 0) as:
+$$X \approx WH, \quad W \geq 0,\ H \geq 0$$
 
-**Why PCA is justified here:**
-- Face images lie on a low-dimensional manifold (blessing of dimensionality — manifold hypothesis)
-- Most variance is in identity-relevant structure (face shape, proportions), not noise
-- Reduces computational cost of subsequent clustering
+- $W \in \mathbb{R}_+^{p \times K}$: **basis matrix** — columns are $K$ facial part patches (eye region, nose, mouth, etc.)
+- $H \in \mathbb{R}_+^{K \times N}$: **coefficient matrix** — column $j$ gives how much of each part is present in image $j$
+
+Fit by minimising:
+$$\min_{W,H \geq 0} \frac{1}{2}\|X - WH\|_F^2$$
+
+using multiplicative updates (Lee & Seung) or alternating least squares.
+
+**Why NMF over PCA for faces (from Lecture 11, slide 8–9):**
+1. **Physical realism:** pixel intensities are non-negative — NMF's $W, H \geq 0$ constraint is physically meaningful; PCA allows negative basis vectors (negative pixel intensities are meaningless)
+2. **Parts-based representation:** non-negativity forces additive combinations only (no cancellation) → basis vectors become localised facial parts (a nose, an eye region) rather than holistic ghostly blends
+3. **Interpretability:** "a nose on a face" vs. "a ghostly average face" — parts-based features are much more useful for identity clustering
+4. **Lee & Seung (1999) demonstrated this directly** on a face image dataset — this is the seminal NMF paper shown in the lecture
+
+**How to use NMF for clustering:** use the coefficient vectors $h_j \in \mathbb{R}^K$ (column $j$ of $H$) as the feature representation of image $j$. These $K$-dimensional vectors capture which parts are active in each image → cluster these vectors.
+
+---
+
+**Alternative: PCA / Eigenfaces**
+
+1. Flatten each image to a vector $x_i \in \mathbb{R}^p$
+2. Centre: $\tilde{X} = X - \bar{x}\mathbf{1}^T$
+3. SVD: $\tilde{X} = USV^T$
+4. Project: $z_i = V_k^T x_i \in \mathbb{R}^k$
+
+PCA is valid and computationally simpler, but the basis vectors (eigenfaces) are holistic blends with negative components — less interpretable. Use PCA when computational simplicity matters or as a preprocessing step before NMF to initialise $W$.
+
+**When the exam says "better method" or "what does Lecture 11 suggest?" — answer NMF, not PCA.**
 
 ---
 
@@ -106,13 +142,17 @@ The magnitude of the discrepancy $K_{\text{passports}} - \hat{K}_{\text{faces}}$
 
 *"This is an unsupervised learning problem: we have no identity labels and must discover groupings from unlabelled image data. I would apply the following pipeline:*
 
-*First, dimensionality reduction via PCA (eigenfaces): flatten each image to a pixel vector, centre the data, and project onto the first $k$ principal components. This removes noise and exploits the fact that face images lie on a low-dimensional manifold, making subsequent clustering tractable.*
+*First, feature extraction using Non-negative Matrix Factorization (NMF). Pixel intensities are non-negative, so the NMF constraint $W, H \geq 0$ is physically meaningful. More importantly, NMF forces parts-based representations: because no cancellation is allowed, the basis vectors $W$ learn localised facial features — eyes, nose patches, mouth regions — rather than the holistic 'ghostly' eigenfaces produced by PCA. This was demonstrated by Lee & Seung (1999) directly on face images. The coefficient vector $h_j \in \mathbb{R}^K$ for each image becomes its feature representation: how strongly each facial part is present.*
 
-*Second, cluster the projected feature vectors using a Gaussian Mixture Model (GMM). Each Gaussian component represents one unique individual. GMM is preferred over K-means because images of the same person form elliptical clusters (due to pose and lighting variation) — GMM with full covariance matrices handles this geometry, while K-means assumes spherical clusters. EM is used to fit the model.*
+*Second, cluster the coefficient vectors using a Gaussian Mixture Model (GMM). Each Gaussian component represents one unique individual. GMM is preferred over K-means because images of the same person form elliptical clusters (varying pose, lighting, expression) — full covariance GMM handles this; K-means assumes spherical clusters. Fit with EM.*
 
-*Third, select the number of components $K$ (= number of unique people) by minimising BIC over a range of $K$ values. BIC balances model fit against complexity and provides a principled, quantitative criterion for choosing $K$.*
+*Third, select $K$ (the number of unique people) by minimising BIC: $\text{BIC}(K) = -2\log\hat{L} + d_K\log N$. BIC penalises extra components, preventing overfitting to noise as spurious extra identities.*
 
-*Finally, compare $\hat{K}_{\text{faces}}$ to the number of unique passport numbers. If fewer unique faces are found than passports, this suggests multiple passports are associated with one physical person — strong evidence of systematic fraud."*
+*Finally, compare $\hat{K}_{\text{faces}}$ to the number of unique passport numbers. If fewer unique faces are found than passports, multiple passports are associated with the same physical person — strong evidence of systematic fraud."*
+
+---
+
+**PCA-based answer (acceptable but weaker):** Replace NMF with PCA/eigenfaces in the above. Acknowledge the limitation: PCA eigenfaces are holistic blends with negative values, which are less interpretable and less physically grounded for pixel data.
 
 ---
 
@@ -121,8 +161,9 @@ The magnitude of the discrepancy $K_{\text{passports}} - \hat{K}_{\text{faces}}$
 1. **Image quality:** Blurry, occluded, or poorly lit images may not cluster correctly — creates noise in the identity assignment
 2. **Non-Gaussian clusters:** Extreme pose variation or mixed lighting can produce non-Gaussian distributions in feature space, weakening GMM assumptions
 3. **Underrepresented individuals:** A person who passed through only once has a single image — cannot form a reliable cluster and may be merged with another person or treated as noise
-4. **PCA loses discriminative structure:** PCA maximises variance, not inter-class separability. The first few eigenfaces may capture lighting/expression variation rather than identity variation. Using LDA (Fisherfaces) in a semi-supervised setting (if some labels exist) would be better
-5. **Uncertainty in $K$:** All $K$-selection methods give heuristic estimates. BIC/silhouette may disagree. Report a range or confidence interval rather than a single number
+4. **NMF non-uniqueness:** NMF solutions are not unique — for any invertible $Q$ with $WQ^{-1} \geq 0$ and $QH \geq 0$, the product $WH$ is unchanged. Different random initialisations may converge to different local minima. Run multiple restarts and pick the solution with lowest reconstruction error.
+5. **PCA eigenfaces lack discriminative structure:** PCA maximises variance, not inter-class separability. The first eigenfaces may capture lighting/expression variation rather than identity. NMF parts-based features are more robust to this, but still not fully discriminative.
+6. **Uncertainty in $K$:** All $K$-selection methods give heuristic estimates. BIC/silhouette may disagree. Report a range or confidence interval rather than a single number.
 
 ---
 
@@ -194,3 +235,60 @@ Highly imbalanced cluster sizes are expected (frequent travellers vs. one-time v
 - Hierarchical clustering handles imbalanced sizes well — small clusters remain distinct until explicitly merged
 
 Report the estimated cluster sizes as part of the output: the largest clusters are frequent travellers; singleton clusters are one-time visitors (hardest to validate).
+
+---
+
+## NMF vs PCA — Exam-Focused Comparison (Lecture 11 Core)
+
+**Q: The exam asks "which feature extraction method is better for face images and why?" — what do you write?**
+
+NMF is better for face images. Three reasons from Lecture 11:
+
+1. **Physical realism:** Pixel intensities are non-negative ($x_{ij} \geq 0$). NMF's constraint $W, H \geq 0$ respects this. PCA eigenfaces contain negative values — a "negative nose" has no physical meaning.
+
+2. **Parts-based representation:** NMF learns localised facial components (eye patches, nose region, mouth area) because no cancellation is allowed. Each face image is an additive sum of parts. PCA produces holistic "ghostly" eigenfaces — blends of the entire face that are hard to interpret. Lee & Seung (1999) demonstrated this directly on face images (the seminal NMF paper from Lecture 11 slide 9).
+
+3. **More robust to identity-irrelevant variation:** Lighting and expression change the *intensity* of parts (coefficient in $H$) without completely reshaping the basis vectors $W$ — the same eye patch is active at different intensities under different lighting. PCA's holistic eigenfaces mix lighting, expression, and identity into the same components.
+
+**When would you still use PCA?** When computational simplicity is required, or as an initialisation step before NMF. PCA has a closed-form solution (SVD); NMF requires iterative optimisation. For a quick first pass, PCA + GMM is standard. For the most principled answer on the exam: NMF.
+
+---
+
+**Q: How does NMF's non-uniqueness problem affect the clustering result?**
+
+NMF is not unique: for any $Q$ such that $WQ^{-1} \geq 0$ and $QH \geq 0$, we get $(WQ^{-1})(QH) = WH$ — an equally valid decomposition. In practice this means:
+- Different random initialisations may give different $W$ and $H$ with equal reconstruction error
+- The specific part patches learned may differ across runs
+
+Mitigation for the clustering application:
+- Run NMF with $r$ random restarts → pick solution with minimum $\|X - WH\|_F^2$
+- The coefficient matrix $H$ (used for clustering) is less sensitive to this ambiguity than $W$ in practice — the relative activation pattern across parts is stable even if the absolute parts differ slightly
+- Cross-validate the number of components $K$ using speckled CV (matrix masking) — the course method for NMF model selection
+
+---
+
+**Q: What is speckled CV and when is it needed here?**
+
+Standard row-holdout CV fails for NMF: if you hold out an entire image (row), you cannot estimate the coefficients $h_j$ for that image during training — so you cannot evaluate it.
+
+**Speckled CV (Matrix Masking):**
+1. Randomly mask a fraction of pixel entries across all images (mark as missing)
+2. Fit NMF for $K$ components using only the observed entries in the loss
+3. Predict the masked entries using $\hat{X} = WH$
+4. Evaluate MSE on masked entries only
+5. Choose $K^*$ that minimises masked-entry MSE
+
+This is the principled way to select $K$ (number of parts) in NMF. It avoids the row-holdout problem because partial information from every image remains in the training data to estimate $H$.
+
+---
+
+**Q: NMF vs AA for faces — when would Archetypal Analysis be the better choice?**
+
+| | NMF | AA |
+|---|-----|-----|
+| Prototypes are | Learned basis parts ($W$ free) | Convex combinations of actual data images |
+| Represents | Additive parts of faces | Extreme prototype faces at the boundary |
+| Good for | "What parts make up a face?" | "What are the most extreme face types?" |
+| For clustering | Use $H$ (activation coefficients) | Use $H$ (mixture weights toward archetypes) |
+
+AA would be better if the question is "find the most extreme types of faces in the dataset" — e.g., the "youngest-looking", "oldest-looking", "most distinctive features". Each real face = mixture of these boundary archetypes. For identity clustering (who is this person?), NMF coefficient vectors are more useful because they describe the intensity of specific facial parts, not how extreme the face is.

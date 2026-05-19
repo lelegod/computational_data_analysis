@@ -95,6 +95,12 @@ Outer loop  (16-fold LOIO)  → estimates EPE
 
 **Wrong:** tune λ on full 192 obs first, then do outer LOIO. The chosen λ has "seen" all 16 subjects → outer CV error is optimistically biased (subtle leakage via hyperparameter).
 
+**What nested CV actually estimates (Week 2):** The outer loop audits the **entire methodology** — selection + training pipeline. The λ* from the inner loop will likely differ across outer folds; this is expected, not a problem. A large gap between inner CV error and outer CV error indicates selection-induced overfitting.
+
+**Performance metric:** Specify $\mathcal{L}$ matching the task:
+- Stress level continuous → RMSE / MAE
+- Stress level categorical → balanced accuracy or AUC-ROC (not raw accuracy — likely class-imbalanced)
+
 ---
 
 ### e) Full Written Answer (Write This Cold)
@@ -119,11 +125,24 @@ No labels exist — identities are exactly what we are trying to discover. Super
 
 ### Pipeline
 
-**Step 1 — Feature Extraction (PCA / Eigenfaces)**
+**Step 1 — Feature Extraction (NMF preferred; PCA is acceptable fallback)**
 
-Flatten each image to vector $x_i \in \mathbb{R}^p$. Apply SVD to centred data $\tilde{X} = USV^T$. Project onto first $k$ components: $z_i = V_k^T x_i \in \mathbb{R}^k$.
+**Why NMF, not PCA, for faces (Lecture 11, Lee & Seung 1999):**
 
-Why PCA: face images lie on a low-dimensional manifold (blessing of dimensionality). Removes noise, makes clustering tractable. PCA maximises variance — top components capture identity-discriminative structure.
+| | PCA (eigenfaces) | NMF |
+|---|---|---|
+| Basis vectors | Holistic "ghostly" blended faces | Localised parts — eyes, nose, mouth patches |
+| Sign | Allows negative values (meaningless for pixels) | $W, H \geq 0$ — physically realistic |
+| Representation | Each image = $\sum$ positive + negative eigenfaces | Each image = additive sum of parts |
+| Interpretability | Low | High |
+
+**NMF setup:**
+$$X \approx WH, \quad W \geq 0,\ H \geq 0$$
+- $W \in \mathbb{R}_+^{p \times K}$: basis parts (eye patch, nose region, etc.)
+- $H \in \mathbb{R}_+^{K \times N}$: coefficients — how strongly each part appears in each image
+- Fit with multiplicative updates; use coefficient columns $h_j$ as features for clustering
+
+**PCA fallback:** flatten → centre → SVD → project onto $k$ components. Simpler to compute but produces holistic eigenfaces. If the exam says "from Lecture 11, what is better?" → **NMF**.
 
 **Step 2 — Clustering (GMM preferred)**
 
@@ -151,7 +170,9 @@ Alternatives: silhouette score for K-means, gap statistic, dendrogram gap for hi
 
 ### Written Answer (Write This Cold)
 
-*"This is an unsupervised learning problem — no identity labels exist and the task is to discover natural groupings. I would: (1) apply PCA to reduce each image to a compact feature vector (eigenfaces), exploiting the manifold structure of face images; (2) cluster using a Gaussian Mixture Model, where each component represents one unique individual — GMM is preferred over K-means because pose/lighting variation produces elliptical clusters; (3) select $K$ by minimising BIC, which balances model fit against complexity; (4) compare $\hat{K}_\text{faces}$ to unique passport numbers — if fewer unique faces are found than passports, multiple passports are associated with one physical person, indicating systematic fraud."*
+*"This is an unsupervised learning problem — no identity labels exist and the task is to discover natural groupings. I would: (1) extract features using NMF ($X \approx WH$, $W,H \geq 0$): pixel intensities are non-negative so the constraint is physically meaningful, and NMF learns localised facial parts (eyes, nose, mouth patches) rather than PCA's holistic ghostly eigenfaces — this was demonstrated by Lee & Seung (1999) on face images; the coefficient vectors $h_j$ become each image's feature representation; (2) cluster using a Gaussian Mixture Model, where each component represents one unique individual — GMM handles elliptical clusters from pose/lighting variation; (3) select $K$ by minimising BIC; (4) compare $\hat{K}_\text{faces}$ to unique passport numbers — fewer unique faces than passports indicates multiple passports per person, strong evidence of fraud."*
+
+**If NMF feels risky:** PCA + GMM + BIC is acceptable and will earn most marks. Mention the NMF advantage as an upgrade ("a better-justified approach from Lecture 11 would be NMF because...").
 
 ---
 
@@ -159,9 +180,13 @@ Alternatives: silhouette score for K-means, gap statistic, dendrogram gap for hi
 
 **"Why not supervised face recognition?"** → No labels. Supervision requires known identities as training targets — circular, since finding identities is the goal.
 
+**"Why NMF over PCA for faces?"** → Three reasons from Lecture 11: (1) pixel intensities are non-negative — NMF's $W,H \geq 0$ is physically meaningful, PCA allows negative "pixel" values; (2) NMF learns localised parts (eye, nose, mouth patches) vs PCA's holistic ghostly eigenfaces; (3) Lee & Seung (1999) demonstrated this directly on a face image dataset.
+
 **"Why GMM over K-means?"** → K-means assumes spherical clusters. Face images of the same person form elliptical clusters (lighting varies one way, expression another). GMM with full covariance handles this correctly.
 
 **"BIC formula — what does $d_K$ penalise?"** → $d_K$ = number of free parameters per extra Gaussian ($= k + k(k+1)/2 + 1$ for mean + covariance + weight). Larger $K$ always improves fit ($-2\log\hat{L}$ decreases) but BIC penalises the added complexity — prevents spurious clusters.
+
+**"How to select $K$ in NMF itself?"** → Speckled CV (matrix masking): randomly mask pixel entries, fit NMF ignoring masked entries, evaluate reconstruction MSE on masked entries only. Choose $K^*$ minimising masked MSE. Cannot do row-holdout CV because you need partial data from every image to estimate $H$.
 
 **"Person with only 1 image?"** → Cannot form a cluster. May be absorbed into nearest cluster or treated as noise. Use GMM with unconstrained mixing weights $\pi_k$ to allow very small components.
 
@@ -212,3 +237,11 @@ Selecting λ on the full dataset lets the test subject's data inform λ — the 
 **1-SE rule applied to LOIO:**
 $$\text{SE} = \frac{\hat{\sigma}_\text{fold}}{\sqrt{16}}$$
 Accept the simplest λ whose mean error $\leq \text{EPE}_\text{min} + \text{SE}$. Useful because with 16 outer folds, EPE estimates for nearby λ values are statistically indistinguishable — prefer the simpler, more interpretable model.
+
+**"AIC ≈ LOO-CV asymptotically — can it replace LOIO here?" (exam trap from Week 1):**
+No. AIC is equivalent to LOO-CV under the **IID assumption** (Stone 1977). Standard LOO-CV on 192 observations leaves out one obs at a time but trains on data from the same person — still data leakage. AIC shares the same IID assumption and the same leakage problem. Neither replaces grouped CV. AIC/BIC can be used *inside* an outer fold (inner loop model selection on 15 training subjects), but cannot replace the LOIO outer structure.
+
+**Bootstrap for the personalized model's small-sample problem (Week 2):**
+The personalized model has only 4 folds (3 test obs each) — very high variance estimate. Bootstrap alternative: draw $B = 200$ resamples from the 12 observations, evaluate on OOB (~37%), average → more stable estimate. For extra rigor, use the .632 estimator:
+$$\text{EPE}_{.632} = 0.368 \cdot \text{err}_\text{train} + 0.632 \cdot \text{err}_\text{OOB}$$
+This corrects for the slight optimistic bias of the basic bootstrap.

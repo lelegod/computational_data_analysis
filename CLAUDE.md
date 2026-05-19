@@ -44,37 +44,46 @@ DTU student preparing for the **CDA 02582 — Computational Data Analysis** writ
 computational_data_analysis/
 │
 ├── CLAUDE.md                    ← You are here
-├── OPEN_QUESTIONS_Q21.md        ← Root cheat sheet: all 25 Q21 candidates (A–Y), clickable TOC
+├── OPEN_QUESTIONS_Q21.md        ← Root cheat sheet: all 28 Q21 candidates (A–AB), clickable TOC
 ├── OPEN_QUESTIONS_Q22.md        ← Root cheat sheet: Q22 CV wearables, full exam-ready answer
 │
-├── open_questions/              ← DETAILED answers (one file per topic)
-│   ├── INDEX.md                 ← Overview table of all candidates + writing strategy
-│   ├── Q22_cv_wearables.md      ← Full Q22 model answer (LOSO vs LOIO, nested CV, EPE)
-│   ├── Q21_A_random_forest.md
-│   ├── Q21_B_ica.md
-│   ├── Q21_C_lda_vs_gmm.md
-│   ├── Q21_D_svm.md
-│   ├── Q21_E_boosting.md
-│   ├── Q21_F_parafac_tucker.md
-│   ├── Q21_G_pca_pls_cca.md
-│   ├── Q21_H_nmf_ica_aa.md
-│   ├── Q21_I_ridge_lasso.md
-│   ├── Q21_J_clustering.md
-│   ├── Q21_K_multiple_testing.md
-│   ├── Q21_L_neural_networks.md
-│   ├── Q21_M_epe_bias_variance.md
-│   ├── Q21_N_cart.md
-│   ├── Q21_O_cross_validation.md
-│   ├── Q21_P_logistic_regression.md
-│   ├── Q21_Q_ols_gauss_markov.md
-│   ├── Q21_R_bootstrap.md
-│   ├── Q21_S_curse_dimensionality.md
-│   ├── Q21_T_aic_bic.md
-│   ├── Q21_U_bagging.md
-│   ├── Q21_V_cluster_validation.md
-│   ├── Q21_W_sparse_pca.md
-│   ├── Q21_X_qda.md
-│   └── Q21_Y_kmedoids.md
+├── open_questions/              ← DETAILED answers, split by question number
+│   │
+│   ├── Q21/                     ← All Q21 candidate deep-dives (28 files, A–AB)
+│   │   ├── INDEX.md             ← Overview table of all candidates + writing strategy
+│   │   ├── Q21_A_random_forest.md
+│   │   ├── Q21_B_ica.md
+│   │   ├── Q21_C_lda_vs_gmm.md
+│   │   ├── Q21_D_svm.md
+│   │   ├── Q21_E_boosting.md
+│   │   ├── Q21_F_parafac_tucker.md
+│   │   ├── Q21_G_pca_pls_cca.md
+│   │   ├── Q21_H_nmf_ica_aa.md
+│   │   ├── Q21_I_ridge_lasso.md
+│   │   ├── Q21_J_clustering.md
+│   │   ├── Q21_K_multiple_testing.md
+│   │   ├── Q21_L_neural_networks.md
+│   │   ├── Q21_M_epe_bias_variance.md
+│   │   ├── Q21_N_cart.md
+│   │   ├── Q21_O_cross_validation.md
+│   │   ├── Q21_P_logistic_regression.md
+│   │   ├── Q21_Q_ols_gauss_markov.md
+│   │   ├── Q21_R_bootstrap.md
+│   │   ├── Q21_S_curse_dimensionality.md
+│   │   ├── Q21_T_aic_bic.md
+│   │   ├── Q21_U_bagging.md
+│   │   ├── Q21_V_cluster_validation.md
+│   │   ├── Q21_W_sparse_pca.md
+│   │   ├── Q21_X_qda.md
+│   │   ├── Q21_Y_kmedoids.md
+│   │   ├── Q21_Z_gmm.md
+│   │   ├── Q21_AA_split_half_fms.md
+│   │   └── Q21_AB_pcr.md
+│   │
+│   └── Q22/                     ← All Q22 deep-dives (move Q22_*.md here)
+│       ├── Q22_cv_wearables.md  ← Full Q22 model answer (LOSO vs LOIO, nested CV, EPE)
+│       ├── Q22_face_clustering_2022.md
+│       └── Q22_other_datasets.md
 │
 ├── summary/
 │   ├── exam_review.md           ← Topic frequency analysis + 3 flagged errors in official solutions
@@ -103,12 +112,12 @@ computational_data_analysis/
 
 | Week | Topic | Key concepts |
 |------|-------|-------------|
-| 1 | Regression & Bias-Variance | OLS, Ridge, EPE decomposition, AIC/BIC, Cp statistic |
-| 2 | Lasso, Model Assessment | Lasso, LARS, Elastic Net, Bootstrap, Nested CV |
-| 3 | Sparse Regression & Multiple Testing | Coordinate descent, Curse of dimensionality, Bonferroni, BH (FDR) |
-| 4 | CART — Decision Trees | Gini, entropy, cost-complexity pruning, surrogate splits |
-| 5 | Bagging | Bootstrap aggregation, variance formula, OOB error |
-| 6 | Boosting | AdaBoost, exponential loss, gradient boosting, stumps vs deep trees |
+| 1 | Regression & Bias-Variance | OLS, Ridge, EPE decomposition |
+| 2 | Model Selection & Assessment | KNN, train/val/test split, K-fold CV, 1-SE rule, data leakage, Cp, AIC, BIC |
+| 3 | Sparse Regression | Curse of dimensionality, Ridge, Lasso, Elastic Net, LARS, Multiple Testing (Bonferroni, BH) |
+| 4 | Linear Classification | LDA, QDA, RDA, RRDA, Logistic Regression, generative vs discriminative |
+| 5 | CART and Bagging | Regression trees, classification trees, Gini, cost-complexity pruning, Bootstrap Aggregating |
+| 6 | Ensemble Methods | Random Forest, AdaBoost, Gradient Boosting, additive models |
 | 7 | SVM | Max-margin, Lagrangian dual, kernel trick, RBF, soft margin |
 | 8 | Subspace Methods | PCA, Sparse PCA (PMD), PLS, CCA |
 | 9 | Unsupervised Clustering | K-means, K-medoids, Hierarchical, GMM, LDA, QDA, Silhouette, Gap |
@@ -136,11 +145,12 @@ Full details in `summary/exam_review.md`.
 
 ### For a specific Q21 topic
 1. Quick review: `OPEN_QUESTIONS_Q21.md` (condensed, with clickable TOC)
-2. Full model answer: `open_questions/Q21_<letter>_<topic>.md`
+2. Full model answer: `open_questions/Q21/Q21_<letter>_<topic>.md`
+3. Index of all candidates: `open_questions/Q21/INDEX.md`
 
 ### For Q22
 1. `OPEN_QUESTIONS_Q22.md` — memorize the full written answer cold
-2. Extended version: `open_questions/Q22_cv_wearables.md`
+2. Extended answers: `open_questions/Q22/Q22_cv_wearables.md` (and other dataset variants)
 
 ### For MCQ prep
 1. `summary/exam_focused/week<N>.md` — exam-optimized, includes common traps

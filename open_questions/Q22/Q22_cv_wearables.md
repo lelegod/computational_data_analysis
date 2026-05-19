@@ -88,6 +88,14 @@ If a hyperparameter (e.g., regularization $\lambda$) must be tuned:
 
 **Wrong approach**: tune $\lambda$ on full dataset first, then do LOIO. The selected $\lambda$ has "seen" all individuals → optimistic bias.
 
+**Key insight from Week 2 (often examined):** Nested CV audits the **entire methodology** (selection + training pipeline), not a specific fixed model. The $\lambda^*$ selected by the inner loop will likely differ across outer folds — this is expected and correct, not a problem. What the outer loop estimates is: "if we use this selection procedure on a new training set, how well will the resulting model perform on a new test individual?"
+
+**Diagnostic from Week 2:** A large gap between inner CV error (e.g., 14%) and outer CV error (e.g., 21%) indicates **selection-induced overfitting** — the inner loop is overfitting the choice of $\lambda$ to the specific training subjects, and the outer loop reveals the true cost of that. If the gap is large, consider: simpler regularization grid, more conservative $\lambda$ selection (1-SE rule), or increasing the inner loop fold count.
+
+**Performance metric:** The loss $\mathcal{L}$ in the EPE formula should match the task:
+- Stress level is **continuous** → use RMSE or MAE as $\mathcal{L}$
+- Stress level is **categorical** (high/low) → use balanced accuracy or AUC-ROC (not raw accuracy — class imbalance likely)
+
 ---
 
 ## Full Written Answer (Exam-Ready)
@@ -119,6 +127,23 @@ LOIO remains valid — simply exclude the missing observations. Personalized LOS
 **Q: How does sample size affect the CV estimate reliability?**
 - Personalized (4 folds, 9 training obs): high variance due to tiny training set. Estimate of personalized EPE has wide confidence intervals.
 - Generalized (16 folds, 180 training obs): more stable. Each test fold has 12 observations, giving reasonable error estimates. However, only 16 independent test results → CI on mean EPE still moderate width.
+
+**Q: For the personalized model with only 9 training obs per fold — is there a better alternative to LOSO?**
+With 4 folds and 3 test observations each, the LOSO estimate of EPE is very high variance. Two alternatives from the course:
+
+1. **Bootstrap (Week 2):** Draw $B = 200$ bootstrap samples of 12 observations (with replacement) from the individual's data. Fit the model on each bootstrap sample, evaluate on the OOB (~37%) observations. Average across $B$ → bootstrap EPE estimate. More stable than 4-fold LOSO because it averages over many resamples, not just 4 splits.
+   - Limitation: bootstrap samples overlap with the original data → slight optimistic bias (fixed by the .632 estimator: $\text{EPE}_{.632} = 0.368 \cdot \text{err}_\text{train} + 0.632 \cdot \text{err}_\text{OOB}$)
+
+2. **Leave-One-Observation-Out (LOOO):** Within one person's 12 obs, leave one out at a time. 12 folds, 11 training obs each. Lower variance than 4-fold LOSO but breaks the season-as-unit principle — holding out a single observation ignores the temporal grouping within seasons.
+
+**Recommendation:** LOSO (leave-one-season-out) remains the most principled design because it respects the seasonal grouping. Bootstrap is a valid supplement to quantify uncertainty around the 4-fold estimate.
+
+**Q: Could AIC replace CV here? It's asymptotically equivalent to LOO-CV (Week 1).**
+This is an exam trap. AIC is asymptotically equivalent to LOO-CV (Stone 1977), but **only under the IID assumption**. Here:
+- Standard LOO-CV leaves out one observation at a time from the full 192 — still subject to data leakage (the left-out obs is from a person whose other 11 obs are in training)
+- AIC shares this problem: it assumes exchangeable observations and an IID likelihood
+
+Both AIC and standard LOO-CV produce the same optimistic bias as random CV on this dataset. Neither is a valid substitute for grouped CV (LOIO). AIC/BIC can still be used **within** an outer fold (e.g., to select $\lambda$ in the inner loop on a fixed training set of 15 subjects), but cannot replace the LOIO outer structure.
 
 ---
 

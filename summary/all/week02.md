@@ -1,323 +1,202 @@
-# Week 2 — Lasso, Elastic Net, Model Assessment, Bootstrap, Multiple Testing
+# Week 2 — Model Selection & Assessment, KNN
 
 ## Overview
-Week 2 extends week 1's regularization framework. It introduces Lasso ($L_1$ penalty) which performs variable selection by setting some coefficients to exactly zero. Two algorithms for solving the Lasso are covered: LARS and Cyclical Coordinate Descent. The elastic net combines $L_1$ and $L_2$ penalties. Model assessment topics include nested cross-validation, the bootstrap, classifier performance metrics (confusion matrix, ROC), and multiple testing correction (FWER, Bonferroni, FDR / Benjamini-Hochberg).
+Week 2 introduces the framework for rigorously choosing and evaluating models. It begins with K-Nearest Neighbours (KNN) as a motivating example of bias-variance tradeoff via the complexity parameter $K$. The lecture then covers over- and underfitting, Ridge regression recap, and the central distinction between model *selection* (tuning $\lambda$) and model *assessment* (estimating generalisation error). The main tools introduced are K-fold cross-validation (with the 1-SE rule and SE formula), leave-k-groups-out CV, the optimism framework, and information criteria ($C_p$, AIC, BIC).
 
 ---
 
-## Part I — The Lasso
+## 1. K-Nearest Neighbours (KNN)
 
 ### Key Concepts
-- Lasso = "Least Absolute Shrinkage and Selection Operator"
-- Uses an $L_1$ penalty instead of ridge's $L_2$ penalty.
-- Critical difference: $L_1$ penalty produces **exact zeros** in the coefficient vector → automatic variable selection.
+- Classify an observation $x$ by the majority class among its $K$ nearest neighbours (by Euclidean distance).
+- Predict a continuous response by averaging the $K$ nearest neighbours' responses.
+- Standardize features to mean 0, variance 1 before computing distances.
 
-### Lasso Objective Function
-- **Penalized form**: $\min_{\boldsymbol{\beta}}\ (\mathbf{Y} - \mathbf{X}\boldsymbol{\beta})^T(\mathbf{Y} - \mathbf{X}\boldsymbol{\beta}) + \lambda\|\boldsymbol{\beta}\|_1$
-  - $\|\boldsymbol{\beta}\|_1 = \sum_j |\beta_j|$ — sum of absolute values
-- **Constrained form** (basis pursuit): $\min_{\boldsymbol{\beta}}\ (\mathbf{Y} - \mathbf{X}\boldsymbol{\beta})^T(\mathbf{Y} - \mathbf{X}\boldsymbol{\beta})$ subject to $\sum_j |\beta_j| \leq s$
-- $\lambda$ (or equivalently $s$) controls sparsity; larger $\lambda$ → more zeros.
-
-### Why Lasso Produces Zeros (Geometry)
-- The $L_1$ constraint region is a **diamond** (in 2D) with corners on the axes.
-- The RSS ellipsoid typically first touches the diamond at a **corner**, where one or more $\beta_j = 0$.
-- Contrast with ridge: $L_2$ constraint is a **sphere** with no corners → solutions are never exactly zero.
-
-### Lasso Properties
-- **Non-differentiable** at $\beta = 0$ (the $L_1$ norm has a kink there).
-- **No closed-form solution** — must use iterative algorithms.
-- For large enough $\lambda$: some $\beta_j$ will be set to **exactly zero**.
-- Effective number of parameters $\text{df}$ = **number of non-zero coefficients** (coefficients different from zero).
-- In the $p > n$ case: Lasso selects **at most $n$ variables**.
-- If predictors are correlated, Lasso tends to pick **one** from a correlated group (arbitrarily).
-
-### Lasso Limitations (motivating Elastic Net)
-1. **High dimensionality** ($p > n$): Lasso selects at most $n$ variables.
-2. **Grouping effect**: With correlated predictors, Lasso picks one arbitrarily — Ridge tends to include the whole group.
-3. **Predictive power**: When $n > p$ and predictors are highly correlated, Ridge often outperforms Lasso.
+### Bias-Variance in KNN
+- **Small $K$** (e.g. $K=1$): highly flexible, jagged decision boundary, low bias, high variance (overfits).
+- **Large $K$** (e.g. $K=N$): smooth boundary close to majority class, high bias, low variance (underfits).
+- $K$ is a hyperparameter chosen by cross-validation.
 
 ---
 
-## Part II — Algorithms for Lasso
+## 2. Overfitting, Underfitting, and Complexity
 
-### Algorithm 1: Least Angle Regression Selection (LARS)
-
-#### Overview
-- LARS is the computational "engine" for finding the entire Lasso/Elastic Net regularization path.
-- Computes all $\lambda$ values at the **speed of a single OLS fit**.
-- LASSO is a **modification** of LARS: if a parameter estimate crosses zero, set it to zero and recompute direction.
-
-#### LARS Algorithm Steps
-1. **Initialize**: Start with all $\boldsymbol{\beta} = \mathbf{0}$, current estimate $\mu_0 = 0$, residual $r = y$.
-2. **Find most correlated variable**: Compute correlations $c = \mathbf{X}^T r$. Find $x_j$ with max $|\text{correlation}|$.
-3. **Move** $\beta_j$ in the direction of its least-squares coefficient.
-4. **Stop** when another variable $x_k$ has as much correlation with the current residual as $x_j$.
-5. **Move in equiangular direction**: Move in the direction that bisects the angle between $x_j$ and $x_k$.
-6. Repeat until all variables are included or residuals are zero.
-
-#### Key Terminology
-- $\mu$: current prediction estimate
-- Active set $A$: set of variables currently being moved
-- Equiangular direction $u_A = \mathbf{X}_A w$, where $w = A(\mathbf{X}_A^T \mathbf{X}_A)^{-1} \mathbf{1}$, $A$ is a normalization factor so $\|u_A\| = 1$
-- Step size $\gamma$: chosen so the residual becomes equally correlated with all active variables
-
-#### LARS Step Size Formula (2 variables)
-$$\gamma = \frac{c_j - c_k}{1 - \rho_{jk}}$$
-- $c_j,\ c_k$: current correlations of $x_j$ and $x_k$ with residual
-- $\rho_{jk}$: correlation between $x_j$ and $x_k$
-
-#### LARS vs Forward Selection (Greedy vs Polite)
-| Forward Selection (Greedy) | LARS (Polite) |
-|---------------------------|---------------|
-| Finds best variable | Finds best variable |
-| Moves along it completely until it can't improve | Moves only until a second becomes equally helpful |
-| Aggressive, jerky path | Efficient, equiangular path |
-
-#### LARS Assumptions
-- Data is centered and normalized (each variable has length 1).
-- This means $\mathbf{X}^T \mathbf{X} \approx \text{Corr}(\mathbf{X})$.
-
-#### Cp for LARS (choosing number of steps)
-$$C_p = \frac{1}{\hat{\sigma}^2} \sum_i (y_i - \hat{y}_i)^2 - n + 2k$$
-where $k$ is the number of LARS steps taken.
-
-### Algorithm 2: Cyclical Coordinate Descent
-
-#### Overview
-Fix $\lambda$ and solve $\min_{\boldsymbol{\beta}}\ \frac{1}{2n} \sum_i (y_i - x_i^T \boldsymbol{\beta})^2 + \lambda|\beta_j|$ iteratively, updating one coordinate at a time.
-
-#### Steps
-1. Compute partial residual for coordinate $j$ (holding all others fixed):
-   $$r_i^{(j)} = y_i - \sum_{k \neq j} x_{ik} \tilde{\beta}_k(\lambda)$$
-2. Compute the OLS solution for this partial residual:
-   $$\tilde{\beta}_j^{\text{OLS}} = \frac{1}{n} \sum_i x_{ij} r_i^{(j)}$$
-   (under standardization: $\sum_i x_{ij} = 0$ and $\frac{1}{n}\sum_i x_{ij}^2 = 1$)
-3. Apply **soft thresholding** to get the Lasso update:
-   $$\tilde{\beta}_j(\lambda) = \text{sign}(\tilde{\beta}_j^{\text{OLS}})\left(|\tilde{\beta}_j^{\text{OLS}}| - \lambda\right)_+$$
-4. Cycle through $j = 1, \ldots, p$ repeatedly until convergence.
-
-#### Soft Thresholding
-$$S(x, \Delta) = \text{sign}(x)(|x| - \Delta)_+$$
-- If $|x| \leq \Delta$: result is $0$ (shrinks to zero).
-- If $|x| > \Delta$: result is $x - \Delta \cdot \text{sign}(x)$ (shrinks toward zero by $\Delta$).
-- This is the key operation that produces sparsity.
+- **Underfitting**: model too simple → wrong assumptions → high training AND test error.
+- **Overfitting**: model too flexible → memorises noise → low training error, high test error.
+- Example: polynomial regression of degree $p$ on $n=10$ data points:
+  - $p=0$ (constant): high bias.
+  - $p=3$: good fit (if true function is cubic).
+  - $p=9$: interpolates all points, wildly wrong between them.
+- More data reduces overfitting: $p=9$, $n=100$ looks reasonable; $p=9$, $n=10$ is disastrous.
+- Ridge regression adds a quadratic penalty to control complexity via $\lambda$:
+  $$\hat{\beta}_\text{Ridge} = \arg\min_\beta \|Y-X\beta\|_2^2 + \lambda\|\beta\|_2^2 = (X^TX+\lambda I)^{-1}X^TY$$
+  - $\lambda=0$ → OLS (no regularisation, high variance).
+  - $\lambda\to\infty$ → all coefficients $\to 0$ (high bias, no variance).
 
 ---
 
-## Part III — Elastic Net
+## 3. Model Selection vs Model Assessment
 
-### Motivation
-Combines $L_1$ (Lasso) and $L_2$ (Ridge) penalties to get sparsity AND grouping behavior.
+### The Two Tasks
+1. **Model selection**: choose a tuning parameter $\lambda$ or choose between model classes. Use a **validation set**.
+2. **Model assessment**: estimate the generalisation error of the *final chosen* model. Use a **test set**.
 
-### Elastic Net Objective
-- **Penalized form**: $\min_{\boldsymbol{\beta}}\ \frac{1}{2n}\|\mathbf{Y} - \mathbf{X}\boldsymbol{\beta}\|_2^2 + \lambda\!\left[\frac{1-\alpha}{2}\|\boldsymbol{\beta}\|_2^2 + \alpha\|\boldsymbol{\beta}\|_1\right]$
-- **Constrained form**: $\min_{\boldsymbol{\beta}}\ \frac{1}{2n}\|\mathbf{Y} - \mathbf{X}\boldsymbol{\beta}\|_2^2$ s.t. $\frac{1-\alpha}{2}\|\boldsymbol{\beta}\|_2^2 + \alpha\|\boldsymbol{\beta}\|_1 \leq t$
+### Training / Validation / Test Split
+| Set | Purpose | Used for decision? |
+|-----|---------|-------------------|
+| Training | Fit parameters | Yes |
+| Validation (dev) | Tune hyperparameters, select features | Yes |
+| Test | Final performance estimate | **No — report only** |
 
-### $\alpha$ Parameter (mixing)
-- $\alpha = 1$: Pure Lasso ($L_1$ only)
-- $\alpha = 0$: Pure Ridge ($L_2$ only)
-- $0 < \alpha < 1$: Elastic Net (the "elastic" region)
+- Test set must be used **only once**. Using it for decisions makes it a validation set.
+- Dev and test sets must come from the same distribution as future data (Andrew Ng: "reflect data you expect to get in the future").
 
-### Advantage
-- Combines shrinkage of Ridge with variable selection of Lasso.
-- Handles the grouping effect: tends to include or exclude correlated variables together.
-- More robust sparse estimate than Lasso alone.
+### Practical Protocol (Repeated Splitting)
+For each repetition $m=1,\ldots,R$:
+1. Randomise (permute) data.
+2. Split into training, validation, test.
+3. Train on training set with range of $\lambda$.
+4. Select best $\lambda$ on validation set.
+5. Test model on test set — report error.
 
-### Implementation via Augmented Data
-To use standard LARS/Lasso solvers for Elastic Net, "hide" the $L_2$ penalty inside the data:
-
-**Step 1 — Construct augmented matrices**:
-
-$$\mathbf{X}^*_{(n+m)\times m} = \begin{bmatrix} \mathbf{X} \\ \sqrt{\lambda_2}\, \mathbf{I}_m \end{bmatrix}, \qquad \mathbf{y}^*_{(n+m)} = \begin{bmatrix} \mathbf{y} \\ \mathbf{0}_m \end{bmatrix}$$
-
-- $m$ = number of features, $\mathbf{I}_m$ is the $m \times m$ identity matrix.
-- Bottom $m$ rows of $\mathbf{y}^*$ are zeros.
-
-**Step 2 — Absorption**:
-
-$$\|\mathbf{y}^* - \mathbf{X}^*\boldsymbol{\beta}\|^2 = \|\mathbf{y} - \mathbf{X}\boldsymbol{\beta}\|^2 + \|\mathbf{0} - \sqrt{\lambda_2}\,\mathbf{I}\,\boldsymbol{\beta}\|^2 = \|\mathbf{y} - \mathbf{X}\boldsymbol{\beta}\|^2 + \lambda_2\|\boldsymbol{\beta}\|_2^2$$
-
-The $L_2$ penalty is now absorbed into the residual term.
-
-**Step 3 — Solve the LASSO** on $(\mathbf{y}^*, \mathbf{X}^*)$:
-
-$$\min_{\boldsymbol{\beta}^*}\ \|\mathbf{y}^* - \mathbf{X}^*\boldsymbol{\beta}^*\|^2 + \lambda_1\|\boldsymbol{\beta}^*\|_1$$
-
-The solution $\boldsymbol{\beta}^*$ is a **scaled ridge solution**: $\frac{1}{\sqrt{1+\lambda_2}}$ is the scaling factor.
-
-**Why**: LARS/Coordinate Descent only see a standard LASSO problem; they are blind to the hybrid penalty.
+Report mean and SE of test errors over $R$ repetitions.
 
 ---
 
-## Part IV — Feature / Variable Selection Methods
+## 4. K-Fold Cross-Validation
 
-### Combinatorial Search
-- Try all possible subsets of features; select optimal.
-- Pro: Guaranteed to find best combination.
-- Con: $2^p$ combinations — computationally infeasible for large $p$.
+### Algorithm
+1. Randomly split data into $K$ roughly equal folds $F_1, F_2, \ldots, F_K$.
+2. For each fold $k = 1, \ldots, K$:
+   a. Fit the model with parameter $\lambda$ on the data excluding fold $k$: obtain $\hat{\beta}^{-k}(\lambda)$.
+   b. Compute error on fold $k$: $Err_k(\lambda) = \sum_{i \in \text{fold } k}(y_i - x_i\hat{\beta}^{-k}(\lambda))^2$
+3. **CV error**: $CV(\lambda) = \frac{1}{K}\sum_{k=1}^K Err_k(\lambda)$
+4. Choose $\lambda^* = \arg\min_\lambda CV(\lambda)$.
 
-### Forward Selection
-- Start with no variables; add one at a time (highest information criterion gain).
-- Pro: $O(p^2)$ models; works when $p > n$.
-- Con: May not find the globally optimal combination.
+### SE of the CV Error
+$$S.E.(\lambda) = \frac{1}{\sqrt{K}}\sqrt{\frac{1}{K}\sum_{k=1}^K (Err_k(\lambda) - CV(\lambda))^2}$$
 
-### Backward Elimination
-- Start with all variables; remove one at a time (lowest information criterion loss).
-- Pro: $O(p^2)$ models.
-- Con: Numerical issues with many features; requires $n > p$ to start.
-- Usually better than forward selection.
+- This SE is **biased downward** (underestimated) because the $K$ fold errors are correlated (they share training data).
 
----
-
-## Part V — Model Assessment
-
-### The Selection-Induced Bias Problem
-- When you test many $\lambda$ values and pick the one with **minimum CV error**, the minimum is **optimistically biased**.
-- Reason: You have "spent" the independence of the validation folds by using them to select $\lambda$.
-- The resulting error estimate is **not** an unbiased estimate of future performance.
-- Insight: "We didn't just fit the model; we fitted the hyperparameter to the noise in the CV folds."
-
-### Nested Cross-Validation (Solution)
-Separate **model selection** from **model assessment** using two loops:
-
-**Inner loop (Selection)**:
-- Used to tune $\lambda$.
-- Finds the best configuration for a specific training set.
-
-**Outer loop (Assessment)**:
-- Used to audit the **entire procedure** (including the selection step).
-- Estimates how well the "Selection + Training" pipeline generalizes.
-
-**Nested CV Algorithm**:
-1. Split data into $K_{\text{outer}}$ folds.
-2. For each outer fold $j$ (test):
-   a. Take remaining data as "Training Set."
-   b. Inner loop: Perform $K_{\text{inner}}$-fold CV on training set to find best $\lambda^*$.
-   c. Train final model with $\lambda^*$ on the **entire** training set.
-   d. Evaluate on held-out outer fold $j$.
-3. Final report: Average the $K_{\text{outer}}$ test scores.
-
-**Computational cost**: Total fits $= K_{\text{outer}} \times (K_{\text{inner}} \times N_{\lambda} + 1)$
-- Example: $10 \times 10 \times 100 = 10{,}000$ model fits.
-
-**Key insight**: Nested CV audits the **methodology** (the whole pipeline), not a specific single model.
-- It's OK if the best $\lambda$ changes across outer folds.
-- A large gap between inner error (5%) and outer error (12%) indicates selection-induced overfitting.
+### Choice of $K$
+| $K$ | Bias | Variance | Notes |
+|-----|------|---------|-------|
+| $K=N$ (LOOCV) | Lowest | High | Folds too similar; SE unreliable |
+| $K=10$ | Low | Moderate | Good default |
+| $K=5$ | Slightly higher | Lower | Good compromise |
 
 ---
 
-## Part VI — The Bootstrap
+## 5. The 1-SE Rule
 
-### What is Bootstrap?
-- A general method for **assessing statistical accuracy** (standard errors, confidence intervals, bias).
-- Invented by Efron. Key idea: use the data itself as a "mirror copy of the real world."
-- Bootstrap estimates $\approx$ Monte Carlo estimates (but drawing from empirical distribution instead of true $P$).
-
-### Conceptual Framework (Freedman's terminology)
-- **Real world**: Unknown $P$ → observed data $x = (x_1, \ldots, x_n)$ → statistic $\hat{\theta} = s(x)$
-- **Bootstrap world**: Estimated $\hat{P}$ → bootstrap sample $x^* = (x_1^*, \ldots, x_n^*)$ → bootstrap replication $\hat{\theta}^* = s(x^*)$
-
-### Bootstrap Method
-1. Given training set $Z = (z_1, \ldots, z_N)$ where $z_i = (x_i, y_i)$.
-2. Randomly draw with replacement from $Z$, same size $N$ → bootstrap sample $Z^{*b}$.
-3. Repeat $B$ times ($B = 100$ or more), producing $B$ bootstrap datasets.
-4. Refit the model to each $Z^{*b}$, compute statistic $S(Z^{*b})$.
-5. Variance estimate:
-
-$$\widehat{\text{Var}}[S(Z)] = \frac{1}{B-1} \sum_b \left(S(Z^{*b}) - \bar{S}^*\right)^2, \quad \bar{S}^* = \frac{1}{B}\sum_b S(Z^{*b})$$
-
-### Practical Remarks
-- For **standard deviation**: a few hundred replicates suffice.
-- For **confidence intervals**: 1000–2000 replicates recommended.
-- Try different $B$ and check if results change.
-- Bootstrap works well for statistics "in the middle" of the distribution; works **poorly for tail statistics** (extremes).
-- **Tibshirani's warning**: Do NOT use bootstrap for model selection — it is intended for assessing statistical accuracy of a given model/statistic.
+- After CV, plot $CV(\lambda) \pm S.E.(\lambda)$ vs $\lambda$.
+- The minimum CV error point is the point estimate of the optimal $\lambda$.
+- **1-SE rule**: choose the **most regularised** $\lambda$ whose CV error $\leq \min CV + S.E.(\lambda^*)$.
+- Rationale: CV slightly underestimates error (selection bias); picking a slightly simpler model compensates.
+- Result: simpler, more stable model that generalises nearly as well.
 
 ---
 
-## Part VII — Classifier Performance
+## 6. Leave-k-Groups-Out Cross-Validation
 
-### Confusion Matrix
-For a binary classifier (Positive/Negative):
-| | Predicted Positive | Predicted Negative |
-|--|--|--|
-| **Actual Positive** | TP (True Positive) | FN (False Negative) |
-| **Actual Negative** | FP (False Positive) | TN (True Negative) |
-
-**Derived metrics**:
-- **Accuracy** $= \frac{\text{TP} + \text{TN}}{\text{TP} + \text{TN} + \text{FP} + \text{FN}}$ — fraction correct. Dangerous for imbalanced data.
-- **Sensitivity / Recall / TPR** $= \frac{\text{TP}}{\text{TP} + \text{FN}}$ — fraction of actual positives detected.
-- **Specificity / TNR** $= \frac{\text{TN}}{\text{TN} + \text{FP}}$ — fraction of actual negatives correctly identified.
-- **Precision / PPV** $= \frac{\text{TP}}{\text{TP} + \text{FP}}$ — fraction of predicted positives that are true positives.
-- **FPR (False Positive Rate)** $= \frac{\text{FP}}{\text{FP} + \text{TN}} = 1 - \text{Specificity}$
-- **FNR (False Negative Rate)** $= \frac{\text{FN}}{\text{FN} + \text{TP}} = 1 - \text{Sensitivity}$
-- **F1 score** $= \frac{2\,\text{TP}}{2\,\text{TP} + \text{FP} + \text{FN}}$ = harmonic mean of precision and recall
-- **Balanced accuracy** $= \frac{\text{Sensitivity} + \text{Specificity}}{2}$
-
-**Note**: If prevalence is low (e.g., 0.1%), ignore accuracy — use Precision-Recall curves instead.
-
-### ROC Curve — Receiver Operating Characteristics
-- Plots **TPR (Sensitivity)** vs **FPR ($1-$Specificity)** as the classification threshold varies.
-- **AUC-ROC**: Area under the ROC curve.
-  - AUC $= 1.0$: perfect classifier.
-  - AUC $= 0.5$: random classifier (diagonal line).
-  - AUC $> 0.5$: better than random.
-- ROC/AUC gives general performance across ALL classification thresholds.
-- Can be extended to multiclass: micro-average and macro-average.
-
-### Regression Performance Metrics
-- **MSE/RMSE**: $\frac{1}{n}\sum_i (y_i - \hat{y}_i)^2$ — outlier sensitive; useful for safety-critical audits.
-- **MAE**: $\frac{1}{n}\sum_i |y_i - \hat{y}_i|$ — robust to outliers; direct physical interpretation.
-- **$R^2$**: Fraction of variance explained. Relative, not absolute measure.
-- **Residual plots**: Final sanity check; if residuals show patterns, model is incomplete regardless of MSE.
+- When observations are **grouped** (subjects, patients, time series segments), put each entire group into a single fold.
+- Prevents information leakage between training and validation folds.
+- Example: 4 groups of subjects → 4-fold CV, each fold = one group.
+- Generalises to: leave-one-subject-out (LOSO), leave-one-season-out (LOSO), etc.
+- This is the correct design for the Q22 wearables question.
 
 ---
 
-## Part VIII — Multiple Testing
+## 7. CV Considerations and Data Leakage
+
+Observations must be **independent** (IID assumption). Violating this leaks information:
+
+| Mistake | Consequence |
+|---------|------------|
+| Normalise entire dataset before splitting | Test mean/std leaks into training normalisation |
+| Impute missing values on full dataset before CV | Imputation uses test set information |
+| Sort data before splitting | Temporal/ordering structure leaks |
+| Keep correlated observations across folds | Apparent performance better than reality |
+
+**Correct procedure**: all pre-processing (normalisation, imputation, feature selection) must happen **inside the CV loop**, using only training-fold data.
+
+Example of leakage: normalize ALL data first, then split 80/20. The normalisation uses test set statistics → the "99% accuracy" result is inflated.
+
+---
+
+## 8. Optimism of Training Error
 
 ### The Problem
-- Testing one hypothesis at significance level $\alpha$: probability of false rejection $= \alpha$.
-- Testing $M$ hypotheses: the probability of **at least one false rejection** is much larger than $\alpha$.
+- Training error $\overline{err} = \frac{1}{N}\sum_i(y_i - \hat{y}_i)^2$ is **optimistic**: the model was fit to these exact points.
+- The in-sample error $Err_{in} = \frac{1}{N}\sum_i E_{y^0}[(y_i^0 - \hat{y}_i)^2]$ measures error on NEW outcomes at the SAME training inputs.
 
-### Family-Wise Error Rate (FWER)
-- **Definition**: Probability of at least one false rejection across all $M$ tests.
-- **Formula** (independent tests): $\text{FWER} = 1 - (1 - \alpha)^M$
-- Example: $M=20$ tests at $\alpha=0.05$ → $\text{FWER} = 1 - (0.95)^{20} \approx 0.64$ (64% chance of at least one false discovery!)
+### Optimism
+$$op \equiv Err_{in} - \overline{err}$$
 
-### Bonferroni Correction
-- **Method**: Reject hypothesis if p-value $< \alpha/M$.
-- **Effect**: Controls FWER at level $\alpha$ (assuming independence).
-- **Cost**: Low power — we miss many true effects.
+### Expected Optimism
+$$\omega \equiv E_y[op] = \frac{2}{N}\sum_{i=1}^N \text{Cov}(\hat{y}_i, y_i)$$
 
-### False Discovery Rate (FDR)
-- **Definition**: $\text{FDR} = E\!\left[\frac{\text{FP}}{\text{FP} + \text{TP}}\right]$
-  - FP = false positives (false discoveries)
-  - TP = true positives (true discoveries)
-- **Trade-off**: Allows a controlled fraction of false discoveries → more power than Bonferroni.
-- Proposed by Benjamini and Hochberg (1995).
-- Set FDR threshold $q$: among all findings, we expect at most fraction $q$ to be mistakes.
+- Higher model complexity $\Rightarrow$ larger $\text{Cov}(\hat{y}_i, y_i)$ (model tracks each $y_i$ more closely) $\Rightarrow$ more optimism.
 
-### Benjamini-Hochberg (BH) Algorithm for FDR
-Given $m$ hypothesis tests with p-values $p_1, \ldots, p_m$ and target FDR level $q$:
-1. Sort p-values: $p_{(1)} \leq p_{(2)} \leq \cdots \leq p_{(m)}$
-2. Find the largest $k$ such that: $p_{(k)} \leq \frac{k}{m} \cdot q$
-3. Reject all hypotheses $H_{(1)}, H_{(2)}, \ldots, H_{(k)}$
+### Linear Case: $d$ free parameters, noise $\sigma_\varepsilon^2$
+$$E[Err_{in}] = E[\overline{err}] + \frac{2d}{N}\sigma_\varepsilon^2$$
 
-**Intuition**: Walk down sorted p-values; reject as long as $p_{(i)} \leq \frac{i}{m}q$. The threshold $\frac{i}{m}q$ increases linearly — it is more lenient for lower-ranked (more significant) tests.
+This means: unbiased test error estimate = training error + penalty for complexity. This is the **theoretical foundation** of $C_p$, AIC, and BIC.
 
-**Example** ($m=5$ tests, $q=0.1$, p-values: 0.01, 0.05, 0.1, 0.4, 0.6):
-- $i=1$: $0.01 \leq \frac{1}{5}\times 0.1 = 0.02$ ✓
-- $i=2$: $0.05 \leq \frac{2}{5}\times 0.1 = 0.04$ ✗
-- $k=1$, reject only $H_{(1)}$
+---
 
-**Example** ($m=5$ tests, $q=0.20$, p-values: 0.01, 0.03, 0.15, 0.40, 0.50):
-- $i=1$: $0.01 \leq \frac{1}{5}\times 0.20 = 0.04$ ✓
-- $i=2$: $0.03 \leq \frac{2}{5}\times 0.20 = 0.08$ ✓
-- $i=3$: $0.15 \leq \frac{3}{5}\times 0.20 = 0.12$ ✗
-- $k=2$, reject $H_{(1)}$ and $H_{(2)}$
+## 9. $C_p$ Statistic
 
-**BH vs Bonferroni**:
-- BH (FDR control): More discoveries, controlled proportion of false ones.
-- Bonferroni (FWER control): Fewer discoveries, controls probability of ANY false one.
+$$C_p = \overline{err} + 2\frac{d}{N}\hat{\sigma}_\varepsilon^2$$
 
-**$q$ vs $\alpha$**: $q$ (FDR level) is often set higher than $\alpha$ (e.g., $q = 0.1$ or $0.2$) because the cost metric is different.
+- $\overline{err}$: actual training error.
+- $d$: number of free parameters in the model.
+- $\hat{\sigma}_\varepsilon^2$: noise floor — estimated from a low-bias model (e.g. OLS with all features).
+- **Rule**: choose the model that minimises $C_p$.
+- Intuition: adding a variable ($d \uparrow$) always decreases $\overline{err}$ but increases the penalty; $C_p$ identifies the crossover point.
+
+---
+
+## 10. AIC (Akaike Information Criterion)
+
+$$AIC = -\frac{2}{N}\log L + \frac{2d}{N}$$
+
+- $L$: maximised log-likelihood of the model.
+- Generalises $C_p$ to any likelihood-based model (logistic regression, etc.).
+- **Gaussian special case**: $AIC(\lambda) = \overline{err}(\lambda) + 2\frac{d(\lambda)}{N}\hat{\sigma}_\varepsilon^2$ (identical to $C_p$).
+- $d(\lambda)$: effective degrees of freedom (for Ridge: $\sum_j d_j^2/(d_j^2+\lambda)$).
+- **Rule**: choose model with minimum AIC.
+
+---
+
+## 11. BIC (Bayes Information Criterion)
+
+$$BIC = -2\log L + d\log N$$
+
+- Heavier penalty than AIC: $d\log N$ vs $2d$ (since $\log N > 2$ for $N > e^2 \approx 7$).
+- For large $N$, BIC penalises extra parameters far more aggressively.
+- **BIC is consistent**: as $N \to \infty$, BIC selects the true model (if it is in the candidate set).
+- AIC is NOT consistent: tends to select too complex a model asymptotically.
+- **Rule**: choose model with minimum BIC.
+
+### AIC vs BIC
+
+| Property | AIC | BIC |
+|----------|-----|-----|
+| Penalty | $2d$ | $d\log N$ |
+| Selects more complex or simple? | More complex (for large $N$) | Simpler |
+| Consistent? | No | Yes |
+| Based on | KL divergence | Bayesian model evidence |
+| Use when | Prediction focus | True model in candidate set |
+
+---
+
+## 12. Comparison: CV vs Information Criteria
+
+| | Cross-Validation | $C_p$ / AIC / BIC |
+|--|-----------------|------------------|
+| Assumptions | None (only IID) | Distributional (linear / Gaussian) |
+| Cost | $K \times$ fitting cost | Single fit |
+| Consistent? | Yes (in probability) | BIC yes; AIC no |
+| Good for non-linear models? | Yes | Only if likelihood available |
+| Handles pipeline honestly? | Yes (if done correctly) | No (can't capture preprocessing) |

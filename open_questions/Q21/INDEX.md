@@ -1,32 +1,22 @@
-# Open Questions — Index
-> Q21 (20 pts) and Q22 (20 pts) together = 40/100 points on the exam.
-> Q22 has appeared identically in 2022, 2024, 2025 — prepare cold.
+# Q21 — Index
+> **20 points.** Q21 asks you to describe and explain a specific method in depth.
+> Q22 files are in `open_questions/Q22/` — see `Q22/INDEX.md`.
 
 ---
 
 ## Past Exam Pattern
 
-| Year | Q21 Topic | Q22 Topic |
-|------|-----------|-----------|
-| 2022 | Random Forest algorithm | Clustering for face images |
-| 2024 | ICA uniqueness and distributions | CV design for wearables |
-| 2025 | LDA vs GMM comparison | CV design for wearables |
+| Year | Q21 Topic |
+|------|-----------|
+| 2022 | Random Forest algorithm |
+| 2024 | ICA uniqueness and distributions |
+| 2025 | LDA vs GMM comparison |
 
-**Prediction**: Q22 will be CV design for wearables again. Q21 will be a new topic from the list below.
+**Prediction**: Q21 will be a topic not yet appeared — SVM, Boosting, EPE/Bias-Variance, and Ridge/Lasso are highest risk.
 
 ---
 
 ## File Index
-
-### Q22 (Do This First — Appears Every Year)
-
-| File | Variant | When it appears |
-|------|---------|----------------|
-| [Q22 — CV Design for Wearables](Q22_cv_wearables.md) | Supervised, non-IID grouped CV | 2024, 2025 (identical dataset) |
-| [Q22 — Face Image Clustering](Q22_face_clustering_2022.md) | Unsupervised, PCA + GMM + BIC | 2022 |
-| [Q22 — Other Possible Datasets](Q22_other_datasets.md) | EEG, speech, multi-site, tensor, genomics, gait | Not yet appeared — high risk |
-
-**Q22 pattern:** Either (a) "design a CV scheme for non-IID data" → grouped CV, or (b) "how many unique X?" → PCA + GMM/K-means + BIC. Both require justifying WHY the method matches the deployment goal.
 
 ### Q21 Candidates
 

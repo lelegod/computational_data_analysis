@@ -1,6 +1,6 @@
 # CDA 02582 — Q21 CHEAT SHEET
 > Q21 = 20 points. Explain / compare / derive a key algorithm in depth.
-> Full model answers in `open_questions/Q21_*.md`. This file = fast review before exam.
+> Full model answers in `open_questions/Q21/Q21_*.md`. This file = fast review before exam.
 
 ---
 

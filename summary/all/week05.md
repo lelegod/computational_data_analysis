@@ -1,11 +1,11 @@
-# Week 5 — CART (Continued) and Bagging
+# Week 5 — CART: Classification and Regression Trees + Bagging
 
 ## Overview
-This week continues with CART, covering classification trees, impurity measures, and pruning in more detail, then introduces Bagging (Bootstrap Aggregating) as a variance-reduction technique. Bagging applies bootstrapping to build many trees and average their predictions, reducing variance without changing bias.
+This week introduces Classification and Regression Trees (CART) and Bagging (Bootstrap Aggregating). CART partitions the feature space into axis-aligned rectangles and fits a constant prediction in each leaf — using RSS for regression trees and Gini/cross-entropy for classification trees. Trees are grown greedily and pruned via cost-complexity pruning with CV. Bagging then uses bootstrapping to aggregate many trees, reducing variance without affecting bias.
 
 ---
 
-## 1. CART Recap and Classification Trees (Continued)
+## 1. CART: Classification Trees
 
 ### Key Concepts
 - Classification trees partition the feature space into $J$ regions and predict the majority class in each region.

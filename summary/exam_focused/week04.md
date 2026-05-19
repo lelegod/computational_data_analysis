@@ -1,36 +1,88 @@
-# Week 4 — CART: Classification and Regression Trees (Exam Focus)
+# Week 4 — Linear and Regularized Classification: LDA, QDA, RDA, Logistic Regression (Exam Focus)
 
 ## Must-Know Facts
 
-### General CART
-- CART partitions feature space into axis-aligned rectangles; predicts a constant in each leaf.
-- Prediction in a regression leaf = mean of training responses in that leaf.
-- Prediction in a classification leaf = majority class in that leaf.
-- Trees handle missing data via surrogate splits (a major advantage).
-- Trees handle both continuous and categorical predictors natively.
-- Deep trees = low bias, HIGH variance. Shallow trees = high bias, LOW variance.
-- A small change in the training data can completely change the tree structure (instability = high variance).
-- The growing algorithm is GREEDY — it does not look ahead beyond the current split.
+### Generative vs Discriminative Classification
+- **Generative** (LDA, QDA): model the class-conditional density $P(X|G=k)$ and the prior $\pi_k$; use Bayes' theorem to get $P(G=k|X)$.
+- **Discriminative** (Logistic Regression): model the posterior $P(G=k|X)$ directly without modelling how $X$ was generated.
+- LDA makes stronger distributional assumptions (Gaussian, equal covariance) but is more efficient when those assumptions hold.
+- Logistic Regression is more robust when the Gaussian assumption is violated.
 
-### Splitting Criteria
-- Regression trees use RSS to select splits.
-- Classification trees use Gini index or cross-entropy (NOT misclassification rate) for growing.
-- Misclassification rate IS used for pruning (where final class prediction matters).
-- Gini and cross-entropy give similar trees in practice.
-- Gini = 0 means a node is perfectly pure (all one class).
-- Gini is maximised when classes are equally distributed.
+### Bayes' Theorem for Classification
+$$P(G=k|X=x) = \frac{f_k(x)\pi_k}{\sum_{l=1}^K f_l(x)\pi_l}$$
+- $f_k(x) = P(X=x|G=k)$: class-conditional density.
+- $\pi_k = P(G=k)$: prior probability (estimated by class frequency $N_k/N$).
+- Classify to class $k$ with highest posterior.
 
-### Pruning
-- Cost-complexity pruning grows a full tree then prunes back.
-- Larger $\alpha$ = smaller (more pruned) tree.
-- $\alpha = 0$ = full unpruned tree.
-- Cross-validation is used to choose the best $\alpha$.
-- The result is a sequence of nested subtrees $T_0 \supset T_1 \supset \cdots \supset T_{\text{root}}$.
-- Pre-pruning (stopping early) is worse than post-pruning because a bad-looking split now may enable a great split later.
+### Multivariate Gaussian Assumption
+$$f_k(x) = \frac{1}{(2\pi)^{p/2}|\Sigma_k|^{1/2}}\exp\!\left(-\frac{1}{2}(x-\mu_k)^T\Sigma_k^{-1}(x-\mu_k)\right)$$
 
-### Categorical Variables
-- For regression or binary classification with a categorical variable with $K$ levels: only $K-1$ ordered comparisons are needed (not all $2^{K-1} - 1$ subsets).
-- Order by mean response (regression) or class 1 proportion (binary classification).
+### LDA (Linear Discriminant Analysis)
+- **Key assumption**: ALL classes share the same covariance matrix $\Sigma_k = \Sigma$.
+- With equal $\Sigma$, the quadratic term $x^T\Sigma^{-1}x$ cancels in the log-odds → decision boundary is **linear** in $x$.
+- **Log-odds** (class $k$ vs $l$):
+$$\log\frac{P(G=k|X=x)}{P(G=l|X=x)} = \log\frac{\pi_k}{\pi_l} - \frac{1}{2}(\mu_k+\mu_l)^T\Sigma^{-1}(\mu_k-\mu_l) + x^T\Sigma^{-1}(\mu_k-\mu_l)$$
+- **Linear Discriminant Function**:
+$$\delta_k(x) = x^T\Sigma^{-1}\mu_k - \frac{1}{2}\mu_k^T\Sigma^{-1}\mu_k + \log\pi_k$$
+- **Classify**: $\hat{G}(x) = \arg\max_k \delta_k(x)$
+
+### Parameter Estimation in LDA
+- $\hat{\pi}_k = N_k/N$
+- $\hat{\mu}_k = \frac{1}{N_k}\sum_{g_i=k} x_i$
+- **Pooled covariance**: $\hat{\Sigma} = \frac{1}{N-K}\sum_{k=1}^K\sum_{g_i=k}(x_i-\hat{\mu}_k)(x_i-\hat{\mu}_k)^T$
+
+### QDA (Quadratic Discriminant Analysis)
+- Drops the equal covariance assumption: each class has its own $\Sigma_k$.
+- Log-odds are **quadratic** in $x$ → curved decision boundaries (ellipses, parabolas, hyperbolas).
+- Drawback: requires $O(p^2)$ parameters per class — breaks down when $p \gg N$.
+- More flexible than LDA but much higher variance in high dimensions.
+
+### RDA — Regularized Discriminant Analysis (Friedman 1989)
+- Bridges QDA and LDA via regularization to handle high dimensions.
+- **Option 1 — Shrink QDA towards LDA** ($\alpha \in [0,1]$):
+  $$\hat{\Sigma}_k(\alpha) = \alpha\hat{\Sigma}_k + (1-\alpha)\hat{\Sigma}$$
+  - $\alpha=1$ → QDA; $\alpha=0$ → LDA
+- **Option 2 — Shrink towards diagonal** ($\gamma \in [0,1]$):
+  $$\hat{\Sigma}(\gamma) = \gamma\hat{\Sigma} + (1-\gamma)\,\text{diag}(\hat{\Sigma})$$
+- **Option 3 — Shrink towards spherical**:
+  $$\hat{\Sigma}(\gamma) = \gamma\hat{\Sigma} + (1-\gamma)\hat{\sigma}^2 I$$
+- Tune $\alpha$ and $\gamma$ by cross-validation.
+
+### RRDA — Reduced Rank Discriminant Analysis
+- Projects data into a $K-1$ dimensional subspace that maximises class separation.
+- Excellent for visualization of multi-class separation.
+- Example: 3-class problem projected to a 2D canonical coordinate plot.
+
+### Why $p \gg N$ breaks LDA/QDA
+- LDA/QDA need $\hat{\Sigma}^{-1}$ — if $p \gg N$, $\hat{\Sigma}$ is singular (not full rank) and cannot be inverted.
+- Solution: regularize (RDA/RRDA) or use diagonal/spherical covariance approximation.
+
+### Logistic Regression
+- **Discriminative**: models $P(G=k|X)$ directly.
+- For binary classification ($Y \in \{0,1\}$):
+$$P(Y=1|X=x) = \frac{e^{\beta_0+\beta^Tx}}{1+e^{\beta_0+\beta^Tx}}, \qquad P(Y=0|X=x) = \frac{1}{1+e^{\beta_0+\beta^Tx}}$$
+- **Log-odds (logit)**:
+$$\log\frac{P(Y=1|X=x)}{P(Y=0|X=x)} = \beta_0 + \beta^Tx$$
+- Decision boundary: $\beta_0 + \beta^Tx = 0$ → **linear** in $x$ (same as LDA boundary).
+- $\beta_j$ = change in log-odds for a one-unit increase in $x_j$.
+- $e^{\beta_j}$ = multiplicative change in the **odds**.
+
+### Fitting Logistic Regression: MLE
+- Log-likelihood:
+$$\ell(\beta) = \sum_{i=1}^N \left[y_i(\beta^Tx_i) - \log(1+e^{\beta^Tx_i})\right]$$
+- **No closed-form solution** — maximised iteratively via **Newton-Raphson** (or IRLS: Iteratively Reweighted Least Squares).
+
+### LDA vs Logistic Regression
+
+| Property | LDA | Logistic Regression |
+|----------|-----|---------------------|
+| Approach | Generative | Discriminative |
+| Assumes class distribution | Yes (Gaussian) | No |
+| Equal covariance assumed | Yes | No |
+| Decision boundary | Linear | Linear |
+| Closed-form solution | Yes | No (Newton-Raphson) |
+| Works well when | Gaussian classes | Messy/non-Gaussian data |
+| Parameters estimated by | MLE (closed form) | MLE (iterative) |
 
 ---
 
@@ -38,42 +90,41 @@
 
 | Formula | What it is | When to use |
 |---------|-----------|-------------|
-| $c_j = \text{mean}(y_i : x_i \in R_j)$ | Leaf prediction (regression) | Predict in regression leaf |
-| $\text{RSS} = \sum (y_i - c_1)^2 + \sum (y_i - c_2)^2$ | Split criterion for regression | Choosing best split in regression tree |
-| $\hat{p}_{mk} = \frac{1}{N_m} \sum \mathbf{I}(y_i = k)$ | Class proportion in leaf $m$ | Computing Gini, entropy, error |
-| $G = \sum_k \hat{p}_{mk}(1 - \hat{p}_{mk})$ | Gini index | Split criterion for classification |
-| $D = -\sum_k \hat{p}_{mk} \log(\hat{p}_{mk})$ | Cross-entropy / deviance | Alternative split criterion |
-| $E = 1 - \max_k(\hat{p}_{mk})$ | Misclassification rate | Pruning evaluation |
-| $C_\alpha(T) = \sum_m N_m Q_m(T) + \alpha \lvert T \rvert$ | Cost-complexity criterion | Pruning: balance fit vs. tree size |
-| $\Delta I = I(\text{parent}) - \left[\frac{N_L}{N} I(\text{left}) + \frac{N_R}{N} I(\text{right})\right]$ | Impurity reduction at a split | Choosing best split (classification) |
-| $VI_j = \sum_{\text{splits on } j} N_t \cdot \Delta I_t$ | Variable importance for feature $j$ | Interpreting which features matter |
+| $P(G=k|X=x) = \frac{f_k(x)\pi_k}{\sum_l f_l(x)\pi_l}$ | Bayes' theorem | Generative classification |
+| $\delta_k(x) = x^T\Sigma^{-1}\mu_k - \frac{1}{2}\mu_k^T\Sigma^{-1}\mu_k + \log\pi_k$ | LDA discriminant function | Classify with LDA |
+| $\hat{G}(x) = \arg\max_k \delta_k(x)$ | LDA decision rule | Assign class |
+| $\hat{\Sigma} = \frac{1}{N-K}\sum_k\sum_{g_i=k}(x_i-\hat{\mu}_k)(x_i-\hat{\mu}_k)^T$ | Pooled covariance | LDA estimation |
+| $\hat{\Sigma}_k(\alpha) = \alpha\hat{\Sigma}_k + (1-\alpha)\hat{\Sigma}$ | RDA option 1 | Shrink QDA to LDA |
+| $P(Y=1|X=x) = \frac{e^{\beta_0+\beta^Tx}}{1+e^{\beta_0+\beta^Tx}}$ | Logistic sigmoid | Logistic regression prediction |
+| $\log\frac{P(Y=1|X=x)}{P(Y=0|X=x)} = \beta_0 + \beta^Tx$ | Log-odds (logit) | Logistic regression interpretation |
+| $\ell(\beta) = \sum_i[y_i\beta^Tx_i - \log(1+e^{\beta^Tx_i})]$ | Log-likelihood | MLE for logistic regression |
 
 ---
 
 ## Common Traps (wrong answers in exams)
 
-- Misclassification rate is used to GROW trees → Misclassification rate is NOT used to grow trees; Gini/entropy are used. Misclassification rate is insensitive to probability changes within a class.
-- Bagging improves bias → Bagging does NOT improve bias; it only reduces variance. (Week 5 concept, but often confused here.)
-- A deeper tree always has lower error → A deeper tree has lower TRAINING error but can have much higher TEST error (overfitting).
-- CART cannot handle missing data → CART handles missing data via surrogate splits.
-- CART assumes features are on the same scale → CART does NOT require scaling; splits are based on ordering, not distances.
-- Gini and entropy give very different trees → They give very similar trees in practice; the choice rarely matters.
-- For categorical variables with $K$ levels, CART must try all $2^{K-1} - 1$ subsets → For regression and binary classification, only $K-1$ ordered splits are needed.
-- Cross-entropy and misclassification rate are equivalent for tree growing → Cross-entropy is more sensitive to probability changes and preferred for growing; misclassification rate is flat in large regions.
-- $\alpha = 0$ gives the smallest tree → $\alpha = 0$ gives the LARGEST (full) tree. Larger $\alpha$ = smaller tree.
-- Pre-pruning is better than post-pruning → Post-pruning (cost-complexity) is generally preferred because greedy early stopping can miss good splits.
+- ❌ LDA has per-class covariance matrices → ✓ LDA assumes ALL classes share ONE pooled $\Sigma$; per-class $\Sigma_k$ is QDA
+- ❌ LDA has a quadratic decision boundary → ✓ Equal $\Sigma$ cancels the quadratic term → LDA boundary is STRICTLY LINEAR
+- ❌ Logistic regression models $P(X|G)$ → ✓ Logistic regression is DISCRIMINATIVE: it models $P(G|X)$ directly
+- ❌ Logistic regression has a closed-form solution → ✓ No closed form; requires iterative Newton-Raphson / IRLS
+- ❌ QDA and LDA have the same number of parameters → ✓ QDA needs $O(p^2)$ per class; LDA pools into one $\Sigma$ — far fewer params
+- ❌ If $p \gg N$, LDA still works → ✓ $p \gg N$ makes $\hat{\Sigma}$ singular → LDA/QDA cannot invert it; use RDA
+- ❌ $e^{\beta_j}$ is the change in probability → ✓ $e^{\beta_j}$ is the change in ODDS (multiplicative); probability change is non-linear
+- ❌ LDA and logistic regression have different decision boundaries → ✓ Both produce LINEAR decision boundaries in $x$; the difference is HOW they are estimated
+- ❌ RDA with $\alpha=1$ gives LDA → ✓ $\alpha=1$ gives QDA (full per-class $\Sigma_k$); $\alpha=0$ gives LDA (pooled $\Sigma$)
+- ❌ RRDA reduces to fewer features like PCA → ✓ RRDA reduces to $K-1$ dimensions maximising CLASS SEPARATION (not variance like PCA)
 
 ---
 
 ## Quick Decision Rules
 
-- If regression tree: split on RSS reduction, predict leaf mean.
-- If classification tree: split on Gini or entropy reduction, predict majority class.
-- If $\alpha$ increases: tree gets smaller (fewer leaves).
-- If node is pure (all same class): Gini $= 0$, entropy $= 0$, misclassification $= 0$.
-- If classes are equal (50/50 binary): Gini $= 0.5$, misclassification $= 0.5$, entropy $= \log(2)$.
-- If a feature is missing at prediction: use surrogate split (next best split that agrees with primary).
-- If asked which impurity measure to use for GROWING: Gini or cross-entropy (not misclassification).
-- If asked which impurity measure to use for PRUNING/EVALUATION: misclassification rate.
-- If asked about tree variance: trees have HIGH variance — small data changes cause large structural changes.
-- If $n_{\min}$ is large: shallower tree, more bias, less variance.
+- "Linear boundary, models class distributions as Gaussian" → LDA
+- "Quadratic boundary, per-class covariance" → QDA
+- "LDA/QDA breaks when $p \gg N$" → use RDA (regularize with $\alpha$/$\gamma$)
+- "Discriminative, models $P(G|X)$ directly, no distributional assumption" → Logistic Regression
+- "Coefficient $\beta_j$ in logistic regression: what does it mean?" → change in log-odds per unit $x_j$; $e^{\beta_j}$ = odds multiplier
+- "Which method is more robust to non-Gaussian data?" → Logistic Regression (fewer assumptions)
+- "Which method is more efficient when data IS Gaussian?" → LDA (uses more information)
+- "Decision boundary location" → where $\delta_k(x) = \delta_l(x)$ for LDA; where $\beta_0 + \beta^Tx = 0$ for logistic
+- "Fit logistic regression" → maximise log-likelihood via Newton-Raphson (iterative)
+- "Visualise multi-class separation in 2D" → RRDA (project to K-1 canonical coordinates)
