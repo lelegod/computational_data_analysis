@@ -1,109 +1,214 @@
-# CDA 02582 — Q22 CHEAT SHEET
-> Q22 = 20 points. Same wearables dataset used in 2022, 2024, 2025 — memorize cold.
-> Full model answer in `open_questions/Q22_cv_wearables.md`.
+# CDA 02582 — Q22 MASTER CHEAT SHEET
+> **20 points total.** Q22 has appeared in every exam. Know all three variants cold.
+> Detailed files: `open_questions/Q22_cv_wearables.md` · `Q22_face_clustering_2022.md` · `Q22_other_datasets.md`
 
 ---
 
-## The Dataset (Always the Same)
+## Step 0 — Recognise Which Variant You Have (30 seconds)
 
-- **16 subjects** × **3 activity conditions** × **4 seasons** = **192 observations**
-- Each subject has exactly **12 observations** (3 × 4)
-- Task: predict physical activity from wearable biosignals
-- Structure: **repeated-measures** (multiple observations per person)
-
----
-
-## Part a) Personalized Model — Predict for SAME Individual
-
-**Goal**: estimate EPE for a model that predicts future sessions for a person it was already trained on.
-
-**CV design**: **Leave-One-Season-Out** within a single subject
-- Use only that subject's 12 observations
-- 4 folds: hold out 1 season (3 obs) as test, train on remaining 3 seasons (9 obs)
-- Repeat for all 4 seasons → average error
-
-**What EPE measures**:
-$$\text{EPE}_\text{personal} = E[\text{loss}(y_\text{new season}, \hat{f}_i(x_\text{new season}))]$$
-Expectation over future seasons for the **same person $i$** → intra-individual variation.
-
-**Why valid**: held-out season is from the same person but a genuinely unseen time period. Respects temporal structure.
-
-**Limitation**: only 9 training observations per fold → high-variance estimate.
+| Signal in the question | Variant | Core answer |
+|------------------------|---------|-------------|
+| "predict for **new** patient / individual" | Supervised, generalized CV | LOIO-CV |
+| "predict for **same** individual" | Supervised, personalized CV | LOSO-CV |
+| "how many **unique** X" | Unsupervised, model selection | PCA + GMM + BIC |
+| "multiple measurements per person" | IID violation → grouped CV | Group K-fold by person |
+| "multiple sites / hospitals / batches" | Site-level grouping | LOSO by site |
+| "time series, predict next week" | Temporal leakage risk | Forward-chaining / temporal holdout |
+| "tensor / multi-way data, how many components" | PARAFAC model selection | CORCONDIA + split-half FMS |
 
 ---
 
-## Part b) Generalized Model — Predict for NEW Individual
+## Variant 1 — Wearables CV (2024 & 2025)
 
-**Goal**: estimate EPE for deployment on a brand-new patient never seen during training.
+### Dataset
+**16 subjects × 3 activities × 4 seasons = 192 observations** (12 obs/subject)
+Features: BVP, skin temperature, HR. Target: stress/activity level.
 
-**CV design**: **Leave-One-Individual-Out** (LOIO-CV)
-- 16 folds total
-- Fold $i$: train on subjects $\{1,\ldots,16\}\setminus\{i\}$ (180 obs), test on subject $i$ (12 obs)
-- Report average across all 16 folds
-
-**What EPE measures**:
-$$\text{EPE}_\text{general} = E[\text{loss}(y_\text{new person}, \hat{f}(x_\text{new person}))]$$
-Expectation over new observations AND new individuals → inter-individual generalization.
-
-**Why NOT standard random CV**:
-- Random split puts some observations from person $i$ in training, others in test
-- Model learns person $i$'s individual physiological baseline during training
-- Performance on held-out obs from same person = artificially inflated
-- This is **data leakage** — IID assumption is violated: observations from the same individual share latent individual-level structure (correlated within subject)
+### Why standard CV fails
+Observations from the same person share physiology (resting HR, signal amplitudes). Random splits let the model "see" a test subject's data during training → learns their personal baseline → **data leakage** → EPE is optimistically biased. The IID assumption fails: observations within an individual are correlated, not independent.
 
 ---
 
-## Part c) Comparison
+### a) Personalized Model — predict new season for KNOWN individual
+
+**CV: Leave-One-Season-Out** (within one subject, 4 folds)
+
+```
+Fold 1: Train {Spring, Summer, Autumn} (9 obs) → Test Winter  (3 obs)
+Fold 2: Train {Winter, Summer, Autumn} (9 obs) → Test Spring  (3 obs)
+Fold 3: Train {Winter, Spring, Autumn} (9 obs) → Test Summer  (3 obs)
+Fold 4: Train {Winter, Spring, Summer} (9 obs) → Test Autumn  (3 obs)
+```
+
+$$\text{EPE}_\text{pers} = E_{x,y \mid i_\text{fixed}}\left[\mathcal{L}(y, \hat{f}_i(x))\right]$$
+
+Intra-individual variation only. EPE is lower — model knows this person. **Limitation:** only 9 training obs/fold → high-variance estimate.
+
+---
+
+### b) Generalized Model — predict for NEW individual
+
+**CV: Leave-One-Individual-Out** (LOIO-CV, 16 folds)
+
+```
+Fold i:  Train on subjects {1..16} \ {i}  (180 obs)
+         Test  on subject i               (12 obs)
+EPE = mean(error_1, ..., error_16)
+```
+
+$$\text{EPE}_\text{gen} = E_{i_\text{new}}\left[E_{x,y \mid i_\text{new}}\left[\mathcal{L}(y, \hat{f}(x))\right]\right]$$
+
+Inter-individual generalization. EPE is higher — model must handle between-individual variance (unknown physiology). **Critical rule:** all 12 obs from one subject stay in the same fold — never split a person across train/test.
+
+---
+
+### c) Comparison Table
 
 | Property | Personalized (LOSO) | Generalized (LOIO) |
 |----------|--------------------|--------------------|
-| Fold count | 4 | 16 |
+| Folds | 4 | 16 |
 | Training size | 9 obs | 180 obs |
 | Test size | 3 obs | 12 obs |
 | Captures | Intra-individual variation | Inter-individual variation |
-| EPE estimate | For known person | For new person |
 | Typical EPE | Lower | Higher |
-| Clinical use | Monitor existing patient | Screen new patient |
+| Clinical use | Monitor known patient | Screen new patient |
 
-**For clinical deployment** (new patients): use **generalized** model. Personalized model cannot be used — no training data for the new patient.
+**$\text{EPE}_\text{gen} > \text{EPE}_\text{pers}$ always** — generalized integrates over between-individual variance; personalized does not.
 
-**Can you combine both?** Yes: train generalized base model, then fine-tune with calibration sessions from the new individual (transfer learning). Gold standard in clinical practice.
-
----
-
-## Part d) Hyperparameter Tuning — Nested CV
-
-If a hyperparameter (e.g., $\lambda$ in regularized model) must be selected:
-
-**Correct (nested CV)**:
-- Outer loop: LOIO to estimate generalization EPE (16 folds)
-- Inner loop: within each outer training fold, LOIO on the 15 training subjects to select $\lambda$
-- The outer test subject never influences $\lambda$ selection
-
-**Wrong**: tune $\lambda$ on full dataset first, then do LOIO. The selected $\lambda$ has "seen" all 16 subjects → the outer CV estimate is optimistically biased.
+**Clinical recommendation:** Generalized for deployment. New patients arrive with no prior data — personalized model cannot be trained. Combine both: deploy generalized first, fine-tune as patient data accumulates (transfer learning).
 
 ---
 
-## Full Exam Answer (Write This Cold)
+### d) Nested CV — Hyperparameter Tuning
 
-*"For a personalized model, we restrict training and evaluation to a single individual's 12 observations. Using leave-one-season-out cross-validation, we train on 9 observations (3 seasons) and test on the held-out 4th season, repeating for all 4 seasons. This estimates how well the model predicts future sessions for a known individual.*
+```
+Outer loop  (16-fold LOIO)  → estimates EPE
+  Outer fold i: hold out subject i
+  │
+  └── Inner loop  (15-fold LOIO on training subjects)  → selects λ*
+        For each candidate λ: train on 14 subjects, eval on 1
+        Pick λ* = argmin inner CV error
+  │
+  Refit on all 15 training subjects with λ*
+  Eval on held-out subject i → record error_i
+```
 
-*For a generalized model, we apply leave-one-individual-out cross-validation across all 16 subjects. In each fold, one complete subject is held out as the test set while the model trains on the remaining 15 subjects. This ensures the test individual is entirely unseen during training, simulating prediction for a new patient.*
-
-*The key distinction is the source of variation: personalized CV measures intra-individual prediction error; generalized CV measures inter-individual generalization. Standard random splitting would violate the IID assumption — observations from the same person share physiological structure, creating data leakage that produces over-optimistic generalization estimates. For clinical deployment on new patients, the generalized CV estimate is the appropriate performance metric."*
+**Wrong:** tune λ on full 192 obs first, then do outer LOIO. The chosen λ has "seen" all 16 subjects → outer CV error is optimistically biased (subtle leakage via hyperparameter).
 
 ---
 
-## Additional Exam Questions
+### e) Full Written Answer (Write This Cold)
 
-**Q: Why does random CV produce optimistic estimates here?**
-Observations from the same person share individual physiology (their resting heart rate, typical signal amplitudes). Random splits allow the model to "see" some of a test subject's data during training → learns their personal baseline → inflated performance. LOIO prevents this by holding out all observations from one subject at once.
+*"For a personalized model, we restrict training and evaluation to a single individual's 12 observations. Leave-one-season-out CV trains on 9 observations (3 seasons) and tests on the held-out 4th season, repeating for all 4 seasons. This estimates how well the model predicts future sessions for a known individual.*
 
-**Q: What if some subjects have missing data?**
-LOIO still valid with unequal numbers of observations per subject — simply exclude missing observations. Report how many complete subjects were used.
+*For a generalized model, we apply leave-one-individual-out CV across all 16 subjects. In each fold, one complete subject (12 observations) is held out while the model trains on the remaining 15 subjects (180 observations). This ensures the test individual is entirely unseen, simulating deployment on a new patient.*
 
-**Q: Which EPE is larger and why?**
-Generalized EPE > Personalized EPE. The personalized model knows the individual's physiology; the generalized model must predict for an entirely new person with unknown characteristics → harder task → higher error.
+*The critical distinction is the source of variation: personalized CV measures intra-individual prediction error; generalized CV measures inter-individual generalization. Standard random splitting would constitute data leakage — observations from the same person share physiological structure, violating the IID assumption. For clinical deployment on new patients, the generalized CV estimate is the appropriate performance metric."*
 
-**Q: Can the personalized model be used clinically?**
-Only for monitoring known patients with existing calibration data. Cannot be used for triage, screening, or first-contact assessment of new patients.
+---
+
+## Variant 2 — Face Image Clustering (2022)
+
+### The Question (exact)
+*"Given face images from passport control at Copenhagen Airport, determine the number of unique people. Compare to unique passport numbers to detect fraud."*
+
+### Why Unsupervised
+No labels exist — identities are exactly what we are trying to discover. Supervised classification requires known classes. This is unsupervised discovery: clustering with unknown $K$.
+
+---
+
+### Pipeline
+
+**Step 1 — Feature Extraction (PCA / Eigenfaces)**
+
+Flatten each image to vector $x_i \in \mathbb{R}^p$. Apply SVD to centred data $\tilde{X} = USV^T$. Project onto first $k$ components: $z_i = V_k^T x_i \in \mathbb{R}^k$.
+
+Why PCA: face images lie on a low-dimensional manifold (blessing of dimensionality). Removes noise, makes clustering tractable. PCA maximises variance — top components capture identity-discriminative structure.
+
+**Step 2 — Clustering (GMM preferred)**
+
+$$p(z) = \sum_{j=1}^{K} \pi_j \, \mathcal{N}(z \mid \mu_j, \Sigma_j)$$
+
+Each component = one unique person. Fit with EM. Full $\Sigma_j$ handles elliptical clusters from pose/lighting variation (K-means assumes spherical → biased splits).
+
+**Step 3 — Model Selection (BIC)**
+
+$$\text{BIC}(K) = -2\log\hat{L} + d_K \log N$$
+
+Fit GMM for $K = 1, 2, \ldots, K_\text{max}$. Choose $K^* = \arg\min_K \text{BIC}(K)$. BIC penalises extra Gaussians — prevents overfitting (too many small clusters).
+
+Alternatives: silhouette score for K-means, gap statistic, dendrogram gap for hierarchical.
+
+**Step 4 — Fraud Detection**
+
+| Result | Interpretation |
+|--------|---------------|
+| $\hat{K}_\text{faces} \approx K_\text{passports}$ | No fraud signal |
+| $\hat{K}_\text{faces} < K_\text{passports}$ | Same person used multiple passports → **fraud** |
+| $\hat{K}_\text{faces} > K_\text{passports}$ | Detection errors or passport sharing |
+
+---
+
+### Written Answer (Write This Cold)
+
+*"This is an unsupervised learning problem — no identity labels exist and the task is to discover natural groupings. I would: (1) apply PCA to reduce each image to a compact feature vector (eigenfaces), exploiting the manifold structure of face images; (2) cluster using a Gaussian Mixture Model, where each component represents one unique individual — GMM is preferred over K-means because pose/lighting variation produces elliptical clusters; (3) select $K$ by minimising BIC, which balances model fit against complexity; (4) compare $\hat{K}_\text{faces}$ to unique passport numbers — if fewer unique faces are found than passports, multiple passports are associated with one physical person, indicating systematic fraud."*
+
+---
+
+### Key Exam Traps — Face Variant
+
+**"Why not supervised face recognition?"** → No labels. Supervision requires known identities as training targets — circular, since finding identities is the goal.
+
+**"Why GMM over K-means?"** → K-means assumes spherical clusters. Face images of the same person form elliptical clusters (lighting varies one way, expression another). GMM with full covariance handles this correctly.
+
+**"BIC formula — what does $d_K$ penalise?"** → $d_K$ = number of free parameters per extra Gaussian ($= k + k(k+1)/2 + 1$ for mean + covariance + weight). Larger $K$ always improves fit ($-2\log\hat{L}$ decreases) but BIC penalises the added complexity — prevents spurious clusters.
+
+**"Person with only 1 image?"** → Cannot form a cluster. May be absorbed into nearest cluster or treated as noise. Use GMM with unconstrained mixing weights $\pi_k$ to allow very small components.
+
+---
+
+## Variant 3 — Other Possible Datasets
+
+The CV logic is always the same — only the domain changes. Know the pattern, not each dataset.
+
+| Dataset type | Grouping unit | Correct CV | Typical Q22 ask |
+|-------------|--------------|-----------|----------------|
+| EEG / brain imaging | Subject | LOSO by subject | Classify mental state for new subject |
+| Speech / audio | Speaker | LOSO by speaker | Predict word for unseen speaker |
+| Multi-site medical | Hospital / site | LOSO by site | Generalise to new clinical site |
+| Longitudinal time-series | Patient + time | Forward-chaining (train past → test future) | Predict next week |
+| Gait analysis | Subject | LOSO by subject | Same as wearables, different domain |
+| Genomics ($p \gg n$) | Patient | Stratified K-fold + nested CV | Select genes + predict response, no leakage |
+| Tensor / EEM fluorescence | — (unsupervised) | CORCONDIA + split-half FMS | How many chemical components? |
+
+**For any of these, the answer follows the same 5-step template:**
+
+1. **Identify the grouping variable** — what makes observations non-IID?
+2. **Name the IID violation** — explain why random CV leaks
+3. **Design the CV scheme** — draw fold structure, state sizes
+4. **State what EPE measures** — new individual? new time point? new site?
+5. **Clinical / deployment recommendation** — which model fits the use case?
+
+---
+
+## Universal Q&A Bank
+
+**Why does random CV give optimistic estimates on grouped data?**
+The model sees partial data from every group during training → it learns group-specific patterns (individual physiology, speaker accent, hospital equipment). Evaluation on held-out observations from the same group is evaluating partial memorisation, not generalization. Grouped CV holds out entire groups → forces genuine generalization.
+
+**Feature selection outside the CV loop — what goes wrong?**
+Feature selection uses all observations including the future test fold to identify predictive features. The selected features are optimistically good on that fold because they were implicitly chosen using it. Feature selection must happen inside each training fold: `Training fold → feature select → fit model → evaluate on held-out fold`.
+
+**Is LOIO biased?**
+Slightly pessimistically biased — each fold trains on $\frac{N-1}{N}$ of the data, slightly less than the full dataset. Bias is small and decreases with $N$. Much preferable to the large optimistic bias of random CV. State: "nearly unbiased, slight pessimistic bias from reduced training set per fold."
+
+**$\text{EPE}_\text{gen} > \text{EPE}_\text{pers}$ — statistical explanation:**
+$$\text{EPE}_\text{gen} = E_{i_\text{new}}\left[E_{x,y|i_\text{new}}[\mathcal{L}]\right] \quad \text{vs} \quad \text{EPE}_\text{pers} = E_{x,y|i_\text{fixed}}[\mathcal{L}]$$
+Generalized integrates over between-individual variance (outer expectation over $i_\text{new}$). Personalized fixes $i$, so no between-individual variance. The gap = between-individual heterogeneity in the population.
+
+**Nested CV — why skip the inner loop causes leakage?**
+Selecting λ on the full dataset lets the test subject's data inform λ — the hyperparameter is implicitly tuned to perform well on subjects including the test one. Even though the test subject is not directly in the training set for the outer fold, their data influenced the model configuration. Subtle leakage, real optimistic bias.
+
+**1-SE rule applied to LOIO:**
+$$\text{SE} = \frac{\hat{\sigma}_\text{fold}}{\sqrt{16}}$$
+Accept the simplest λ whose mean error $\leq \text{EPE}_\text{min} + \text{SE}$. Useful because with 16 outer folds, EPE estimates for nearby λ values are statistically indistinguishable — prefer the simpler, more interpretable model.

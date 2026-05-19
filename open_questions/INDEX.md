@@ -19,7 +19,14 @@
 ## File Index
 
 ### Q22 (Do This First — Appears Every Year)
-- [Q22 — CV Design for Wearables](Q22_cv_wearables.md) — LOIO vs LOSO, IID violation, EPE interpretation, nested CV for hyperparameters
+
+| File | Variant | When it appears |
+|------|---------|----------------|
+| [Q22 — CV Design for Wearables](Q22_cv_wearables.md) | Supervised, non-IID grouped CV | 2024, 2025 (identical dataset) |
+| [Q22 — Face Image Clustering](Q22_face_clustering_2022.md) | Unsupervised, PCA + GMM + BIC | 2022 |
+| [Q22 — Other Possible Datasets](Q22_other_datasets.md) | EEG, speech, multi-site, tensor, genomics, gait | Not yet appeared — high risk |
+
+**Q22 pattern:** Either (a) "design a CV scheme for non-IID data" → grouped CV, or (b) "how many unique X?" → PCA + GMM/K-means + BIC. Both require justifying WHY the method matches the deployment goal.
 
 ### Q21 Candidates
 
