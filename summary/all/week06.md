@@ -167,6 +167,26 @@ $$VI_j^{\text{Gini}} = \sum_{\text{trees}} \sum_{\text{splits on } j} N_t \cdot 
 | Trees independent? | Yes | No (each tree depends on previous) |
 | Overfitting risk | Low | Can overfit (especially with noise) |
 
+### What Makes a Good Base Learner? (Bagging vs. Boosting)
+
+**Bagging** reduces **variance** — to benefit, the base learner needs:
+- ✓ High variance (so averaging over bootstrap samples actually helps)
+- ✓ Low bias (so the average lands near the truth)
+
+**Boosting** reduces **bias** — to benefit, the base learner needs:
+- ✓ Low variance (each weak learner should be stable)
+- ✓ Must plug into the **forward stagewise residual-fitting framework** — the learner must be trainable on pseudo-residuals
+
+This is why the same model can be ideal for one and useless for the other:
+
+| Base learner | Bagging | Boosting | Reason |
+|---|---|---|---|
+| Small-K KNN | ✓ High variance → averaging helps | ✗ Can't fit residuals | KNN has no training procedure — it just memorises points, cannot be trained on pseudo-residuals |
+| Tree stump | ✗ Low variance, high bias → averaging doesn't help much | ✓ Fits residuals, weak enough | Stumps can be trained on pseudo-residuals; depth controls bias-variance |
+| Deep tree | ✓ Low bias → good average | ✗ Too complex, low bias already | Boosting corrects bias sequentially — a perfect base learner leaves nothing to correct |
+
+**Why KNN fails for boosting specifically:** gradient boosting works by training each new learner on the pseudo-residuals of the current ensemble. KNN has no parameters to optimise — it cannot be "fit" to a residual in any meaningful sense. Trees can be split to minimise residual RSS; KNN cannot.
+
 ---
 
 ## 7. AdaBoost.M1
@@ -243,6 +263,29 @@ $$F(x) = \sum_{m=1}^{M} \beta_m \cdot b(x;\, \gamma_m)$$
 - **Exponential loss**: $L(y,\, F(x)) = \exp(-y \cdot F(x))$
 - AdaBoost builds an additive logistic regression model: $F(x) = \log\!\left[\frac{P(y=1\mid x)}{P(y=-1\mid x)}\right]$
 - The exponential loss leads to reweighting original data (instead of fitting residuals).
+
+### Why Weight Updates and Exponential Loss Are the Same Thing
+
+The AdaBoost weight update rule and the exponential loss are not two separate ideas — the weight update is **derived directly** from minimising the exponential loss.
+
+The weight update after round $m$ is:
+
+$$w_i^{(m+1)} = w_i^{(m)} \cdot e^{-\alpha_m\, y_i\, G_m(x_i)}$$
+
+- **Misclassified point** ($y_i G_m(x_i) < 0$): exponent is positive → $e^{+} > 1$ → weight **increases**
+- **Correct point** ($y_i G_m(x_i) > 0$): exponent is negative → $e^{-} < 1$ → weight **decreases**
+
+**Why exponential loss, not misclassification loss?**
+
+| How wrong the point is | Misclassification loss $\mathbf{1}[y \neq \hat{y}]$ | Exponential loss $e^{-yf(x)}$ |
+|---|---|---|
+| Barely wrong: $yf(x) = -0.1$ | 1 | $e^{0.1} \approx 1.1$ |
+| Quite wrong: $yf(x) = -1$ | 1 | $e^{1} \approx 2.7$ |
+| Very wrong: $yf(x) = -3$ | 1 | $e^{3} \approx 20$ |
+
+Misclassification loss is **flat** — every mistake counts as 1 regardless of how badly wrong. Exponential loss grows without bound — the more confidently wrong a point is, the more it gets penalised. This forces each new tree to focus hardest on the most badly misclassified points, which is exactly the boosting intuition.
+
+> **One-line summary:** AdaBoost's weight update rule = exponential loss minimisation. They are the same mechanism described from two angles — algorithmic and mathematical.
 
 ### Probabilities from AdaBoost
 - From the connection to logistic regression:
