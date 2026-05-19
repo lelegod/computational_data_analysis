@@ -74,16 +74,27 @@ For new-speaker deployment:
 
 ---
 
-## Feature Extraction
+## Task Framing, Features, and Model Choice
 
-A strong answer can mention:
+**Task:** Supervised classification of word, emotion, or disease state from acoustic features. If asked “how many unique speakers?” — unsupervised variant (GMM + BIC). State the task explicitly.
 
-- MFCC extraction first
-- then PCA for dimension reduction if needed
+**Feature extraction:**
+- Extract MFCCs (Mel-Frequency Cepstral Coefficients) — standard acoustic features
+- Optionally reduce with PCA inside each training fold if dimension is high
+- Each utterance → fixed-length feature vector (summary statistics of MFCC trajectories: mean, variance, delta)
 
-If the question asks “how many unique speakers?” then it becomes an unsupervised variant:
-- PCA or MFCC embeddings
-- then GMM + BIC
+**Classification model:**
+
+| Method | Why suitable |
+|--------|-------------|
+| **Regularized Logistic Regression** | Handles correlated MFCC features; L1 selects discriminative coefficients |
+| **LDA** | Fast, interpretable; works well when MFCC features approximately Gaussian per class |
+| **SVM (RBF kernel)** | Strong acoustic classification baseline; handles non-linear boundaries |
+| **Random Forest** | Non-linear; robust to irrelevant features |
+
+**Unsupervised variant (“how many unique speakers?”):** Extract MFCC mean vectors per utterance → PCA → GMM + BIC to estimate $K$ speakers. Same pipeline as face clustering.
+
+**Critical:** Feature standardization and any PCA projection must be computed from training speakers only — applying training-set statistics to the held-out speaker is correct; fitting them on the combined data is leakage.
 
 ---
 

@@ -214,16 +214,30 @@ If the target is rare, such as hypoglycemia:
 
 No matter the dataset, structure your answer as:
 
-1. **Identify the prediction scenario** — personalized (known individual) vs. generalized (new individual) vs. unsupervised (unknown groups)
+1. **State the task type** — supervised classification / regression vs. unsupervised discovery. Name the target variable and the number of classes. This is where "which methods" marks come from.
 
-2. **Identify the IID violation** — state which grouping variable causes correlation (individual, site, time, etc.) and why random CV would leak
+2. **Choose a classification/regression model** — give 1–2 options with a one-line justification each. Example: *"I would use regularized logistic regression (L1) because training folds are small and features are likely correlated. LDA is also appropriate if class-conditional Gaussians are reasonable."*
 
-3. **Design the CV scheme** — name the method (LOIO, LOSO, forward-chaining, etc.), draw the fold structure, state training and test sizes
+3. **Identify the IID violation** — state which grouping variable causes correlation (individual, site, time, etc.) and why random CV would leak
 
-4. **State what the EPE measures** — be specific: "expected error when predicting a new individual drawn from the same population"
+4. **Design the CV scheme** — name the method (LOIO, LOSO, forward-chaining, etc.), draw the fold structure, state training and test sizes
 
-5. **Handle hyperparameters** — if a model has tunable parameters, nested CV is required; the test fold must never inform parameter selection
+5. **State what the EPE measures** — be specific: "expected error when predicting a new individual drawn from the same population"
 
-6. **Clinical/deployment recommendation** — which model is appropriate given the deployment context
+6. **Handle hyperparameters and preprocessing** — all tuning, standardization, and feature selection must happen inside the training fold only (nested CV); the test fold must never inform any pipeline step
+
+7. **Clinical/deployment recommendation** — which model is appropriate given the deployment context
 
 Every exam variant maps onto this template. The domain changes; the logic does not.
+
+### Model choice quick-reference by task type
+
+| Task | Recommended model | Why |
+|------|------------------|-----|
+| 3-class activity classification, small $n$ | LDA or Regularized LR | Small training folds; correlated features |
+| Binary rare event (hypoglycemia, relapse) | Regularized LR + AUC metric | Handles class imbalance; probability output |
+| Continuous outcome (glucose, symptom score) | Ridge / Lasso | Regularization for small-$n$ time-series features |
+| High-dimensional genomics ($p \gg n$) | Elastic Net | Handles correlated genes; performs selection |
+| Non-linear interactions, larger $n$ | Random Forest | Robust; feature importance useful clinically |
+| Unsupervised identity discovery | PCA/NMF + GMM + BIC | No labels; model selection for $K$ |
+| Tensor component count | PARAFAC + CORCONDIA + FMS | Multiway structure; uniqueness diagnostic |

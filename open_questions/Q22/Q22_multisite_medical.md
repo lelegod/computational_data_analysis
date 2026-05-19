@@ -16,6 +16,25 @@ Even if patient records are independent within site, the full dataset is not IID
 
 ---
 
+## Task Framing and Model Choice
+
+**Task:** Supervised classification or regression (disease severity, diagnosis). State the task type explicitly.
+
+**Feature extraction:** Features are typically already tabular (blood markers, imaging summaries). Apply standardization inside each training fold — never use the held-out site's data to compute mean/std.
+
+**Model choice:**
+
+| Method | Why suitable |
+|--------|-------------|
+| **Regularized Logistic Regression** (L1/L2) | Robust to site-level batch effects when combined with within-fold standardization; interpretable coefficients for clinical reporting |
+| **LDA** | Efficient when features are approximately Gaussian per site; good with moderate $p$ |
+| **Random Forest** | Handles non-linear biomarker interactions; robust to outliers from different scanner protocols |
+| **Ridge Regression** | For continuous outcomes; handles collinear imaging features well |
+
+**Site harmonization:** If scanner or protocol batch effects are large, apply a site-correction step (e.g., residualizing site effects) inside each training fold before fitting the classifier. Never harmonize using the held-out site's statistics — that is data leakage at the site level.
+
+---
+
 ## Why Random CV Fails
 
 Patients from the same hospital share:

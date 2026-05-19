@@ -647,12 +647,17 @@ Before applying classification models, extract meaningful features from the raw 
 
 #### Classification Methods
 
-Choose methods robust to the $p \leq n$ setting (with extracted features, $p$ is typically modest):
-- **Regularized Logistic Regression** (L1 or L2): interpretable, handles correlated features, provides probability estimates
-- **Random Forest:** handles non-linear patterns, provides variable importance, robust to overfitting with proper tree depth
-- **Linear Discriminant Analysis (LDA):** efficient, interpretable, works well when Gaussian class-conditional assumption is reasonable
+This is a **3-class supervised classification problem** (rest / running / social media). Choose methods appropriate for the small-$n$, 3-class setting:
 
-For model selection (e.g., choosing regularization strength $\lambda$), use cross-validation within the training data.
+| Method | Why suitable | Caveat |
+|--------|-------------|--------|
+| **Regularized Logistic Regression** (L1 or L2) | Handles correlated features; probability outputs; L1 performs implicit feature selection | $\lambda$ must be tuned via nested CV |
+| **LDA** | Works well with small $n$ (LOSO folds have only 9 training obs); fast; interpretable | Assumes equal covariance across classes |
+| **Random Forest** | Non-linear, no distributional assumption; feature importance; robust | More data-hungry; less interpretable |
+
+**Why regularization is essential:** In the personalized setting (LOSO), training folds contain only 9 observations. Unregularized estimators are high-variance and may not converge. Regularization is not optional here.
+
+**Hyperparameter tuning:** The regularization strength $\lambda$ must be selected inside the CV loop via a nested inner loop — never on the full 192 observations. Tuning on the full dataset lets the test subject's data influence $\lambda$, producing an optimistically biased EPE estimate (subtle data leakage through the hyperparameter).
 
 ---
 

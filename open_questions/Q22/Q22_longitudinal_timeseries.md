@@ -19,6 +19,25 @@ So random CV is especially inappropriate.
 
 ---
 
+## Task Framing and Model Choice
+
+**Task:** Regression (predict symptom score, biomarker) or binary classification (relapse yes/no). State this explicitly.
+
+**Feature engineering:** From the time series up to time $t$, extract lagged features, rolling means, trend slopes, and variability metrics as inputs. The temporal ordering dictates that only past data can be used as features for predicting time $t+k$.
+
+**Model choice:**
+
+| Method | Why suitable |
+|--------|-------------|
+| **Ridge / Lasso** | Handles many lagged features with regularization; Lasso selects relevant lags |
+| **Gradient Boosting** | Captures non-linear temporal patterns; robust |
+| **Regularized Logistic Regression** | For binary outcome (relapse yes/no); probability output useful clinically |
+| **LDA** | If feature count is modest and Gaussian assumption holds |
+
+**Critical:** In forward-chaining CV, fit the model using only past observations in each fold. Never train on future time points. All feature normalization must use statistics from the training window only.
+
+---
+
 ## Why Random CV Fails
 
 Random splits can put:

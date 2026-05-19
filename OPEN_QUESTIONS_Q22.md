@@ -25,6 +25,30 @@
 **16 subjects × 3 activities × 4 seasons = 192 observations** (12 obs/subject)
 Features: BVP, skin temperature, HR. Target: stress/activity level.
 
+### Task Framing
+This is a **3-class supervised classification problem**: predict activity (rest / running / social media) from wearable biosignal features. Always state this explicitly in your answer.
+
+### Feature Extraction (mention briefly)
+Extract features from the raw time series before modelling:
+- **HR:** mean HR, HRV (RMSSD, SDNN), exercise-induced elevation
+- **BVP:** pulse rate, mean amplitude, frequency-domain features (LF/HF ratio)
+- **Temperature:** mean, range, rate of change
+
+Each of the 192 observations becomes one feature vector.
+
+### Classification Model (required in 2024-style questions)
+Choose a method appropriate for the small-$n$, 3-class setting:
+
+| Model | Why suitable |
+|-------|-------------|
+| **LDA** | Fast, interpretable, works well when Gaussian class-conditional assumption holds; efficient with small $n$ per fold |
+| **Regularized Logistic Regression** (L1 or L2) | Handles correlated features; provides probability estimates; regularization prevents overfitting on small training sets |
+| **Random Forest** | Handles non-linear patterns; robust; provides variable importance; no distributional assumption |
+
+**Do NOT use** unregularized OLS/LR when training set is small (9 obs in LOSO folds) — high variance, risk of non-convergence. Model selection (choosing $\lambda$) happens inside the CV loop via a nested inner loop, not on the full 192 obs.
+
+**One-sentence exam answer:** *"I would use regularized logistic regression or LDA for this 3-class classification task, with regularization strength $\lambda$ selected by a nested inner CV loop."*
+
 ### Why standard CV fails
 Observations from the same person share physiology (resting HR, signal amplitudes). Random splits let the model "see" a test subject's data during training → learns their personal baseline → **data leakage** → EPE is optimistically biased. The IID assumption fails: observations within an individual are correlated, not independent.
 
@@ -106,7 +130,9 @@ Outer loop  (16-fold LOIO)  → estimates EPE
 
 ### e) Full Written Answer (Write This Cold)
 
-*"For a personalized model, we restrict training and evaluation to a single individual's 12 observations. Leave-one-season-out CV trains on 9 observations (3 seasons) and tests on the held-out 4th season, repeating for all 4 seasons. This estimates how well the model predicts future sessions for a known individual.*
+*"This is a 3-class supervised classification problem — predicting activity (rest, running, social media) from extracted biosignal features (mean HR, HRV, BVP amplitude, skin temperature). I would use regularized logistic regression (L1 or L2) or LDA as the classifier; regularization is important because training sets are small (as few as 9 observations per fold in the personalized setting).*
+
+*For a personalized model, we restrict training and evaluation to a single individual's 12 observations. Leave-one-season-out CV trains on 9 observations (3 seasons) and tests on the held-out 4th season, repeating for all 4 seasons. This estimates how well the model predicts future sessions for a known individual.*
 
 *For a generalized model, we apply leave-one-individual-out CV across all 16 subjects. In each fold, one complete subject (12 observations) is held out while the model trains on the remaining 15 subjects (180 observations). This ensures the test individual is entirely unseen, simulating deployment on a new patient.*
 

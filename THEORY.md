@@ -800,6 +800,14 @@ Each factor is a product of cosine similarities between corresponding half-model
 ### Dataset
 **16 subjects × 3 activities × 4 seasons = 192 observations** (12 obs/subject). Features: BVP, skin temperature, HR. Target: stress/activity level.
 
+### Task and Model (answer this first in the exam)
+This is a **3-class supervised classification problem** (rest / running / social media). Extract features from the raw time series (mean HR, HRV/RMSSD, BVP amplitude, temperature slope), then apply:
+- **Regularized Logistic Regression (L1/L2)** — handles correlated features; regularization essential since LOSO training folds have only 9 obs
+- **LDA** — fast, interpretable, works well with small $n$
+- **Random Forest** — if non-linear patterns expected
+
+Hyperparameter tuning ($\lambda$) must use a **nested inner CV loop** — never on the full 192 observations.
+
 ### Why Standard CV Fails
 Observations from the same person share physiology (resting HR, signal amplitudes). Random splits let the model "see" a test subject's data during training → learns their personal baseline → **data leakage** → EPE is optimistically biased. The IID assumption fails: observations within an individual are correlated.
 
@@ -845,14 +853,15 @@ Captures inter-individual generalization. EPE is **higher** — must handle betw
 
 ### Q22 Variants (Recognition Table)
 
-| Signal in the question | Variant | Answer |
-|------------------------|---------|--------|
-| "predict for new patient" | Supervised, generalized | LOIO-CV |
-| "predict for same individual" | Supervised, personalized | LOSO-CV |
-| "multiple measurements per person" | IID violation → grouped CV | Group K-fold by person |
-| "how many unique clusters" | Unsupervised | PCA + GMM + BIC |
-| "tensor / multi-way, how many components" | PARAFAC | CORCONDIA + split-half FMS |
-| "time series, predict next week" | Temporal leakage | Forward-chaining / temporal holdout |
+| Signal in the question | Variant | CV answer | Model answer |
+|------------------------|---------|-----------|-------------|
+| "predict for new patient" | Supervised, generalized | LOIO-CV | Reg. LR or LDA |
+| "predict for same individual" | Supervised, personalized | LOSO-CV | Reg. LR or LDA |
+| "multiple measurements per person" | IID violation → grouped CV | Group K-fold by person | Reg. LR / RF |
+| "how many unique clusters" | Unsupervised | — | PCA/NMF + GMM + BIC |
+| "tensor / multi-way, how many components" | PARAFAC | — | CORCONDIA + split-half FMS |
+| "time series, predict next week" | Temporal leakage | Forward-chaining | Ridge / Gradient Boosting |
+| "genomics, $p \gg n$" | High-dimensional | Stratified K-fold + nested | Elastic Net |
 
 ---
 

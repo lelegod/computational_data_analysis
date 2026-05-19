@@ -644,6 +644,27 @@ Standard random CV would be invalid here because it would mix observations from 
 
 ---
 
+#### Task Framing and Model Choice
+
+This is a **3-class supervised classification problem**: predict activity label (rest / running / social media) from extracted wearable features. Even though the 2025 question focuses on CV design, always state the task type and model in your answer.
+
+**Feature extraction:** For each of the 192 observations, extract a fixed-length feature vector from the raw biosignal time series:
+- **HR:** mean HR, RMSSD, SDNN, exercise-induced elevation
+- **BVP:** mean amplitude, pulse rate, LF/HF ratio
+- **Temperature:** mean, range, rate of change
+
+**Classification model:**
+
+| Method | Rationale |
+|--------|-----------|
+| **Regularized Logistic Regression** (L1 or L2) | Handles correlated features; regularization essential since training sets are small (9 obs in LOSO) |
+| **LDA** | Fast, interpretable, works well with small $n$; Gaussian class-conditional assumption is reasonable for biosignals |
+| **Random Forest** | Non-linear, robust, no distributional assumption; better with more data (LOIO setting) |
+
+**Critical rule:** Hyperparameter tuning (e.g., choosing $\lambda$) must be done inside the CV loop via a nested inner loop — never on the full 192 observations. All preprocessing (standardization, feature selection) must also occur inside each fold using only the training observations.
+
+---
+
 #### Part a) Personalized Model (within-individual)
 
 **Goal:** Predict stress for a specific known individual using only that person's data. The model will be deployed on the same individual — future observations from the same person.

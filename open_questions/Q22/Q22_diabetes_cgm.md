@@ -23,6 +23,23 @@ So random CV is dangerous.
 
 ---
 
+## Task Framing and Model Choice
+
+**Classification target (hypoglycemia yes/no, disease subtype):** Use regularized logistic regression (L1/L2) or LDA for binary/multiclass; Random Forest if non-linearity expected.
+
+**Regression target (next-hour glucose, HbA1c proxy):** Use Ridge regression or Gradient Boosting. Avoid unregularized OLS — patient-level training sets are often small.
+
+| Method | Suitable for | Caveat |
+|--------|-------------|--------|
+| **Regularized Logistic Regression** | Binary/multiclass classification | Tune $\lambda$ via nested CV |
+| **Ridge / Lasso** | Continuous glucose prediction | Lasso also performs feature selection |
+| **Random Forest** | Non-linear targets; robust to outliers | More data-hungry |
+| **LDA** | Classification with Gaussian features, small $n$ | Assumes equal covariance |
+
+**Critical rule:** Hyperparameter tuning and feature selection must occur inside the CV loop (nested). Never tune on the full patient pool before CV — the test patient's data would leak into model configuration.
+
+---
+
 ## Why Standard Random CV Fails
 
 Observations from the same patient share:

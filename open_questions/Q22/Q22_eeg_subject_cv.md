@@ -85,18 +85,25 @@ Correct:
 
 ---
 
-## Feature Extraction
+## Task Framing, Features, and Model Choice
 
-A very natural EEG answer is:
+**Task:** Supervised classification of mental state / cognitive load / disease status from EEG features. State this explicitly.
 
-- PCA for dimension reduction
-- or ICA if the question emphasizes source separation / artifact removal
+**Feature extraction:**
+- Apply PCA (reduce 64 electrodes → $k$ components) or ICA (unmix neural sources from artifacts) inside each training fold
+- Extract band-power features (delta, alpha, beta, gamma) per channel or component
+- ICA is especially well-motivated for EEG because the signal is a linear mixture of independent neural sources and noise
 
-ICA is especially well-motivated in EEG because EEG signals are mixtures of latent neural and artifact sources.
+**Classification model:**
 
-But:
-- feature extraction must be fit inside each training fold only
-- otherwise subject information leaks through the projection
+| Method | Why suitable |
+|--------|-------------|
+| **LDA** | Works well with moderate $p$, small $n$ per fold; EEG band-power features approximately Gaussian; fast and interpretable |
+| **Regularized Logistic Regression** (L1/L2) | Handles many correlated electrode features; probability output; L1 performs implicit electrode selection |
+| **Random Forest** | Non-linear interactions between electrode bands; no distributional assumption |
+| **SVM (RBF kernel)** | Strong for EEG classification in literature; kernel handles non-linearity |
+
+**Critical:** Feature extraction (PCA/ICA components, band-power computation) must be fit on the training fold only — never on the full data. Otherwise subject-specific neural structure leaks into test.
 
 ---
 

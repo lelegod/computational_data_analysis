@@ -10,6 +10,34 @@
 
 ---
 
+## Task Framing and Model Choice
+
+### What kind of problem is this?
+**3-class supervised classification**: predict activity label (rest / running / social media) from extracted features. Always state this in the exam — the question asks "which methods would you use", and the CV design is only half the answer.
+
+### Feature extraction
+Extract a fixed-length feature vector from each raw biosignal time series before any modelling:
+- **HR:** mean HR, RMSSD, SDNN, exercise-induced elevation
+- **BVP:** pulse rate, mean amplitude, LF/HF ratio (sympathetic/parasympathetic balance)
+- **Temperature:** mean, range, slope (rate of change)
+
+This gives one feature vector per observation → a standard $192 \times p$ design matrix.
+
+### Classification model
+With 3 classes and modest feature count, suitable classifiers are:
+
+| Method | Rationale | Caveat |
+|--------|-----------|--------|
+| **LDA** | Gaussian class-conditionals reasonable; works with small $n$ (LOSO folds have only 9 training obs); fast and interpretable | Assumes equal covariance across classes |
+| **Regularized Logistic Regression** (L1 or L2) | Handles correlated features; L1 performs feature selection; probability outputs; regularization prevents overfitting | $\lambda$ must be tuned via nested CV |
+| **Random Forest** | Non-linear, no distributional assumption; automatic feature importance; robust to outliers | More data-hungry; less interpretable |
+
+**Avoid** unregularized logistic regression/OLS when training folds are tiny (9 obs in LOSO) — the estimator is high-variance and may not converge. **Hyperparameter tuning** (e.g., choosing $\lambda$) must happen inside the CV loop via a nested inner loop — never on the full 192 observations.
+
+**Exam one-liner:** *"I would use regularized logistic regression or LDA for this 3-class classification task, with the regularization strength selected by a nested inner CV loop."*
+
+---
+
 ## Part a) Personalized Model — Test on Known Individual
 
 **Goal**: Estimate EPE for a model that will predict future sessions for the **same person** it was trained on.
@@ -100,7 +128,9 @@ If a hyperparameter (e.g., regularization $\lambda$) must be tuned:
 
 ## Full Written Answer (Exam-Ready)
 
-*"For a personalized model, we restrict training and evaluation to a single individual's data. Using leave-one-season-out cross-validation within that person's 12 observations, we train on 9 observations (3 seasons) and test on the held-out 4th season, repeating for all 4 seasons. This design respects the temporal structure of the data and provides an unbiased estimate of how well the model predicts future sessions for a known individual.*
+*"This is a 3-class supervised classification problem: predict activity (rest, running, social media) from features extracted from the wearable biosignals (mean HR, HRV metrics, BVP amplitude, skin temperature slope). I would use regularized logistic regression (L1 or L2) or LDA as the classifier. Regularization is essential because training sets are small — as few as 9 observations per fold in the personalized setting. The regularization strength $\lambda$ is selected by a nested inner CV loop, never on the full 192 observations.*
+
+*For a personalized model, we restrict training and evaluation to a single individual's data. Using leave-one-season-out cross-validation within that person's 12 observations, we train on 9 observations (3 seasons) and test on the held-out 4th season, repeating for all 4 seasons. This design respects the temporal structure of the data and provides an unbiased estimate of how well the model predicts future sessions for a known individual.*
 
 *For a generalized model, we apply leave-one-individual-out cross-validation across all 16 subjects. In each of the 16 folds, one complete subject (all 12 observations) is held out as the test set while the model trains on the remaining 15 subjects (180 observations). This ensures the test individual is entirely unseen during training, directly simulating deployment on a new patient.*
 

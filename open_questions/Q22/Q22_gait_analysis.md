@@ -17,6 +17,27 @@ This is a repeated-measures subject-level dataset.
 
 ---
 
+## Task Framing, Features, and Model Choice
+
+**Task:** Supervised classification (walking condition, fall risk) or regression from biomechanical features. State this explicitly.
+
+**Feature extraction:** Summarize each trial into a feature vector:
+- **Joint angles:** mean, range, peak flexion/extension per joint
+- **Ground reaction forces:** peak force, impulse, loading rate
+- **Stride variability:** stride time CV, step length symmetry
+
+**Classification model:**
+
+| Method | Why suitable |
+|--------|-------------|
+| **LDA** | Works well with small $n$ per fold (few sessions per subject); interpretable; fast |
+| **Regularized Logistic Regression** | Handles correlated biomechanical features; regularization essential with small training sets |
+| **Random Forest** | Non-linear gait patterns; automatic feature importance (useful for clinical interpretation) |
+
+For fall-risk prediction (rare event): use balanced accuracy or AUC, not raw accuracy. Tune regularization via nested CV inside the subject-level outer loop.
+
+---
+
 ## Why Random CV Fails
 
 Trials from the same subject share:
