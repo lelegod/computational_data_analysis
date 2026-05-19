@@ -157,7 +157,43 @@ This is structurally identical to the wearables Q22, just with walking instead o
 
 ---
 
-## Summary Table — All Scenarios
+## Scenario H — Diabetes / Glucose Monitoring
+
+**Typical setup:** 40 diabetes patients, each with repeated glucose windows across many days. Features may include CGM summaries, insulin dose, meal timing, sleep, and activity. Task: predict hypoglycemia, time-in-range, or next-hour glucose.
+
+**Why this is a strong Q22 candidate:** It combines the same grouped-CV logic as wearables with explicit temporal leakage risk.
+
+### Why random CV fails
+
+Observations from the same patient share:
+- baseline physiology
+- medication regime
+- insulin sensitivity
+- sensor behavior
+
+So random splitting leaks patient-specific information.
+
+### Correct design
+
+**New-patient deployment:** Leave-One-Patient-Out CV
+
+**Known-patient forecasting:** forward-chaining or leave-one-day-out within one patient
+
+**If using sliding windows:** do not place overlapping windows in both training and test.
+
+### Additional exam angle
+
+If the target is rare, such as hypoglycemia:
+- use sensitivity, specificity, balanced accuracy, or AUC
+- do not rely on raw accuracy
+
+### Full one-line template
+
+*"This is a repeated-measures longitudinal dataset, so validation must respect both patient identity and temporal order. For new-patient deployment I would use leave-one-patient-out CV; for within-patient forecasting I would use forward-chaining on future windows only."*
+
+---
+
+## Summary Table — All 8 Scenarios
 
 | Dataset | Grouping variable | Personalized CV | Generalized CV | Unsupervised alternative |
 |---------|-----------------|----------------|---------------|--------------------------|
@@ -170,6 +206,7 @@ This is structurally identical to the wearables Q22, just with walking instead o
 | Tensor (EEM) | Sample | — | — | PARAFAC + CORCONDIA + FMS |
 | Genomics | Patient | — | Stratified K-fold | PCA for exploration |
 | Gait analysis | Subject | Leave-one-session-out | Leave-one-subject-out | — |
+| Diabetes / CGM | Patient + time | Leave-one-day-out / forward CV | Leave-one-patient-out | — |
 
 ---
 

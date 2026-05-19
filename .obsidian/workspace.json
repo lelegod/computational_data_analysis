@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "gen_set/set1/combined.md",
+                "file": "open_questions/Q22/Q22_cv_wearables.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "combined"
+              "title": "Q22_cv_wearables"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "gen_set/set1/combined.md",
+                "file": "open_questions/Q22/Q22_cv_wearables.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for combined"
+              "title": "Backlinks for Q22_cv_wearables"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "gen_set/set1/combined.md",
+                "file": "open_questions/Q22/Q22_cv_wearables.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from combined"
+              "title": "Outgoing links from Q22_cv_wearables"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "gen_set/set1/combined.md",
+                "file": "open_questions/Q22/Q22_cv_wearables.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of combined"
+              "title": "Outline of Q22_cv_wearables"
             }
           }
         ]
@@ -185,23 +185,40 @@
   },
   "active": "705adebebc0fd142",
   "lastOpenFiles": [
+    "summary/all/week03.md",
+    "open_questions/Q22/Q22_gait_analysis.md",
+    "open_questions/Q22/Q22_genomics_highdim.md",
+    "open_questions/Q22/Q22_tensor_parafac.md",
+    "open_questions/Q22/Q22_longitudinal_timeseries.md",
+    "open_questions/Q22/Q22_multisite_medical.md",
+    "open_questions/Q22/Q22_speech_speaker_cv.md",
+    "open_questions/Q22/Q22_eeg_subject_cv.md",
+    "open_questions/Q22/Q22_diabetes_cgm.md",
+    "open_questions/Q21/Q21_AU_pca_sparsepca_nmf.md",
+    "open_questions/Q21/Q21_AT_knn_lda_logistic.md",
+    "open_questions/Q21/Q21_AS_bootstrap_cv_oob.md",
+    "open_questions/Q21/Q21_AR_aic_bic_cv.md",
+    "open_questions/Q21/Q21_AQ_nmf_ica_sparse_coding.md",
+    "open_questions/Q21/Q21_AP_pcr_pls_ridge.md",
+    "open_questions/Q21/Q21_AO_generative_vs_discriminative.md",
+    "open_questions/Q21/Q21_AN_kmeans_vs_gmm.md",
+    "open_questions/Q21/Q21_AM_bagging_rf_boosting.md",
+    "open_questions/Q21/Q21_AL_lda_qda_rda.md",
+    "open_questions/Q21/Q21_AK_nmode_tensor_ops.md",
+    "open_questions/Q21/Q21_AJ_archetypal_analysis.md",
+    "open_questions/Q21/Q21_AI_nmf.md",
+    "open_questions/Q21/Q21_AH_sparse_coding.md",
+    "open_questions/Q21/COMPARISON_QUESTIONS.md",
+    "AGENTS.md",
+    "gen_set/set1/combined.md",
     "book/ESLII_print12_toc.pdf",
     "book/ISLP_website.pdf",
     "book",
     "untitled folder",
     "Untitled.canvas",
-    "open_questions/Q22/Q22_cv_wearables.md",
-    "gen_set/set1/combined.md",
-    "summary/exam_review.md",
-    "gen_set/set5/combined.md",
     "gen_set/set5",
-    "gen_set/set4/combined.md",
     "gen_set/set4",
-    "gen_set/set3/combined.md",
     "gen_set/set3",
-    "OPEN_QUESTIONS_Q21.md",
-    "OPEN_QUESTIONS_Q22.md",
-    "README.md",
     "exam/CDA Exam Questions 2022_handout2023.pdf"
   ]
 }

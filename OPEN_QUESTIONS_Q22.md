@@ -1,6 +1,6 @@
 # CDA 02582 — Q22 MASTER CHEAT SHEET
-> **20 points total.** Q22 has appeared in every exam. Know all three variants cold.
-> Detailed files: `open_questions/Q22_cv_wearables.md` · `Q22_face_clustering_2022.md` · `Q22_other_datasets.md`
+> **20 points total.** Q22 has appeared in every exam. Know the core variants cold.
+> Detailed files: `open_questions/Q22/Q22_cv_wearables.md` · `open_questions/Q22/Q22_face_clustering_2022.md` · `open_questions/Q22/Q22_diabetes_cgm.md` · `open_questions/Q22/Q22_other_datasets.md`
 
 ---
 
@@ -14,6 +14,7 @@
 | "multiple measurements per person" | IID violation → grouped CV | Group K-fold by person |
 | "multiple sites / hospitals / batches" | Site-level grouping | LOSO by site |
 | "time series, predict next week" | Temporal leakage risk | Forward-chaining / temporal holdout |
+| "glucose / insulin / diabetes / CGM" | Repeated-patient time series | LOPO + forward-chaining logic |
 | "tensor / multi-way data, how many components" | PARAFAC model selection | CORCONDIA + split-half FMS |
 
 ---
@@ -192,7 +193,39 @@ Alternatives: silhouette score for K-means, gap statistic, dendrogram gap for hi
 
 ---
 
-## Variant 3 — Other Possible Datasets
+## Variant 3 — Diabetes / CGM
+
+### Why it is plausible
+This is exactly the kind of real clinical dataset that fits Q22:
+
+- repeated measurements per patient
+- clear deployment question: known patient vs new patient
+- temporal leakage risk
+- easy IID violation explanation
+
+### Typical setup
+
+- many glucose windows per patient
+- covariates such as insulin, meals, activity, sleep
+- target = hypoglycemia event or future glucose level
+
+### Correct methodology
+
+**If predicting for a known patient:** use within-patient forward-chaining or leave-one-day-out.
+
+**If predicting for a new patient:** use Leave-One-Patient-Out CV.
+
+**If CGM windows overlap in time:** never split overlapping windows across train/test.
+
+### Why random CV fails
+The model learns patient-specific physiology, medication patterns, and baseline glucose behavior. This produces an optimistic estimate if the true goal is new-patient deployment.
+
+### One-line exam answer
+*"This is a grouped longitudinal dataset, so the split must respect both patient identity and time. For new-patient deployment I would use leave-one-patient-out CV; for within-patient forecasting I would use forward-chaining on that patient only."*
+
+---
+
+## Variant 4 — Other Possible Datasets
 
 The CV logic is always the same — only the domain changes. Know the pattern, not each dataset.
 
@@ -200,6 +233,7 @@ The CV logic is always the same — only the domain changes. Know the pattern, n
 |-------------|--------------|-----------|----------------|
 | EEG / brain imaging | Subject | LOSO by subject | Classify mental state for new subject |
 | Speech / audio | Speaker | LOSO by speaker | Predict word for unseen speaker |
+| Diabetes / CGM | Patient (+ time) | LOPO or within-patient forward CV | Predict hypo event / next-hour glucose |
 | Multi-site medical | Hospital / site | LOSO by site | Generalise to new clinical site |
 | Longitudinal time-series | Patient + time | Forward-chaining (train past → test future) | Predict next week |
 | Gait analysis | Subject | LOSO by subject | Same as wearables, different domain |
@@ -213,6 +247,88 @@ The CV logic is always the same — only the domain changes. Know the pattern, n
 3. **Design the CV scheme** — draw fold structure, state sizes
 4. **State what EPE measures** — new individual? new time point? new site?
 5. **Clinical / deployment recommendation** — which model fits the use case?
+
+---
+
+## Extra Q22 Prompts To Prepare For
+
+These are very plausible rephrasings of Q22 even if the exact dataset changes:
+
+1. *Design a CV scheme for predicting an outcome in a new patient when each patient has repeated measurements.*
+2. *Explain why random K-fold CV is invalid for a repeated-measures biomedical dataset.*
+3. *Compare a personalized model and a generalized model for a wearable or diabetes monitoring task.*
+4. *Explain how to tune hyperparameters without leaking test-patient information.*
+5. *Describe the correct validation design when the predictors are sliding windows from a time series.*
+6. *Given data from multiple hospitals, which split would you use and why?*
+7. *How would you detect the number of unique latent entities in an unlabeled dataset such as faces or speakers?*
+8. *What changes if the target is rare, such as hypoglycemia or relapse? Which metric would you report?*
+9. *What goes wrong if feature selection is performed before cross-validation?*
+10. *Why is the generalized EPE larger than the personalized EPE?*
+
+---
+
+## Leave-One-Group-Out vs Grouped K-Fold
+
+This is an important distinction for Q22:
+
+- **grouped CV** is the general principle
+- **leave-one-group-out** is one special case of grouped CV
+
+So the real comparison is:
+
+1. **Leave-one-group-out**
+2. **Grouped K-fold**
+
+Both are valid only if the correct non-IID unit stays intact:
+- patient
+- subject
+- speaker
+- hospital
+- session
+
+### Leave-one-group-out
+
+Best when:
+- the number of groups is small or moderate
+- you want the cleanest “new patient / new speaker / new site” interpretation
+- each group is scientifically important
+
+Strengths:
+- very direct match to deployment
+- each group is tested once
+- usually the clearest exam answer
+
+Weaknesses:
+- small test fold in each split
+- higher variance of the fold errors
+- more refits
+
+### Grouped K-fold
+
+Best when:
+- the number of groups is large
+- leave-one-group-out would be too noisy
+- you want larger test folds and fewer refits
+
+Strengths:
+- still leakage-safe if grouping is preserved
+- often more stable than leave-one-group-out
+- computationally cheaper
+
+Weaknesses:
+- slightly less direct than “leave one complete patient/site out”
+- depends on how groups are allocated to folds
+
+### Exam Conclusion
+
+For Q22, the safer exam logic is:
+
+- if there are only a limited number of subjects/sites/speakers, **leave-one-group-out** is usually the strongest answer
+- if there are many groups and stability is a concern, **grouped K-fold** is a very reasonable alternative
+
+The key sentence to remember:
+
+*"A larger test fold is not helpful if it leaks group information. I prefer a leakage-safe grouped split, even if that gives fewer test observations per fold."*
 
 ---
 

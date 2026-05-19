@@ -50,6 +50,25 @@
 | [Q21-Z — Gaussian Mixture Models](Q21_Z_gmm.md) | EM derivation, soft clustering, BIC for K, degenerate solutions | Week 9, deep dive |
 | [Q21-AA — Split-Half FMS](Q21_AA_split_half_fms.md) | PARAFAC validation, reproducibility, FMS formula, CORCONDIA vs FMS | Week 12, PARAFAC validation |
 | [Q21-AB — PCR vs PLS](Q21_AB_pcr.md) | PCR formula, SVD view, Ridge vs PCR, PCR weakness vs PLS | Week 8, dimension reduction for regression |
+| [Q21-AC — Elastic Net](Q21_AC_elastic_net.md) | Coordinate descent, grouping effect, $L_1+L_2$ regularization | Week 3, high-yield extension of Ridge/Lasso |
+| [Q21-AD — Gradient Boosting](Q21_AD_gradient_boosting.md) | FSAM, pseudo-residuals, shrinkage, AdaBoost link | Week 6, high-yield ensemble topic |
+| [Q21-AE — RDA](Q21_AE_rda.md) | Covariance shrinkage between LDA and QDA, RRDA | Week 4, bias-variance discriminant analysis |
+| [Q21-AF — CCA](Q21_AF_cca.md) | Canonical variates, generalized eigenproblem, regularized CCA | Week 8, theory-heavy comparison topic |
+| [Q21-AG — KNN](Q21_AG_knn.md) | Local averaging, $K$ tuning, distance concentration, consistency | Week 2, classic nonparametric method |
+| [Q21-AH — Sparse Coding](Q21_AH_sparse_coding.md) | Dictionary learning, sparse coefficients, relation to ICA/NMF | Week 11, high-yield representation learning topic |
+| [Q21-AI — NMF](Q21_AI_nmf.md) | Non-negativity, multiplicative updates, parts-based interpretation | Week 11, strong standalone decomposition topic |
+| [Q21-AJ — Archetypal Analysis](Q21_AJ_archetypal_analysis.md) | Convex hull archetypes, extreme profiles, $XSH$ formulation | Week 11, high-yield interpretability topic |
+| [Q21-AK — N-mode Multiplication & Tensor Unfolding](Q21_AK_nmode_tensor_ops.md) | Unfolding, mode products, bridge from matrices to Tucker/PARAFAC | Week 12, technical derivation topic |
+| [Q21-AL — LDA vs QDA vs RDA](Q21_AL_lda_qda_rda.md) | Covariance assumptions, boundary shape, bias-variance continuum | Week 4, classic compare-three question |
+| [Q21-AM — Bagging vs Random Forest vs Boosting](Q21_AM_bagging_rf_boosting.md) | Variance vs bias reduction, tree correlation, sequential vs parallel | Weeks 5/6, very exam-plausible comparison |
+| [Q21-AN — K-means vs GMM](Q21_AN_kmeans_vs_gmm.md) | Hard vs soft clustering, WCSS vs likelihood, EM connection | Week 9, strong clustering comparison |
+| [Q21-AO — Generative vs Discriminative Classifiers](Q21_AO_generative_vs_discriminative.md) | LDA/QDA vs logistic vs SVM, assumptions vs robustness | Weeks 4/7, broad compare-and-choose question |
+| [Q21-AP — PCR vs PLS vs Ridge](Q21_AP_pcr_pls_ridge.md) | Shrinkage in latent directions, supervision, bias-variance tradeoff | Weeks 1/8, very exam-plausible compare-three question |
+| [Q21-AQ — NMF vs ICA vs Sparse Coding](Q21_AQ_nmf_ica_sparse_coding.md) | Parts, independence, sparsity, identifiability | Week 11, strong decomposition comparison |
+| [Q21-AR — AIC vs BIC vs Cross-Validation](Q21_AR_aic_bic_cv.md) | Likelihood penalties vs model-agnostic risk estimation | Weeks 1/2, classic model-selection comparison |
+| [Q21-AS — Bootstrap vs Cross-Validation vs OOB Error](Q21_AS_bootstrap_cv_oob.md) | Uncertainty vs prediction error vs bagging-based validation | Week 2/5, practical assessment comparison |
+| [Q21-AT — KNN vs LDA vs Logistic Regression](Q21_AT_knn_lda_logistic.md) | Local vs generative vs discriminative classification | Weeks 2/4, exam-style compare-and-choose question |
+| [Q21-AU — PCA vs Sparse PCA vs NMF](Q21_AU_pca_sparsepca_nmf.md) | Variance directions vs sparsity vs parts-based decomposition | Weeks 8/11, interpretable latent-factor comparison |
 
 ---
 

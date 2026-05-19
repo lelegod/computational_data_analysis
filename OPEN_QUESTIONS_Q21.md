@@ -36,6 +36,11 @@
 | [Z](#z--gaussian-mixture-models-gmm) | GMM — EM derivation, soft clustering, BIC for K | Week 9, deep dive |
 | [AA](#aa--split-half-analysis--fms-for-parafac) | Split-Half FMS — PARAFAC reproducibility validation | Week 12 |
 | [AB](#ab--principal-component-regression-pcr) | PCR vs PLS — SVD view, Ridge comparison, weakness | Week 8 |
+| [AC](#ac--elastic-net-regression) | Elastic Net — grouped selection, coordinate descent update | Week 3 |
+| [AD](#ad--gradient-boosting) | Gradient Boosting — pseudo-residuals, shrinkage, AdaBoost link | Week 6 |
+| [AE](#ae--regularized-discriminant-analysis-rda) | RDA — shrinkage between LDA and QDA | Week 4 |
+| [AF](#af--canonical-correlation-analysis-cca) | CCA — maximize cross-block correlation | Week 8 |
+| [AG](#ag--k-nearest-neighbors-knn) | KNN — local averaging, K tuning, high-dimensional limits | Week 2 |
 
 ---
 
@@ -677,3 +682,86 @@ $$\hat{\beta}_\text{PCR} = V_M(Z^TZ)^{-1}Z^Ty = V_M\Lambda_M^{-1}V_M^TX^Ty$$
 | Uses $y$ in step 1? | No | No (implicitly) | Yes |
 | Shrinkage | Hard truncation | Continuous | Implicit |
 | df | Integer $M$ | Fractional | — |
+
+---
+
+## AC — ELASTIC NET REGRESSION
+
+**Model**:
+$$
+\hat{\beta}=\arg\min_\beta \|y-X\beta\|^2+\lambda\left[\alpha\|\beta\|_1+(1-\alpha)\|\beta\|_2^2/2\right]
+$$
+
+**Coordinate update**:
+$$
+\hat{\beta}_j=\frac{S(z_j,\lambda\alpha)}{1+\lambda(1-\alpha)}
+$$
+Soft-thresholding ($L_1$) creates sparsity; denominator ($L_2$) stabilizes correlated predictors.
+
+**Why it matters**: combines Lasso variable selection with Ridge stability. Strong when $p\gg n$ and predictors are highly correlated.
+
+---
+
+## AD — GRADIENT BOOSTING
+
+**View**: forward stagewise additive modeling + gradient descent in function space.
+
+At step $m$, fit weak learner to pseudo-residuals:
+$$
+r_{im}=-\left[\frac{\partial L(y_i,F(x_i))}{\partial F(x_i)}\right]_{F=F_{m-1}}
+$$
+
+Update:
+$$
+F_m(x)=F_{m-1}(x)+\nu\gamma_m h_m(x)
+$$
+
+**Key**: boosting mainly reduces bias (sequential error correction). Smaller learning rate $\nu$ + larger $M$ generally improves generalization.
+
+---
+
+## AE — REGULARIZED DISCRIMINANT ANALYSIS (RDA)
+
+RDA interpolates between LDA and QDA by shrinking class-specific covariance:
+$$
+\hat{\Sigma}_k(\alpha)=\alpha\hat{\Sigma}_k+(1-\alpha)\hat{\Sigma}
+$$
+
+Optional identity shrinkage improves conditioning:
+$$
+\hat{\Sigma}_k^{(\gamma)}=(1-\gamma)\hat{\Sigma}_k(\alpha)+\gamma\frac{\mathrm{tr}(\hat{\Sigma}_k(\alpha))}{p}I
+$$
+
+**Limits**: $\alpha=0\Rightarrow$ LDA, $\alpha=1\Rightarrow$ QDA.  
+**Purpose**: lower covariance-estimation variance while keeping more flexibility than LDA.
+
+---
+
+## AF — CANONICAL CORRELATION ANALYSIS (CCA)
+
+Given two blocks $X$ and $Y$, CCA finds projections $u=Xa$, $v=Yb$ maximizing
+$$
+\operatorname{Corr}(u,v)=\frac{a^T\Sigma_{XY}b}{\sqrt{a^T\Sigma_{XX}a}\sqrt{b^T\Sigma_{YY}b}}
+$$
+
+Leads to generalized eigenproblem:
+$$
+\Sigma_{XY}\Sigma_{YY}^{-1}\Sigma_{YX}a=\rho^2\Sigma_{XX}a
+$$
+
+**Contrast with PLS**: CCA maximizes correlation; PLS maximizes covariance.
+
+---
+
+## AG — K-NEAREST NEIGHBORS (KNN)
+
+**Classifier**: majority vote among $K$ nearest points.  
+**Regressor**: local average among $K$ nearest responses.
+
+Bias-variance control via $K$:
+- Small $K$: low bias, high variance
+- Large $K$: high bias, low variance
+
+As $K\to N$, predictions approach global mean/majority class.
+
+**High-dimensional caveat**: distance concentration and sparse local neighborhoods make vanilla KNN deteriorate quickly without feature scaling/reduction.

@@ -1,5 +1,5 @@
 # Q22 — Index
-> **20 points.** Q22 has appeared in every exam since 2022. The wearable dataset appeared twice in a row (2024, 2025). Know all three variants.
+> **20 points.** Q22 has appeared in every exam since 2022. The wearable dataset appeared twice in a row (2024, 2025). Know the main variants cold.
 > Master cheat sheet (one page, all variants): `OPEN_QUESTIONS_Q22.md` in the repo root.
 
 ---
@@ -22,7 +22,15 @@
 |------|---------|---------|------------|
 | [Q22\_cv\_wearables.md](Q22_cv_wearables.md) | Supervised, grouped CV design | 2024, 2025 | **First** |
 | [Q22\_face\_clustering\_2022.md](Q22_face_clustering_2022.md) | Unsupervised, NMF + GMM + BIC | 2022 | Second |
-| [Q22\_other\_datasets.md](Q22_other_datasets.md) | EEG, speech, multi-site, tensor, gait, genomics | Not yet | Third |
+| [Q22\_diabetes\_cgm.md](Q22_diabetes_cgm.md) | Supervised, patient-grouped CV + temporal leakage | Not yet | Third |
+| [Q22\_eeg\_subject\_cv.md](Q22_eeg_subject_cv.md) | Supervised, subject-grouped CV + trial/window leakage | Not yet | Fourth |
+| [Q22\_speech\_speaker\_cv.md](Q22_speech_speaker_cv.md) | Supervised, speaker-grouped CV | Not yet | Fifth |
+| [Q22\_multisite\_medical.md](Q22_multisite_medical.md) | Supervised, site-level grouped CV | Not yet | Sixth |
+| [Q22\_longitudinal\_timeseries.md](Q22_longitudinal_timeseries.md) | Supervised, forward-chaining / temporal holdout | Not yet | Seventh |
+| [Q22\_tensor\_parafac.md](Q22_tensor_parafac.md) | Unsupervised, PARAFAC + CORCONDIA + FMS | Not yet | Eighth |
+| [Q22\_genomics\_highdim.md](Q22_genomics_highdim.md) | Supervised, high-dimensional nested CV | Not yet | Ninth |
+| [Q22\_gait\_analysis.md](Q22_gait_analysis.md) | Supervised, subject-level grouped CV | Not yet | Tenth |
+| [Q22\_other\_datasets.md](Q22_other_datasets.md) | Summary bank across all unseen variants | Not yet | Last |
 
 ---
 
@@ -36,6 +44,7 @@
 | "repeated measures / multiple obs per person" | IID violation → grouped CV | wearables |
 | "multiple sites / hospitals / batches" | Site-level grouping | other datasets |
 | "time series / predict next week" | Temporal leakage | other datasets |
+| "glucose / insulin / diabetes / CGM" | Patient-grouped + temporal CV | diabetes |
 | "tensor / multi-way / PARAFAC" | Component selection | other datasets |
 
 ---
@@ -61,8 +70,29 @@ The 2022 variant. Covers:
 - Fraud detection logic: compare $\hat{K}_\text{faces}$ vs $K_\text{passports}$
 - Extended Q&A: NMF non-uniqueness, speckled CV for component selection, AA vs NMF, semi-supervised variant, imbalanced cluster sizes
 
+### [Q22\_diabetes\_cgm.md](Q22_diabetes_cgm.md)
+Plausible supervised healthcare variant. Covers:
+- repeated CGM / insulin / lifestyle measurements per patient
+- why random CV leaks patient-specific physiology
+- personalized model: future prediction within known patient
+- generalized model: Leave-One-Patient-Out CV
+- temporal leakage from overlapping windows / future data
+- nested CV and feature-selection-inside-loop rule
+- classification vs regression metric choice
+- exam-ready full written answer
+
+### Additional standalone unseen variants
+
+- [Q22\_eeg\_subject\_cv.md](Q22_eeg_subject_cv.md): subject-level CV, trial/window leakage, PCA/ICA note
+- [Q22\_speech\_speaker\_cv.md](Q22_speech_speaker_cv.md): Leave-One-Speaker-Out, utterance/frame leakage
+- [Q22\_multisite\_medical.md](Q22_multisite_medical.md): Leave-One-Site-Out, hospital/batch leakage
+- [Q22\_longitudinal\_timeseries.md](Q22_longitudinal_timeseries.md): forward-chaining, future-data leakage
+- [Q22\_tensor\_parafac.md](Q22_tensor_parafac.md): unsupervised tensor component selection
+- [Q22\_genomics\_highdim.md](Q22_genomics_highdim.md): $p \gg n$, nested CV, feature-selection leakage
+- [Q22\_gait\_analysis.md](Q22_gait_analysis.md): wearables-style subject/session CV
+
 ### [Q22\_other\_datasets.md](Q22_other_datasets.md)
-Preparation for unseen variants. Covers 7 scenarios:
+Preparation for unseen variants. Covers 8 scenarios:
 - EEG / brain imaging (LOSO by subject)
 - Speech / audio (LOSO by speaker)
 - Multi-site medical (LOSO by hospital)
@@ -84,6 +114,14 @@ Q22 is not about describing an algorithm — it is about **matching methodology 
 4. **Stating what EPE measures** — "expected error when predicting a new individual from the population" not just "test error".
 5. **Justifying the method** — why this grouping, why not random CV, why not AIC.
 6. **Clinical/deployment recommendation** — which model is appropriate, and why the other one cannot be used.
+
+### Leave-One-Group-Out vs Grouped K-Fold
+
+- **Grouped CV** is the rule; **leave-one-group-out** is one special case.
+- If the deployment target is “new patient / new subject / new site,” both are acceptable only if the whole group stays in one fold.
+- **Leave-one-group-out** is usually the best exam answer when the number of groups is small or moderate, because it maps most directly to the deployment question.
+- **Grouped K-fold** is often preferred when there are many groups and you want larger test folds and a more stable estimate.
+- The core tradeoff is: leave-one-group-out is often cleaner but noisier; grouped K-fold is often more stable but slightly less direct.
 
 ### Common Mistakes to Avoid
 - Proposing random K-fold without acknowledging the IID violation
