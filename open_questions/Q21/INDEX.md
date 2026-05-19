@@ -69,6 +69,14 @@
 | [Q21-AS — Bootstrap vs Cross-Validation vs OOB Error](Q21_AS_bootstrap_cv_oob.md) | Uncertainty vs prediction error vs bagging-based validation | Week 2/5, practical assessment comparison |
 | [Q21-AT — KNN vs LDA vs Logistic Regression](Q21_AT_knn_lda_logistic.md) | Local vs generative vs discriminative classification | Weeks 2/4, exam-style compare-and-choose question |
 | [Q21-AU — PCA vs Sparse PCA vs NMF](Q21_AU_pca_sparsepca_nmf.md) | Variance directions vs sparsity vs parts-based decomposition | Weeks 8/11, interpretable latent-factor comparison |
+| [Q21-AV — AdaBoost vs Gradient Boosting](Q21_AV_adaboost_vs_gradient_boosting.md) | Exponential loss vs general loss minimization, reweighting vs pseudo-residuals | Week 6, high-yield boosting comparison |
+| [Q21-AW — Hierarchical Linkage Methods](Q21_AW_hierarchical_linkage.md) | Single vs complete vs Ward linkage, chaining vs compactness | Week 9, classic clustering comparison |
+| [Q21-AX — Neural Networks vs SVM vs Random Forest](Q21_AX_nn_svm_rf.md) | Representation learning vs margin methods vs ensembles | Weeks 6/7/10, broad compare-and-choose question |
+| [Q21-AY — CORCONDIA vs Split-Half FMS](Q21_AY_corcondia_vs_fms.md) | PARAFAC rank validation, model form vs reproducibility | Week 12, very exam-plausible validation comparison |
+| [Q21-AZ — Logistic Regression vs SVM](Q21_AZ_logistic_vs_svm.md) | Log loss vs hinge loss, probabilities vs margins, regularization | Weeks 4/7, classic classifier comparison |
+| [Q21-BA — Silhouette vs Gap Statistic vs BIC](Q21_BA_silhouette_gap_bic.md) | Choosing number of clusters under different model assumptions | Week 9, strong model-selection comparison |
+| [Q21-BB — PCA vs CCA](Q21_BB_pca_vs_cca.md) | Variance explanation vs cross-block correlation | Week 8, clean two-method comparison |
+| [Q21-BC — Archetypal Analysis vs K-means vs NMF](Q21_BC_aa_kmeans_nmf.md) | Extremes vs centroids vs additive parts | Weeks 9/11, interpretable unsupervised comparison |
 
 ---
 
