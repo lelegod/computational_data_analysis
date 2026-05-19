@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02582 Computational Data Analysis — Study Guide</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f8f7f4;
+    --bg3: #f0ede6;
+    --text: #1a1a1a;
+    --text2: #444;
+    --text3: #666;
+    --border: #ddd;
+    --accent: #2c5f8a;
+    --accent2: #1a3d5c;
+    --green: #1a6b3c;
+    --green-bg: #eaf4ee;
+    --red: #8a1a1a;
+    --red-bg: #faeaea;
+    --amber: #7a4f00;
+    --amber-bg: #fef4e0;
+    --purple: #4a1a8a;
+    --purple-bg: #f0eafa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 15px; }
+  
+  .toc { position: fixed; top: 0; left: 0; width: 260px; height: 100vh; overflow-y: auto; background: var(--bg2); border-right: 1px solid var(--border); padding: 1rem; z-index: 100; }
+  .toc h2 { font-size: 13px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+  .toc a { display: block; font-size: 12px; color: var(--text2); text-decoration: none; padding: 3px 6px; border-radius: 4px; margin-bottom: 1px; }
+  .toc a:hover { background: var(--bg3); color: var(--accent); }
+  .toc .toc-section { font-weight: 600; color: var(--accent2); margin-top: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 6px; }
+
+  .main { margin-left: 260px; max-width: 960px; padding: 2rem 2.5rem; }
+  
+  h1 { font-size: 28px; font-weight: 700; color: var(--accent2); margin-bottom: 0.5rem; }
+  .subtitle { color: var(--text3); font-size: 14px; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--accent); }
+  
+  h2 { font-size: 20px; font-weight: 700; color: var(--accent2); margin: 2.5rem 0 1rem; padding: 0.5rem 0.75rem; background: var(--bg2); border-left: 4px solid var(--accent); border-radius: 0 6px 6px 0; }
+  h3 { font-size: 16px; font-weight: 600; color: var(--accent); margin: 1.5rem 0 0.5rem; }
+  h4 { font-size: 14px; font-weight: 600; color: var(--text); margin: 1rem 0 0.25rem; }
+  
+  p { margin-bottom: 0.75rem; color: var(--text2); }
+  
+  .formula { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; margin: 0.75rem 0; font-family: 'Georgia', serif; font-size: 14px; color: var(--text); }
+  
+  .box { border-radius: 8px; padding: 1rem 1.25rem; margin: 1rem 0; }
+  .box-green { background: var(--green-bg); border-left: 4px solid var(--green); }
+  .box-red { background: var(--red-bg); border-left: 4px solid var(--red); }
+  .box-amber { background: var(--amber-bg); border-left: 4px solid var(--amber); }
+  .box-purple { background: var(--purple-bg); border-left: 4px solid var(--purple); }
+  .box-blue { background: #e8f0f8; border-left: 4px solid var(--accent); }
+  
+  .box-green .box-title { color: var(--green); font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+  .box-red .box-title { color: var(--red); font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+  .box-amber .box-title { color: var(--amber); font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+  .box-purple .box-title { color: var(--purple); font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+  .box-blue .box-title { color: var(--accent2); font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+  
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 13px; }
+  th { background: var(--accent); color: white; padding: 8px 12px; text-align: left; font-weight: 600; }
+  td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--text2); }
+  tr:nth-child(even) { background: var(--bg2); }
+  
+  .exam-q { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+  .exam-q .q-label { font-size: 11px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .exam-q .q-text { font-weight: 600; color: var(--text); margin-bottom: 8px; font-size: 14px; }
+  .exam-q .answer { color: var(--green); font-weight: 600; font-size: 13px; }
+  .exam-q .why { color: var(--text2); font-size: 13px; margin-top: 4px; }
+
+  ul, ol { padding-left: 1.5rem; margin: 0.5rem 0 0.75rem; color: var(--text2); }
+  li { margin-bottom: 4px; }
+  
+  .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; margin: 2px; }
+  .tag-sup { background: #e8f0f8; color: var(--accent2); }
+  .tag-unsup { background: var(--amber-bg); color: var(--amber); }
+  .tag-param { background: var(--green-bg); color: var(--green); }
+  .tag-nonparam { background: var(--purple-bg); color: var(--purple); }
+  
+  hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+  
+  .key-fact { display: flex; gap: 8px; align-items: flex-start; margin: 6px 0; }
+  .key-fact::before { content: "★"; color: var(--accent); font-size: 12px; flex-shrink: 0; margin-top: 2px; }
+  
+  code { background: var(--bg3); padding: 1px 5px; border-radius: 3px; font-family: monospace; font-size: 13px; }
+
+  @media print { .toc { display: none; } .main { margin-left: 0; } }
+</style>
+</head>
+<body>
+
+<nav class="toc">
+  <h2>02582 Study Guide</h2>
+  <div class="toc-section">Week 1</div>
+  <a href="#epe">EPE, Bias &amp; Variance</a>
+  <a href="#ols">OLS &amp; Ridge</a>
+  <a href="#collinearity">Collinearity</a>
+  <div class="toc-section">Week 2</div>
+  <a href="#knn">KNN</a>
+  <a href="#kmeans">K-means</a>
+  <a href="#model-selection">Model Selection (CV, AIC, BIC)</a>
+  <div class="toc-section">Week 3</div>
+  <a href="#lasso">Lasso &amp; Elastic Net</a>
+  <a href="#multiple-testing">Multiple Testing (Bonferroni, BH, FDR)</a>
+  <div class="toc-section">Week 4</div>
+  <a href="#lda">LDA &amp; QDA</a>
+  <a href="#logreg">Logistic Regression</a>
+  <a href="#roc">ROC Curves</a>
+  <div class="toc-section">Week 5</div>
+  <a href="#cart">CART (Decision Trees)</a>
+  <a href="#bagging">Bagging</a>
+  <div class="toc-section">Week 6</div>
+  <a href="#boosting">Boosting</a>
+  <a href="#random-forest">Random Forests</a>
+  <div class="toc-section">Week 7</div>
+  <a href="#svm">Support Vector Machines</a>
+  <a href="#kernels">Kernels</a>
+  <div class="toc-section">Week 8</div>
+  <a href="#pca">PCA &amp; SPCA</a>
+  <a href="#pls">PLS &amp; CCA</a>
+  <div class="toc-section">Week 9</div>
+  <a href="#hierarchical">Hierarchical Clustering</a>
+  <a href="#gmm">Gaussian Mixture Models</a>
+  <a href="#gap">Gap Statistics &amp; Silhouette</a>
+  <div class="toc-section">Week 10</div>
+  <a href="#ann">Neural Networks (ANN)</a>
+  <a href="#autoencoder">Autoencoders</a>
+  <div class="toc-section">Week 11</div>
+  <a href="#nmf">NMF</a>
+  <a href="#aa">Archetypal Analysis</a>
+  <a href="#ica">ICA</a>
+  <div class="toc-section">Week 12</div>
+  <a href="#multiway">Multiway Models (PARAFAC, Tucker)</a>
+  <div class="toc-section">Exam Tips</div>
+  <a href="#exam-traps">Common Exam Traps</a>
+  <a href="#quick-ref">Quick Reference Table</a>
+</nav>
+
+<main class="main">
+<h1>02582 Computational Data Analysis</h1>
+<div class="subtitle">Complete searchable study guide — covers all ESL chapters + exam answers from 2022, 2024, 2025 &nbsp;|&nbsp; Use Cmd+F / Ctrl+F to search</div>
+
+<!-- ==================== WEEK 1 ==================== -->
+<h2 id="epe">Expected Prediction Error (EPE), Bias &amp; Variance</h2>
+
+<h3>The Bias-Variance Decomposition</h3>
+<div class="formula">EPE = Bias² + Variance + Irreducible Error (σ²)</div>
+<ul>
+  <li><strong>Bias</strong> = E[f̂(x)] − f(x) — how far off on average across all training sets. Decreases with model complexity.</li>
+  <li><strong>Variance</strong> = E[(f̂(x) − E[f̂(x)])²] — how much the model changes with different training data. Increases with complexity.</li>
+  <li><strong>Irreducible error (σ²)</strong> = noise in the data-generating process. Cannot be reduced by ANY model regardless of complexity.</li>
+</ul>
+
+<div class="box box-green">
+  <div class="box-title">★ Exam favourite</div>
+  Irreducible error is NOT affected by model complexity. Bias and variance are. EPE and generalization error differ: EPE = expectation over training sets; generalization error = conditioned on a fixed training set.
+</div>
+
+<div class="box box-blue">
+  <div class="box-title">Regularization and bias-variance</div>
+  <ul>
+    <li><strong>Large λ</strong> → heavy penalty → model too simple → <strong>high bias, low variance</strong> (underfitting)</li>
+    <li><strong>Small λ</strong> → little penalty → model too flexible → <strong>low bias, high variance</strong> (overfitting)</li>
+    <li>Both high bias AND low bias can be stated simultaneously when describing an overfitting model: small λ → high variance + low bias</li>
+  </ul>
+</div>
+
+<h3>Collinearity</h3><a id="collinearity"></a>
+<p>When input variables are highly correlated, OLS estimates become unstable — small changes in data cause large swings in coefficients. Variance of estimates explodes.</p>
+<ul>
+  <li>Ridge regression directly addresses collinearity by adding λ‖β‖₂² — shrinks correlated coefficients together</li>
+  <li>PCA can remove collinearity by working in orthogonal principal component space</li>
+</ul>
+
+<h2 id="ols">OLS and Ridge Regression</h2>
+
+<h3>Ordinary Least Squares (OLS)</h3>
+<div class="formula">β̂ = (XᵀX)⁻¹XᵀY</div>
+<ul>
+  <li>Requires XᵀX to be invertible → fails when p ≥ n or when variables are collinear</li>
+  <li>BLUE (Best Linear Unbiased Estimator) when Gauss-Markov assumptions hold</li>
+  <li>Zero bias but can have very high variance</li>
+</ul>
+
+<h3>Ridge Regression</h3>
+<div class="formula">β̂_ridge = argmin ‖y − Xβ‖₂² + λ‖β‖₂² = (XᵀX + λI)⁻¹XᵀY</div>
+<ul>
+  <li><strong>Closed form solution exists</strong> — (XᵀX + λI)⁻¹XᵀY</li>
+  <li>Adding λI makes the matrix invertible even with collinearity or p > n</li>
+  <li>Shrinks ALL coefficients toward zero but <strong>never exactly to zero</strong> → no feature selection</li>
+  <li>L2 penalty: circular constraint region → no corners → no exact zeros</li>
+</ul>
+
+<div class="box box-amber">
+  <div class="box-title">Why ridge does NOT do feature selection</div>
+  The L2 (ridge) constraint region is a smooth sphere. The optimal solution lies on this sphere, which has no corners at the axes. Lasso's L1 constraint is a diamond shape with corners ON the axes — the optimal solution often hits a corner, setting coefficients exactly to zero.
+</div>
+
+<!-- ==================== WEEK 2 ==================== -->
+<h2 id="knn">K-Nearest Neighbors (KNN)</h2>
+<span class="tag tag-unsup">Non-parametric</span> <span class="tag tag-nonparam">Classification &amp; Regression</span>
+
+<ul>
+  <li>Predicts by taking the majority class (classification) or mean (regression) of the K nearest training points</li>
+  <li><strong>Small K</strong> → complex, wiggly boundary → low bias, <strong>high variance</strong> → overfitting</li>
+  <li><strong>Large K</strong> → smooth boundary → <strong>high bias</strong>, low variance → underfitting → good weak learner for boosting</li>
+  <li>No training phase — all computation at prediction time ("lazy learner")</li>
+  <li>Sensitive to scale of features → always standardize</li>
+  <li>Suffers from curse of dimensionality</li>
+</ul>
+
+<div class="box box-green">
+  <div class="box-title">KNN in bagging vs boosting</div>
+  <ul>
+    <li><strong>Bagging</strong>: use KNN with <strong>small K</strong> (high variance) — bagging reduces variance</li>
+    <li><strong>Boosting</strong>: use KNN with <strong>large K</strong> (high bias, weak learner) — boosting reduces bias</li>
+  </ul>
+</div>
+
+<h2 id="kmeans">K-means Clustering</h2>
+<span class="tag tag-unsup">Unsupervised</span>
+
+<div class="formula">Minimize: Σₖ Σᵢ∈Cₖ ‖xᵢ − μₖ‖²</div>
+
+<p>Algorithm: (1) Initialize K centroids randomly. (2) Assign each point to nearest centroid. (3) Recompute centroids as mean of assigned points. (4) Repeat until convergence.</p>
+
+<ul>
+  <li>Assumes spherical, equal-sized clusters (implicit from Euclidean distance)</li>
+  <li><strong>Hard assignments</strong> — each point belongs to exactly one cluster</li>
+  <li>Sensitive to outliers (mean is pulled by extremes)</li>
+  <li>Result depends on initialization — run multiple times</li>
+  <li>NOT a matrix factorization method</li>
+  <li>Cannot use AIC/BIC to select K (no likelihood model)</li>
+  <li>Use elbow method or silhouette scores to select K</li>
+</ul>
+
+<h3>K-medoids vs K-means</h3>
+<table>
+  <tr><th>Property</th><th>K-means</th><th>K-medoids</th></tr>
+  <tr><td>Center</td><td>Mean (may not be a data point)</td><td>Must be an actual data point</td></tr>
+  <tr><td>Robustness</td><td>Sensitive to outliers</td><td><strong>More robust to outliers</strong></td></tr>
+  <tr><td>Distance</td><td>Euclidean (squared)</td><td>Any distance metric</td></tr>
+</table>
+
+<h2 id="model-selection">Model Selection: CV, Bootstrap, AIC, BIC</h2>
+
+<h3>Cross-Validation (CV)</h3>
+<ul>
+  <li>Split data into K folds; train on K-1, test on 1; rotate; average error</li>
+  <li>Estimates Expected Prediction Error (EPE)</li>
+  <li><strong>Critical rule</strong>: Normalization/standardization must be done INSIDE each fold — computing on full data before CV causes information leakage</li>
+  <li>Assumes data are <strong>IID (independently and identically distributed)</strong></li>
+  <li>When data has structure (groups, time), keep dependent observations in same fold</li>
+</ul>
+
+<div class="box box-red">
+  <div class="box-title">Common CV mistakes (exam traps!)</div>
+  <ul>
+    <li>Standardizing before CV → leakage from test fold into training</li>
+    <li>Using random CV when data has grouped/time-series structure → overly optimistic estimates</li>
+    <li>Using CV for both model selection AND assessment → biased → use nested CV instead</li>
+  </ul>
+</div>
+
+<h3>Nested (Double-loop) Cross-Validation</h3>
+<ul>
+  <li><strong>Inner loop</strong>: selects hyperparameters (model selection)</li>
+  <li><strong>Outer loop</strong>: estimates generalization error (model assessment)</li>
+  <li>Use when you want an <strong>unbiased estimate of generalization error after hyperparameter tuning</strong></li>
+</ul>
+
+<h3>One-Standard-Error Rule</h3>
+<p>Find the minimum-error model, compute its standard error. Select the <strong>simplest model</strong> whose error is within 1 SE of the minimum. Favors parsimony when models perform similarly.</p>
+
+<h3>AIC and BIC</h3>
+<div class="formula">AIC = -2 log L + 2p &nbsp;&nbsp;&nbsp; BIC = -2 log L + p·log(n)</div>
+<table>
+  <tr><th></th><th>AIC</th><th>BIC</th></tr>
+  <tr><td>Penalty per parameter</td><td>2 (constant)</td><td>log(n) — grows with n</td></tr>
+  <tr><td>As n → ∞</td><td>Less conservative</td><td><strong>More conservative</strong> (consistent)</td></tr>
+  <tr><td>Goal</td><td>Predictive accuracy</td><td>Model identification (finds true model)</td></tr>
+  <tr><td>Basis</td><td>Information theory</td><td>Posterior odds / Bayes factor</td></tr>
+  <tr><td>Requires</td><td>Likelihood model</td><td>Likelihood model</td></tr>
+  <tr><td>Works for p >> n?</td><td>No</td><td>No</td></tr>
+</table>
+
+<div class="box box-green">
+  <div class="box-title">★ BIC penalizes complexity most as n → ∞</div>
+  BIC penalty = p·log(n) grows without bound. AIC penalty = 2p is constant. So BIC increasingly favors simpler models as sample size grows. BIC is consistent (selects true model w.p. 1 as n → ∞); AIC is not.
+</div>
+
+<!-- ==================== WEEK 3 ==================== -->
+<h2 id="lasso">Lasso and Elastic Net</h2>
+
+<h3>Lasso (L1 regularization)</h3>
+<div class="formula">β̂ = argmin ‖y − Xβ‖₂² + λ‖β‖₁ &nbsp;&nbsp; where ‖β‖₁ = Σ|βᵢ|</div>
+<ul>
+  <li><strong>No closed form solution</strong> — L1 penalty not differentiable at zero</li>
+  <li>Solved numerically via coordinate descent or LARS (Least Angle Regression)</li>
+  <li><strong>Does feature selection</strong> — sets some coefficients exactly to zero</li>
+  <li>Diamond-shaped constraint region with corners on axes → optimal solution hits corners → exact zeros</li>
+  <li>LARS is a <strong>path algorithm</strong>: computes full solution for all λ in one pass</li>
+  <li>Handles p >> n well</li>
+</ul>
+
+<h3>Elastic Net</h3>
+<div class="formula">β̂ = argmin ‖y − Xβ‖₂² + λ₁‖β‖₁ + λ₂‖β‖₂²</div>
+<ul>
+  <li>Combines L1 (lasso) and L2 (ridge) penalties</li>
+  <li>Feature selection (from L1) + handles correlated variables (from L2)</li>
+  <li>Best of both worlds for p >> n with correlated features</li>
+</ul>
+
+<h3>LARS vs Coordinate Descent</h3>
+<table>
+  <tr><th></th><th>LARS</th><th>Coordinate Descent</th></tr>
+  <tr><td>Path algorithm?</td><td>Yes</td><td>Yes (with warm starting)</td></tr>
+  <tr><td>Updates per step</td><td>One variable at a time</td><td>One variable at a time</td></tr>
+  <tr><td>Gives exact lasso?</td><td>With modification</td><td>Yes</td></tr>
+</table>
+
+<h3>Norm reference</h3>
+<table>
+  <tr><th>Norm</th><th>Formula</th><th>Used in</th></tr>
+  <tr><td>L1 norm ‖β‖₁</td><td>Σ|βᵢ|</td><td>Lasso</td></tr>
+  <tr><td>L2 norm ‖β‖₂</td><td>√(Σβᵢ²)</td><td>Ridge (unsquared)</td></tr>
+  <tr><td>Squared L2 ‖β‖₂²</td><td>Σβᵢ² = βᵀβ</td><td>Ridge penalty</td></tr>
+  <tr><td>L∞ norm</td><td>max|βᵢ|</td><td>Rarely used</td></tr>
+</table>
+
+<div class="box box-amber">
+  <div class="box-title">★ ‖β‖₂² = Σβᵢ² = βᵀβ (two equivalent forms — both correct)</div>
+</div>
+
+<h2 id="multiple-testing">Multiple Testing: Bonferroni, BH, FDR</h2>
+
+<p>When running M hypothesis tests, the probability of at least one false positive grows. If each test has significance level α, the chance of ANY false positive ≈ 1 − (1−α)ᴹ.</p>
+
+<h3>Bonferroni Correction</h3>
+<ul>
+  <li>Use significance level α/M for each individual test</li>
+  <li>Controls <strong>Family-Wise Error Rate (FWER)</strong> = P(at least one false positive)</li>
+  <li>Very conservative — suitable when ANY false positive is unacceptable</li>
+  <li>Can be too conservative when M is very large → misses real effects</li>
+</ul>
+
+<h3>Benjamini-Hochberg (BH) Algorithm</h3>
+<ul>
+  <li>Controls <strong>False Discovery Rate (FDR)</strong> = E[false positives / total positives]</li>
+  <li>Less conservative than Bonferroni → more discoveries, some false positives tolerated</li>
+  <li>Algorithm: sort p-values p₍₁₎ ≤ p₍₂₎ ≤ … ≤ p₍ₘ₎; reject all H₍ₖ₎ where k ≤ max{i: p₍ᵢ₎ ≤ αi/M}</li>
+  <li>Controls upper bound of FDR</li>
+</ul>
+
+<table>
+  <tr><th></th><th>Bonferroni</th><th>Benjamini-Hochberg</th></tr>
+  <tr><td>Controls</td><td>FWER (≥1 false positive)</td><td>FDR (proportion of false positives)</td></tr>
+  <tr><td>Conservativeness</td><td>More conservative</td><td>Less conservative</td></tr>
+  <tr><td>Significant findings</td><td>Fewer</td><td>More</td></tr>
+  <tr><td>False positives</td><td>Fewer</td><td>More (but bounded proportion)</td></tr>
+  <tr><td>Use when</td><td>Any FP unacceptable</td><td>Some FP acceptable (genomics, etc.)</td></tr>
+</table>
+
+<div class="box box-green">
+  <div class="box-title">★ Exam key distinction</div>
+  BH controls the <strong>expected proportion</strong> of false discoveries (FDR). Bonferroni controls the <strong>probability of at least one</strong> false discovery (FWER). At the same α level, BH gives MORE significant findings AND more false positives than Bonferroni.
+</div>
+
+<!-- ==================== WEEK 4 ==================== -->
+<h2 id="lda">Linear Discriminant Analysis (LDA) and QDA</h2>
+<span class="tag tag-sup">Supervised</span> <span class="tag tag-param">Probabilistic</span>
+
+<h3>LDA Assumptions</h3>
+<ul>
+  <li>Each class k follows a multivariate Gaussian: p(x|k) ~ N(μₖ, <strong>Σ</strong>)</li>
+  <li><strong>All classes share the same covariance matrix Σ</strong> (homoscedasticity)</li>
+  <li>This shared covariance is why the boundary is linear — quadratic terms cancel</li>
+</ul>
+
+<div class="box box-blue">
+  <div class="box-title">Why is LDA linear?</div>
+  When computing the log posterior ratio log[P(k₁|x)/P(k₂|x)], the term xᵀΣ⁻¹x appears in both numerators and cancels (because Σ is shared). What remains is a linear function of x → linear decision boundary. If covariances differ → QDA → quadratic boundaries.
+</div>
+
+<h3>LDA Fitting (closed form)</h3>
+<ul>
+  <li>μ̂ₖ = class mean for class k</li>
+  <li>Σ̂ = pooled within-class covariance = (1/(n−K)) Σₖ Σᵢ∈ₖ (xᵢ−μₖ)(xᵢ−μₖ)ᵀ</li>
+  <li>π̂ₖ = nₖ/n (class prior)</li>
+</ul>
+
+<h3>LDA vs GMM</h3>
+<table>
+  <tr><th></th><th>LDA</th><th>GMM</th></tr>
+  <tr><td>Supervised?</td><td>Yes — uses labels</td><td>No (standard form)</td></tr>
+  <tr><td>Covariance</td><td>Shared Σ across all classes</td><td>Separate Σₖ per component</td></tr>
+  <tr><td>Fitting</td><td>Closed form (analytic)</td><td>EM algorithm (iterative)</td></tr>
+  <tr><td>Goal</td><td>Classification</td><td>Density estimation / clustering</td></tr>
+  <tr><td>Boundary</td><td>Linear</td><td>Soft probabilistic assignments</td></tr>
+  <tr><td>Cluster shapes</td><td>Equal, spherical</td><td>Elliptical, different per component</td></tr>
+  <tr><td>Class overlap</td><td>Hard linear boundary</td><td>Soft, flexible handling</td></tr>
+  <tr><td>Latent structure</td><td>None discovered</td><td>Can discover subgroups</td></tr>
+</table>
+
+<h3>QDA</h3>
+<ul>
+  <li>Relaxes equal covariance assumption — each class has its own Σₖ</li>
+  <li>Quadratic terms do NOT cancel → quadratic decision boundary</li>
+  <li>More flexible than LDA but more parameters to estimate → needs more data</li>
+</ul>
+
+<h2 id="logreg">Logistic Regression</h2>
+<span class="tag tag-sup">Supervised</span> <span class="tag tag-param">Probabilistic</span>
+
+<div class="formula">P(Y=1|x) = 1 / (1 + exp(−βᵀx)) = σ(βᵀx)</div>
+<ul>
+  <li>Models posterior probability P(class|x) directly — discriminative approach</li>
+  <li>Probabilistic method (like LDA, unlike SVM)</li>
+  <li><strong>Without regularization</strong>: fails when p ≥ n — design matrix is rank deficient</li>
+  <li><strong>With L1/L2 regularization</strong>: handles p >> n</li>
+  <li>Estimated by maximizing likelihood (no closed form — numerical optimization)</li>
+</ul>
+
+<h2 id="roc">ROC Curves</h2>
+<ul>
+  <li>Plots True Positive Rate (sensitivity) vs False Positive Rate (1-specificity) at all thresholds</li>
+  <li>AUC = Area Under Curve — higher is better (1 = perfect, 0.5 = random)</li>
+  <li>Threshold-independent performance metric</li>
+</ul>
+
+<!-- ==================== WEEK 5 ==================== -->
+<h2 id="cart">CART — Decision Trees</h2>
+<span class="tag tag-nonparam">Non-parametric</span>
+
+<h3>Building a tree</h3>
+<ul>
+  <li>Recursively split features to minimize impurity (Gini index or entropy for classification; RSS for regression)</li>
+  <li>At each node, find the split that gives the largest reduction in impurity</li>
+  <li>Grow until leaves are pure or minimum leaf size is reached</li>
+</ul>
+
+<h3>Pruning</h3>
+<p><strong>Pruning</strong> = removing splits from a grown tree to prevent overfitting. A split is removed by replacing it and its children with a single leaf node, which predicts the majority class (classification) or mean value (regression) for all observations reaching it.</p>
+
+<div class="box box-blue">
+  <div class="box-title">Cost-complexity pruning</div>
+  <p>For each node, compute: α = (error if pruned − error of subtree) / (leaves in subtree − 1)</p>
+  <p>Prune the node with the <strong>smallest α</strong> first (smallest impurity reduction = weakest split). Continue until desired complexity. Use cross-validation to choose how far to prune.</p>
+  <p><strong>Example: reductions = 4, 3.5, 5, 8 → prune at 3.5 first, then 4, then 5, keep 8 longest.</strong></p>
+</div>
+
+<ul>
+  <li>Full trees: low bias, high variance (overfitting)</li>
+  <li>Pruned/stumped trees: higher bias, lower variance</li>
+  <li>Handles categorical variables natively (no one-hot encoding needed)</li>
+</ul>
+
+<h2 id="bagging">Bagging (Bootstrap Aggregating)</h2>
+<ul>
+  <li>Train B trees on B bootstrap samples (sample with replacement)</li>
+  <li>Average predictions (regression) or majority vote (classification)</li>
+  <li><strong>Reduces variance without changing bias</strong></li>
+  <li>Works best with <strong>high-variance models</strong> (deep trees, KNN with small K)</li>
+  <li>Stumps (high bias, low variance) don't benefit much from bagging</li>
+  <li>Trees are independent → can be parallelized</li>
+</ul>
+
+<div class="box box-green">
+  <div class="box-title">Bagging vs Boosting — weak learner choice</div>
+  <table>
+    <tr><th></th><th>Bagging / Random Forest</th><th>Boosting</th></tr>
+    <tr><td>Reduces</td><td>Variance</td><td>Bias</td></tr>
+    <tr><td>Best base learner</td><td>Deep trees (high variance)</td><td>Stumps / high-K KNN (high bias)</td></tr>
+    <tr><td>Trees independent?</td><td>Yes → parallelizable</td><td>No → sequential</td></tr>
+  </table>
+</div>
+
+<!-- ==================== WEEK 6 ==================== -->
+<h2 id="boosting">Boosting (AdaBoost, Gradient Boosting)</h2>
+<span class="tag tag-sup">Supervised</span>
+
+<h3>Forward Stagewise Additive Modelling</h3>
+<ul>
+  <li>Sequentially add weak learners, each focusing on the errors of the previous ensemble</li>
+  <li><strong>Fixed previously added trees</strong> — old trees are never updated, only new ones added</li>
+  <li>Each new learner gets a weight based on how well it corrects current errors</li>
+</ul>
+
+<h3>AdaBoost</h3>
+<ul>
+  <li>Re-weights misclassified observations more heavily after each round</li>
+  <li>Equivalent to forward stagewise additive modelling with <strong>exponential loss</strong></li>
+  <li>Exponential loss gives exponentially higher weight to misclassified points → very aggressive</li>
+</ul>
+
+<h3>Suitable weak learners for boosting</h3>
+<ul>
+  <li><strong>Tree stumps</strong> (depth-1 trees) — canonical weak learner</li>
+  <li><strong>KNN with large K</strong> — smooth, high bias, low variance</li>
+  <li>NOT deep trees (strong learners with low bias — boosting doesn't need them)</li>
+  <li>NOT KNN with small K (high variance — wrong type of weakness)</li>
+</ul>
+
+<h2 id="random-forest">Random Forests</h2>
+<span class="tag tag-sup">Supervised</span>
+
+<h3>Algorithm</h3>
+<ol>
+  <li>Draw B bootstrap samples</li>
+  <li>For each sample, grow a <strong>fully grown tree</strong></li>
+  <li>At each split, consider only <strong>m randomly chosen variables</strong> (typically m = √p for classification, p/3 for regression)</li>
+  <li>Average predictions over all B trees</li>
+</ol>
+
+<h3>Key properties</h3>
+<ul>
+  <li><strong>Variance of RF = variance of single tree × decorrelation factor</strong> — smaller m → more decorrelated trees → more variance reduction</li>
+  <li><strong>Bias of RF = bias of individual tree</strong> — RF does not change bias; use deep trees (low bias)</li>
+  <li>Trees are independent → fully <strong>parallelizable</strong></li>
+  <li>Handles p >> n well</li>
+  <li>OOB (out-of-bag) samples ≈ 1/3 of data → free internal validation</li>
+</ul>
+
+<div class="box box-amber">
+  <div class="box-title">★ Key exam fact: smaller m → more variance reduction (not less)</div>
+  Smaller m decorrelates trees more. More decorrelation → more variance reduction. The exam question in 2024 had a wrong statement saying "small m leads to smaller variance reduction" — this is FALSE.
+</div>
+
+<h3>Variable Importance</h3>
+<ul>
+  <li><strong>Gini importance</strong>: sum of Gini impurity decreases at all splits involving variable j across all trees</li>
+  <li><strong>OOB importance</strong>: permute variable j in OOB samples; measure drop in accuracy. Uses all trees, evaluated on OOB samples</li>
+  <li><strong>Proximity plots</strong>: measure closeness of OBSERVATIONS (how often they end up in same leaf) — NOT variables</li>
+</ul>
+
+<!-- ==================== WEEK 7 ==================== -->
+<h2 id="svm">Support Vector Machines (SVM)</h2>
+<span class="tag tag-sup">Supervised</span>
+
+<h3>Core idea</h3>
+<p>Find the hyperplane that separates classes with the <strong>maximum margin</strong>. Only the training points on or within the margin (support vectors) determine the boundary.</p>
+
+<ul>
+  <li>With <strong>linear kernel</strong> → linear classifier</li>
+  <li>With <strong>non-linear kernel (RBF, polynomial)</strong> → non-linear classifier in original space</li>
+  <li><strong>Linearity depends on the chosen kernel</strong></li>
+</ul>
+
+<h2 id="kernels">The Kernel Trick</h2>
+
+<div class="box box-blue">
+  <div class="box-title">What the kernel trick does</div>
+  Replaces explicit computation of φ(x) (a potentially infinite-dimensional feature map) with a kernel function K(xᵢ, xⱼ) = φ(xᵢ)ᵀφ(xⱼ). You compute in a high-dimensional space without ever computing the transformation explicitly — only pairwise inner products are needed.
+</div>
+
+<h3>Methods that admit kernel trick</h3>
+<ul>
+  <li><strong>SVM</strong> — dual formulation is in terms of dot products → kernel trick applies directly</li>
+  <li><strong>Kernel PCA</strong> — PCA can be kernelized (performs PCA in the kernel feature space)</li>
+  <li><strong>NOT</strong> Boosting (no inner products in formulation)</li>
+  <li><strong>NOT</strong> Random Forest (tree splits, not inner products)</li>
+</ul>
+
+<!-- ==================== WEEK 8 ==================== -->
+<h2 id="pca">PCA and Sparse PCA (SPCA)</h2>
+<span class="tag tag-unsup">Unsupervised</span>
+
+<h3>PCA</h3>
+<ul>
+  <li>Finds orthogonal directions of maximum variance (principal components)</li>
+  <li>PC1 explains the most variance, PC2 the second most, etc.</li>
+  <li>Eigenvalues of covariance matrix = variance explained by each PC</li>
+  <li>Fraction explained by PCₖ = λₖ / Σλᵢ</li>
+  <li>Handles p >> n (eigendecomposition works even when p > n)</li>
+  <li>Matrix factorization method: X ≈ UDVᵀ (SVD)</li>
+  <li>Produces <strong>uncorrelated</strong> components (but not necessarily independent)</li>
+</ul>
+
+<div class="box box-green">
+  <div class="box-title">★ PCA variance example (2025 exam)</div>
+  X ∈ ℝ¹⁰⁰ˣ², eigenvalues λ₁=6, λ₂=2. Fraction explained by PC1 = 6/(6+2) = 75%.
+</div>
+
+<h3>PCA vs ICA</h3>
+<table>
+  <tr><th></th><th>PCA</th><th>ICA</th></tr>
+  <tr><td>Finds</td><td>Uncorrelated directions</td><td>Statistically independent components</td></tr>
+  <tr><td>Maximizes</td><td>Variance</td><td>Non-Gaussianity (kurtosis/negentropy)</td></tr>
+  <tr><td>Components</td><td>Orthogonal</td><td>Not necessarily orthogonal</td></tr>
+  <tr><td>Assumption</td><td>None beyond linearity</td><td>Sources are non-Gaussian</td></tr>
+  <tr><td>Can separate signals?</td><td>No (if non-Gaussian)</td><td>Yes (cocktail party problem)</td></tr>
+</table>
+
+<h2 id="pls">PLS, CCA, and Subspace Methods</h2>
+
+<table>
+  <tr><th>Method</th><th>Supervised?</th><th>Orthogonal LVs?</th><th>Optimizes</th></tr>
+  <tr><td>PCA</td><td>No</td><td>Yes</td><td>Variance of X</td></tr>
+  <tr><td>PLS</td><td>Yes (uses Y)</td><td>Yes</td><td>Covariance between X and Y</td></tr>
+  <tr><td>CCA</td><td>Yes (uses Y)</td><td>Not necessarily</td><td>Correlation between X and Y</td></tr>
+</table>
+
+<div class="box box-amber">
+  <div class="box-title">★ All three produce latent variables as LINEAR COMBINATIONS of inputs</div>
+  This is always true for PCA, PLS, and CCA. Only PCA is fully unsupervised. CCA does NOT impose orthogonality on its variates.
+</div>
+
+<!-- ==================== WEEK 9 ==================== -->
+<h2 id="hierarchical">Hierarchical Clustering</h2>
+<span class="tag tag-unsup">Unsupervised</span>
+
+<ul>
+  <li><strong>Agglomerative (bottom-up)</strong>: start with each point as its own cluster, merge closest pairs. Most common.</li>
+  <li><strong>Divisive (top-down)</strong>: start with all points in one cluster, split recursively.</li>
+  <li>Agglomerative vs divisive is determined by the <strong>algorithm choice</strong>, NOT the linkage function</li>
+  <li>Linkage function determines how to measure distance BETWEEN clusters (single, complete, average, Ward's)</li>
+  <li>Accepts <strong>any distance metric</strong> (Manhattan, Euclidean, correlation-based, etc.)</li>
+  <li>Produces a <strong>dendrogram</strong> — cut at any height to get desired number of clusters</li>
+  <li>Does NOT require specifying K in advance → useful when number of groups is unknown</li>
+</ul>
+
+<div class="box box-green">
+  <div class="box-title">Why hierarchical clustering for the airport face recognition question (2022 Q22)</div>
+  You don't know K (number of unique people) in advance. Hierarchical clustering builds the full dendrogram and you cut it at a threshold. Each cluster = one unique person. Compare number of clusters to number of passport numbers to detect fraud.
+</div>
+
+<h3>Distance metrics for clustering</h3>
+<ul>
+  <li><strong>Euclidean distance</strong>: standard L2 distance — assumes continuous variables</li>
+  <li><strong>Manhattan distance</strong>: L1 distance between continuous variables (NOT for categorical)</li>
+  <li><strong>Gower distance</strong>: for mixed variable types including categorical</li>
+  <li><strong>Hamming distance</strong>: for categorical/binary variables</li>
+</ul>
+
+<h2 id="gmm">Gaussian Mixture Models (GMM)</h2>
+<span class="tag tag-unsup">Unsupervised</span> <span class="tag tag-param">Probabilistic</span>
+
+<div class="formula">p(x) = Σₖ πₖ · N(x | μₖ, Σₖ)</div>
+
+<ul>
+  <li>Probabilistic model — assigns soft membership probabilities to each component</li>
+  <li>Each component has its own covariance Σₖ → can model elliptical clusters</li>
+  <li>Fitted with <strong>EM algorithm</strong> (Expectation-Maximization)</li>
+  <li>E-step: compute soft assignments rᵢₖ = P(component k | xᵢ)</li>
+  <li>M-step: update μₖ, Σₖ, πₖ using weighted averages</li>
+  <li>Repeat until log-likelihood converges</li>
+  <li>Can use AIC or BIC to select number of components</li>
+</ul>
+
+<h3>GMM vs K-means</h3>
+<table>
+  <tr><th></th><th>K-means</th><th>GMM</th></tr>
+  <tr><td>Assignments</td><td>Hard (each point → one cluster)</td><td>Soft (probabilities)</td></tr>
+  <tr><td>Cluster shape</td><td>Spherical (implicit)</td><td>Elliptical (flexible)</td></tr>
+  <tr><td>Probabilistic?</td><td>No</td><td>Yes</td></tr>
+  <tr><td>Model selection</td><td>Elbow, silhouette</td><td>AIC, BIC</td></tr>
+  <tr><td>Outlier robustness</td><td>Sensitive</td><td>More robust (soft assignments)</td></tr>
+</table>
+
+<h2 id="gap">Gap Statistics and Silhouette Plots</h2>
+
+<h3>Silhouette coefficient</h3>
+<div class="formula">s(i) = (b(i) − a(i)) / max(a(i), b(i))</div>
+<p>where a(i) = mean distance to points in same cluster, b(i) = mean distance to points in nearest other cluster.</p>
+<ul>
+  <li>s(i) close to 1 → well-clustered</li>
+  <li>s(i) close to 0 → on boundary between clusters</li>
+  <li>s(i) negative → probably in wrong cluster</li>
+  <li>Choose K where average silhouette is highest and no cluster has many negative values</li>
+</ul>
+
+<div class="box box-green">
+  <div class="box-title">★ Silhouette plot exam tip (2025)</div>
+  Look for: (1) highest average silhouette coefficient AND (2) all clusters uniformly above the average (no cluster dipping below). In the 2025 exam, k=4 was optimal — all four clusters had high, uniform silhouette values around 0.9.
+</div>
+
+<!-- ==================== WEEK 10 ==================== -->
+<h2 id="ann">Artificial Neural Networks (ANN)</h2>
+
+<h3>Architecture</h3>
+<ul>
+  <li>Input layer → hidden layers (with activation functions) → output layer</li>
+  <li>Common activations: ReLU, sigmoid, tanh</li>
+  <li>Each connection has a weight; each node has a bias</li>
+</ul>
+
+<h3>Parameter counting</h3>
+<div class="box box-blue">
+  <div class="box-title">Formula: for each layer, count (inputs × outputs) + outputs (biases)</div>
+  <p>Example: 3 inputs → 4 hidden (ReLU) → 2 hidden (ReLU) → 1 output (linear), all with biases:</p>
+  <ul>
+    <li>Layer 1: 3×4 + 4 = 16</li>
+    <li>Layer 2: 4×2 + 2 = 10</li>
+    <li>Output: 2×1 + 1 = 3</li>
+    <li><strong>Total = 29</strong></li>
+  </ul>
+  <p>Another example from 2024: 10 inputs → 2 hidden (2 units each) → 1 output = (10×2+2)+(2×2+2)+(2×1+1) = 22+6+3 = <strong>31</strong></p>
+</div>
+
+<ul>
+  <li>Neural networks can overfit (contrary to common misconception)</li>
+  <li>Regularization: dropout, weight decay, early stopping</li>
+  <li>Trained via backpropagation (gradient descent)</li>
+</ul>
+
+<h2 id="autoencoder">Autoencoders</h2>
+<span class="tag tag-unsup">Unsupervised</span>
+
+<ul>
+  <li>Encoder compresses input to a low-dimensional bottleneck representation</li>
+  <li>Decoder reconstructs the input from the bottleneck</li>
+  <li><strong>Loss = reconstruction error</strong> (difference between input x and output x̂)</li>
+  <li>No labels needed — learns a compressed representation unsupervised</li>
+  <li>Bottleneck forces learning of meaningful features</li>
+</ul>
+
+<!-- ==================== WEEK 11 ==================== -->
+<h2 id="nmf">Non-Negative Matrix Factorization (NMF)</h2>
+<span class="tag tag-unsup">Unsupervised</span>
+
+<div class="formula">X ≈ WH &nbsp; where all entries of W and H ≥ 0</div>
+
+<ul>
+  <li><strong>Both W and H must have non-negative entries</strong> — defining constraint</li>
+  <li>Allows only additive combinations → parts-based representation (e.g. facial features)</li>
+  <li>Does NOT guarantee unique factorization</li>
+  <li>Does NOT require orthogonality</li>
+  <li>Applied to non-negative data (images, text counts, etc.)</li>
+  <li>Data must be non-negative for NMF to be meaningful (cannot apply to data with negative values without shifting)</li>
+</ul>
+
+<h2 id="aa">Archetypal Analysis (AA)</h2>
+<span class="tag tag-unsup">Unsupervised</span>
+
+<ul>
+  <li><strong>Archetypes = weighted combinations of extreme data points</strong> (lie on convex hull of data)</li>
+  <li><strong>Each data point = convex combination of archetypes</strong> (weights ≥ 0, sum to 1)</li>
+  <li>Finds "pure types" at the extremes — every observation is a mixture of extremes</li>
+  <li>VE (Variance Explained) measures how well the archetypes capture the data</li>
+  <li>Contrasts with PCA (finds directions of variance, not extremes) and K-means (finds central cluster points)</li>
+</ul>
+
+<h2 id="ica">Independent Component Analysis (ICA)</h2>
+<span class="tag tag-unsup">Unsupervised</span>
+
+<h3>Goal</h3>
+<p>Recover statistically independent source signals S from observed mixtures X = AS (where A is an unknown mixing matrix).</p>
+
+<h3>Independence vs uncorrelatedness</h3>
+<ul>
+  <li><strong>Uncorrelated</strong>: E[s₁s₂] = E[s₁]E[s₂] — only captures linear relationships</li>
+  <li><strong>Independent</strong>: p(s₁, s₂) = p(s₁)·p(s₂) — joint distribution factorizes — captures ALL dependencies</li>
+  <li>Independence is stronger than uncorrelatedness</li>
+</ul>
+
+<h3>Why non-Gaussian distributions?</h3>
+<p>By the Central Limit Theorem, mixtures of signals tend toward Gaussian. So X = AS is MORE Gaussian than the original sources S. ICA recovers sources by finding directions of <strong>maximum non-Gaussianity</strong> (measured by kurtosis or negentropy). A purely Gaussian source cannot be recovered by ICA.</p>
+
+<h3>Ambiguities of ICA (non-uniqueness)</h3>
+<ul>
+  <li><strong>Permutation ambiguity</strong>: order of recovered components is unknown</li>
+  <li><strong>Sign ambiguity</strong>: sign of each component is indeterminate (s or −s)</li>
+  <li><strong>Scale ambiguity</strong>: variance of each component cannot be determined independently</li>
+</ul>
+<p>Apart from these three, ICA IS unique when sources are non-Gaussian and truly independent.</p>
+
+<div class="box box-blue">
+  <div class="box-title">Why ICA recovers sources PCA cannot</div>
+  PCA finds uncorrelated directions of maximum variance — but uncorrelated ≠ independent for non-Gaussian distributions. ICA exploits higher-order statistics (non-Gaussianity) to find truly independent components. Classic example: cocktail party problem (separating overlapping audio signals).
+</div>
+
+<!-- ==================== WEEK 12 ==================== -->
+<h2 id="multiway">Multiway Models: PARAFAC and Tucker</h2>
+
+<h3>Tucker decomposition</h3>
+<ul>
+  <li>Decomposes a multiway tensor X into component matrices for each mode and a <strong>core tensor G</strong></li>
+  <li>Core tensor G has dimensions R₁ × R₂ × R₃ (for 3-way) — these define the rank in each mode</li>
+  <li>More flexible than PARAFAC — different ranks in each mode</li>
+</ul>
+
+<h3>PARAFAC (CP decomposition)</h3>
+<ul>
+  <li>Special case of Tucker where core tensor is <strong>super-diagonal</strong> (identity-like tensor)</li>
+  <li>All modes have the same number of components</li>
+  <li>More constrained than Tucker</li>
+</ul>
+
+<h3>CORCONDIA (Core Consistency Diagnostic)</h3>
+<div class="formula">CORCONDIA = 100 · (1 − ‖ℐ − G̃‖²F / ‖ℐ‖²F)</div>
+<ul>
+  <li>Compares the Tucker core tensor G̃ to the super-diagonal identity tensor ℐ</li>
+  <li><strong>CORCONDIA close to 100</strong> → core is close to super-diagonal → <strong>PARAFAC model is appropriate</strong> with the chosen number of components</li>
+  <li>Used to select the NUMBER OF COMPONENTS in PARAFAC (not to choose between PARAFAC and Tucker)</li>
+  <li>Choose the highest number of components where CORCONDIA remains high</li>
+  <li>ℐ is a <strong>super-diagonal identity tensor</strong> (not just a "diagonal matrix" — that description is too imprecise for a tensor)</li>
+</ul>
+
+<div class="box box-red">
+  <div class="box-title">★ 2022 Q16: Answer is E (None of the above)</div>
+  A says ℐ is "a diagonal matrix" — too imprecise, it's a super-diagonal tensor. B, C, D are also wrong for the reasons described above. The answer is E.
+</div>
+
+<!-- ==================== EXAM TIPS ==================== -->
+<h2 id="exam-traps">Common Exam Traps</h2>
+
+<div class="exam-q">
+  <div class="q-label">Trap 1 — Regularization direction</div>
+  <div class="q-text">Large λ = high bias (underfitting). Small λ = high variance (overfitting). Both high variance AND low bias are simultaneously true for small λ.</div>
+</div>
+
+<div class="exam-q">
+  <div class="q-label">Trap 2 — Lasso has no closed form</div>
+  <div class="q-text">Ridge has closed form (XᵀX + λI)⁻¹XᵀY. Lasso does NOT — L1 is non-differentiable at zero. Solved numerically.</div>
+</div>
+
+<div class="exam-q">
+  <div class="q-label">Trap 3 — CV standardization</div>
+  <div class="q-text">Always standardize INSIDE each fold, not before CV. Pre-standardizing causes information leakage from test fold.</div>
+</div>
+
+<div class="exam-q">
+  <div class="q-label">Trap 4 — Agglomerative vs divisive</div>
+  <div class="q-text">The linkage function does NOT decide agglomerative vs divisive. That is determined by the algorithm. Linkage decides how to measure cluster-to-cluster distance within agglomerative clustering.</div>
+</div>
+
+<div class="exam-q">
+  <div class="q-label">Trap 5 — RF parallelization</div>
+  <div class="q-text">Random Forest CAN be parallelized (trees are independent). Boosting CANNOT (sequential, each tree depends on previous).</div>
+</div>
+
+<div class="exam-q">
+  <div class="q-label">Trap 6 — RF variance and m</div>
+  <div class="q-text">Smaller m (fewer variables at each split) → MORE decorrelation → MORE variance reduction. The 2024 exam had a wrong statement saying small m gives SMALLER variance reduction.</div>
+</div>
+
+<div class="exam-q">
+  <div class="q-label">Trap 7 — CART and categorical variables</div>
+  <div class="q-text">CART handles categorical variables natively by grouping categories at splits. It does NOT one-hot encode them.</div>
+</div>
+
+<div class="exam-q">
+  <div class="q-label">Trap 8 — SVM dual formulation ≠ nonlinear</div>
+  <div class="q-text">The dual formulation alone does not give nonlinear boundaries. Nonlinearity comes from using a non-linear kernel in the dual.</div>
+</div>
+
+<div class="exam-q">
+  <div class="q-label">Trap 9 — K-means distance metric for categorical</div>
+  <div class="q-text">Manhattan distance is NOT for categorical variables — it measures absolute distance between continuous variables. Use Gower or Hamming for categorical data.</div>
+</div>
+
+<div class="exam-q">
+  <div class="q-label">Trap 10 — Proximity plots in RF</div>
+  <div class="q-text">Proximity plots measure closeness of OBSERVATIONS (how often two observations land in the same leaf), NOT closeness of variables.</div>
+</div>
+
+<div class="exam-q">
+  <div class="q-label">Trap 11 — CCA orthogonality</div>
+  <div class="q-text">PCA and PLS impose orthogonality on latent variables. CCA does NOT necessarily produce orthogonal variates.</div>
+</div>
+
+<div class="exam-q">
+  <div class="q-label">Trap 12 — NMF and negative data</div>
+  <div class="q-text">NMF requires data to be non-negative (or shifted to be non-negative). Cannot apply directly to data with negative values.</div>
+</div>
+
+<!-- ==================== QUICK REFERENCE ==================== -->
+<h2 id="quick-ref">Quick Reference: All Methods at a Glance</h2>
+
+<table>
+  <tr>
+    <th>Method</th>
+    <th>Supervised?</th>
+    <th>Handles p&gt;&gt;n?</th>
+    <th>Probabilistic?</th>
+    <th>Closed form?</th>
+    <th>Feature selection?</th>
+  </tr>
+  <tr><td>OLS</td><td>Yes</td><td>No</td><td>No</td><td>Yes</td><td>No</td></tr>
+  <tr><td>Ridge</td><td>Yes</td><td>Yes</td><td>No</td><td>Yes</td><td>No</td></tr>
+  <tr><td>Lasso</td><td>Yes</td><td>Yes</td><td>No</td><td>No (numerical)</td><td>Yes</td></tr>
+  <tr><td>Elastic Net</td><td>Yes</td><td>Yes</td><td>No</td><td>No</td><td>Yes</td></tr>
+  <tr><td>Logistic Regression</td><td>Yes</td><td>Only with regularization</td><td>Yes</td><td>No</td><td>With L1</td></tr>
+  <tr><td>LDA</td><td>Yes</td><td>No (standard)</td><td>Yes</td><td>Yes</td><td>No</td></tr>
+  <tr><td>QDA</td><td>Yes</td><td>No</td><td>Yes</td><td>Yes</td><td>No</td></tr>
+  <tr><td>KNN</td><td>Yes</td><td>Poorly</td><td>No</td><td>N/A (lazy)</td><td>No</td></tr>
+  <tr><td>CART</td><td>Yes</td><td>Yes</td><td>No</td><td>No</td><td>Implicit</td></tr>
+  <tr><td>Bagging</td><td>Yes</td><td>Yes</td><td>No</td><td>No</td><td>No</td></tr>
+  <tr><td>Random Forest</td><td>Yes</td><td>Yes</td><td>No</td><td>No</td><td>Implicit</td></tr>
+  <tr><td>Boosting</td><td>Yes</td><td>Yes</td><td>No</td><td>No</td><td>Implicit</td></tr>
+  <tr><td>SVM</td><td>Yes</td><td>Yes</td><td>No</td><td>No (QP)</td><td>No</td></tr>
+  <tr><td>PCA</td><td>No</td><td>Yes</td><td>No</td><td>Yes (eigendecomp)</td><td>No</td></tr>
+  <tr><td>PLS</td><td>Yes (uses Y)</td><td>Yes</td><td>No</td><td>Yes</td><td>No</td></tr>
+  <tr><td>CCA</td><td>Yes (uses Y)</td><td>No (standard)</td><td>No</td><td>Yes</td><td>No</td></tr>
+  <tr><td>K-means</td><td>No</td><td>Poorly</td><td>No</td><td>No (iterative)</td><td>No</td></tr>
+  <tr><td>Hierarchical</td><td>No</td><td>Poorly</td><td>No</td><td>N/A</td><td>No</td></tr>
+  <tr><td>GMM</td><td>No</td><td>No</td><td>Yes</td><td>No (EM)</td><td>No</td></tr>
+  <tr><td>ANN</td><td>Yes</td><td>With regularization</td><td>No</td><td>No (backprop)</td><td>No</td></tr>
+  <tr><td>Autoencoder</td><td>No</td><td>Yes</td><td>No</td><td>No</td><td>Implicit</td></tr>
+  <tr><td>NMF</td><td>No</td><td>Yes</td><td>No</td><td>No</td><td>No</td></tr>
+  <tr><td>Archetypal Analysis</td><td>No</td><td>Yes</td><td>No</td><td>No</td><td>No</td></tr>
+  <tr><td>ICA</td><td>No</td><td>Yes</td><td>No</td><td>No</td><td>No</td></tr>
+  <tr><td>PARAFAC/Tucker</td><td>No</td><td>Yes</td><td>No</td><td>No (ALS)</td><td>No</td></tr>
+</table>
+
+<hr>
+<p style="text-align:center; color: var(--text3); font-size: 13px; margin-top: 2rem;">02582 Computational Data Analysis — Study Guide &nbsp;|&nbsp; Based on ESL (Hastie, Tibshirani, Friedman) &nbsp;|&nbsp; Exam questions from 2022, 2024, 2025</p>
+</main>
+</body>
+</html>
