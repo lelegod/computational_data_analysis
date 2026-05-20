@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "open_questions/Q22/Q22_cv_wearables.md",
+                "file": "open_questions/Q22/Q22_genomics_highdim.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Q22_cv_wearables"
+              "title": "Q22_genomics_highdim"
             }
           }
         ]
@@ -53,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "decision boundary",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -95,7 +95,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "open_questions/Q22/Q22_cv_wearables.md",
+                "file": "open_questions/Q22/Q22_genomics_highdim.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Q22_cv_wearables"
+              "title": "Backlinks for Q22_genomics_highdim"
             }
           },
           {
@@ -114,12 +114,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "open_questions/Q22/Q22_cv_wearables.md",
+                "file": "open_questions/Q22/Q22_genomics_highdim.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Q22_cv_wearables"
+              "title": "Outgoing links from Q22_genomics_highdim"
             }
           },
           {
@@ -157,13 +157,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "open_questions/Q22/Q22_cv_wearables.md",
+                "file": "open_questions/Q22/Q22_genomics_highdim.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Q22_cv_wearables"
+              "title": "Outline of Q22_genomics_highdim"
             }
           }
         ]
@@ -184,15 +184,39 @@
       "bases:Create new base": false
     }
   },
-  "active": "705adebebc0fd142",
+  "active": "6c0251a9d1c1ec1a",
   "lastOpenFiles": [
+    "exam_ans/q22.txt",
+    "exam_ans/q21.txt",
+    "exam_ans/Screenshot 2026-05-20 at 12.00.45.png",
+    "exam_ans/Screenshot 2026-05-20 at 12.24.54.png",
+    "exam_ans/Screenshot 2026-05-20 at 12.18.00.png",
+    "exam_ans/Screenshot 2026-05-20 at 12.04.58.png",
+    "exam_ans/Screenshot 2026-05-20 at 12.15.04.png",
+    "exam_ans/Screenshot 2026-05-20 at 12.15.14.png",
+    "exam_ans/Screenshot 2026-05-20 at 12.15.07.png",
+    "exam_ans/Screenshot 2026-05-20 at 12.15.01.png",
+    "exam_ans/Screenshot 2026-05-20 at 12.53.36.png",
+    "exam_ans/Screenshot 2026-05-20 at 12.53.33.png",
+    "exam_ans",
+    "q22.txt",
+    "exam/solutions_2022.md",
+    "q21.txt",
+    "q21.md",
+    "gen_set/set5/combined.md",
+    "exam/solutions_2025.md",
+    "open_questions/Q21/Q21_AS_bootstrap_cv_oob.md",
+    "open_questions/Q21/Q21_AR_aic_bic_cv.md",
+    "OPEN_QUESTIONS_Q21.md",
+    "summary/exam_review.md",
+    "week3/group_questions.md",
+    "week6/group_questions.md",
+    "open_questions/Q22/Q22_cv_wearables.md",
     "open_questions/Q21/Q21_BH_nn_regularization.md",
     "open_questions/Q21/Q21_BG_nested_cv.md",
     "open_questions/Q21/Q21_BF_em_algorithm.md",
     "open_questions/Q21/Q21_BE_backpropagation.md",
     "open_questions/Q21/Q21_BD_soft_margin_svm.md",
-    "week3/group_questions.md",
-    "week6/group_questions.md",
     "week12/group_questions.md",
     "week2/group_questions.md",
     "week11/group_questions.md",
@@ -202,24 +226,12 @@
     "week1/group_questions.md",
     "week8/group_questions.md",
     "week7/group_questions.md",
-    "week4/group_questions.md",
-    "EXAM_TIPS.md",
     "Untitled.canvas",
-    "THEORY.md",
-    "open_questions/Q21/Q21_BC_aa_kmeans_nmf.md",
-    "open_questions/Q21/Q21_BB_pca_vs_cca.md",
-    "open_questions/Q21/Q21_BA_silhouette_gap_bic.md",
-    "open_questions/Q21/Q21_AZ_logistic_vs_svm.md",
-    "open_questions/Q21/Q21_AY_corcondia_vs_fms.md",
-    "open_questions/Q21/Q21_AX_nn_svm_rf.md",
-    "open_questions/Q21/Q21_AW_hierarchical_linkage.md",
     "book/ESLII_print12_toc.pdf",
     "book/ISLP_website.pdf",
     "book",
     "untitled folder",
     "gen_set/set5",
-    "gen_set/set4",
-    "gen_set/set3",
-    "exam/CDA Exam Questions 2022_handout2023.pdf"
+    "gen_set/set4"
   ]
 }

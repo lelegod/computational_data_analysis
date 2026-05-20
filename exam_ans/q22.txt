@@ -1,0 +1,32 @@
+We need to acknowledge that this is high dimensional prediction problem with many more variables than patients, so overfitting is a major risk. On top of that many of the features are highly correlated. Hence, a regularization method is needed to handle the curse of dimensionality. Since we are trying to predict the severity score, we can use the penalized linear regression based model for this problem.
+
+First we will state the formula for coefficients in linear models with penalty in general:
+
+beta^ = argmin_beta |y - X * beta|^2 + lambda * Penalty(beta), where beta is the coefficients, y is the true target, lambda is a constant that control the strength of the regularization, and Penalty is a function of beta. 
+
+The two different regularizations penalties are L1 penalty and L2 penalty. 
+
+L1 penalty (LASSO):
+L1 penalty is equal to lambda * |beta|_1, where the Penalty(beta) = |beta|_1
+So the penalty here is calculated using the L1 norm of the coefficients, which is the sum of |beta_i|. This regularization induces sparsity because it sets some of the coefficient to zero, performing feature selection.
+
+Geometrical shape of L1 penalty:
+Because it uses the L1, distances, the constraint region is a diamond with corners on the axis. This means that the solution, where the elliptical OLS contours touch the diamond are very likely to touch the corners, setting some coefficients to zero. This zeroing is what causes the sparsity and feature selection. For this case where p >> n, it can only select up to n variables.
+
+L2 penalty (Ridge): 
+L2 penalty on the other hand is equal to lambda * (|beta|_2)^2, where the Penalty(beta) = (|beta|_2)^2
+It uses the L2 norm of the coefficients, which is the sum of (beta_i)^2. This regularization shrinks all coefficients towards zero, but never sets it to zero.
+
+Geometrical shape of L2 penalty:
+Because it uses the L2 distances, the constraint region is a sphere. The solution, where the elliptical OLS contours touch the sphere almost never lands on an axis no exact zeros. For correlated group of features, the coefficient will shrink together.
+
+We can combine the two regularization strategy by including another term alpha (0 <= alpha <= 1) that represents the weights of the L1 and L2 penalties. The combined regularization penalty (Elastic Net):
+The penalty is equal to lambda * (1/2 * (1 - alpha) * (|beta|_2)^2 + alpha * |beta|_1)
+At lambda = 1, the term 1/2 * (1 - alpha) * (|beta|_2)^2 becomes zero causing the penalty to be L1 penalty. While at alpha = 0, the term alpha * |beta|_1 becomes zero causing the penalty to be L2 penalty. This combined penalty uses the shrinkage of L2 and the feature selection of L1 to obtain the robust sparse estimate.
+
+Geometrical shape of the combined penalty:
+At alpha = 1, the constraint region is the same as the shape of L1 penalty which is a diamond while at alpha = 0 the constraint region is the same as the shape of L2 penalty which is a sphere. Therefore the shape of this combine penalty will be in between a diamond and a sphere.
+
+Since this is a high dimensional prediction problem where p >> n, we need the sparsity and feature selection from L1 penalty. Another problem is that many of the features are highly correlated. Correlated genes tend to enter in groups rather than one arbitrary representative, which is why just using L1 penalty that aggressively remove features is less robust. Combining it with the L2 penalty, the presence of many highly correlated features can act as an implicit averaging mechanism that reduces variance and stabilizes predictions. Therefore, out of the three methods, the combined penalty (Elastic Net) is the superior method compared to L1 and L2 penalties. 
+
+On top of that, if we were to design the cross validation design and the goal is prediction for new patients, I would validate at the patient level using leave-one-patient-out. 

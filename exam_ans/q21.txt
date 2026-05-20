@@ -1,0 +1,56 @@
+The main idea of Random Forest is combining the concept of bagging and random feature subsampling on decision trees.
+Both of these methods reduces variance without increasing the bias.
+
+Random Forest goes through these four steps:
+
+1. Bootstrap subsampling
+First, assume we create B different trees model. For each tree, we draw bootstrap sample of size N with replacement from the training data.
+Each sample will contain approximately 63.2% unique observations and the other 36.8% are called out-of-bag (OOB).
+
+Contribution:
+With B different training sets, each tree sees a different data distribution causing trees to make different errors and learn different aspects of the data.
+When predictions from these different trees are averaged, the variance of the ensemble will be reduced.
+
+2. Random feature subsampling
+At each split, m features are selected at random out of the p features. 
+Usually for classification problems m = floor(sqrt(p)), and m = floor(p/3) for regression problems.
+Then only the best split among these m features is used.
+
+Contribution:
+This step decorrelates the trees. 
+If certain features are very strong, pure bagging will just produce correlated trees that use those feature at the top splits which causes them to be highly correlated.
+The problem with this is that averaging correlated tree will not reduce variance even when averaged.
+By forcing random subsets of features to be used, trees become decorrelated and only then averaging them will yield in a lower variance.
+
+3. Grow full unpruned trees
+Each tree is grown to full depth without pruning, until each leaf contains the minimum number of node (e.g. 1 observation per leaf).
+
+Contribution: 
+Deep trees have low bias but high variance.
+Since we know that the final ensemble will average these decorrelated trees, the averaging will handle the variance reduction.
+Therefore, we want each tree to be as accurate as possible, meaning low bias.
+Hence, the reason we grow each tree to be as deep and as accurate as possible.
+Another important thing to note is that, the bias of Random Forest is equal to the individual tree bias.
+So, by having deep individual trees with low bias will ensure that the Random Forest also has a low bias.
+
+4. Aggregate predictions
+For regression problems, we average the predictions of all B trees. For classification problems, we use the the predicted labels of all B trees and do a majority voting.
+
+Contribution:
+Averaging reduces variance without changing bias for unbiased estimators.
+The ensemble variance of B correlated trees with pairwise correlation rho and individual variance sigma^2 is given by:
+Var(average) = rho * sigma^2 + (1 - rho) / B * sigma^2
+As B approaches infinity, the variance converges to rho * sigma^2.
+Random feature subsampling reduces rho by decorrelating trees, reducing the irreducible floor of rho sigma^2 as well as reducing the ensemble variance.
+
+Additional things about Random Forest:
+
+OOB error estimation:
+For each individual tree, there is about 36.8% of observations that is considered OOB.
+These observations are not part of the training data and can be used to do a CV-like generalization error.
+Then averaging these OOB predictions will give us the OOB error that is approximately the same as Leave one out CV error without extra computation.
+
+Variable importance:
+There are two main methods to measure this. First, the Gini importance which is the sum of impurity decrease for all splits on a specific feature j across all trees.
+Second, permutation importance which by permuting a specific variable j in OOB data, record the increase in OOB error. Large increase means the feature has a high importance. 
+Permutation importance is more reliable because it directly measures prediction degradation.
