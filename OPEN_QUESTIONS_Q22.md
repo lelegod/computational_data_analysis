@@ -387,3 +387,94 @@ No. AIC is equivalent to LOO-CV under the **IID assumption** (Stone 1977). Stand
 The personalized model has only 4 folds (3 test obs each) — very high variance estimate. Bootstrap alternative: draw $B = 200$ resamples from the 12 observations, evaluate on OOB (~37%), average → more stable estimate. For extra rigor, use the .632 estimator:
 $$\text{EPE}_{.632} = 0.368 \cdot \text{err}_\text{train} + 0.632 \cdot \text{err}_\text{OOB}$$
 This corrects for the slight optimistic bias of the basic bootstrap.
+
+---
+
+## Extended Practice Q&A — Q22 Tricky Variants
+
+These are 8 additional exam-style sub-questions covering edge cases examiners have asked or could ask about CV design.
+
+---
+
+### Q: A student proposes 10-fold random CV on the wearables dataset. What is wrong with this?
+
+**Answer**: 10-fold random CV violates the IID assumption. Observations from the same subject are correlated — they share the same physiological baseline (resting HR, skin temperature variability). If subject $i$'s observations appear in both training and test folds, the model learns their personal baseline during training and uses it to predict their held-out observations. This is data leakage. The CV error will be optimistically biased because it measures how well the model predicts *known* individuals, not *new* individuals. For generalized prediction, the correct design is LOIO-CV, which ensures all observations from the same individual are in the same fold.
+
+---
+
+### Q: The examiner asks you to design a nested CV for the wearables dataset where the classifier is regularized logistic regression. Draw the loop structure and state the sizes.
+
+**Answer**:
+
+```
+Outer loop: LOIO-CV (16 folds)
+  Fold i:
+    Training set: 15 subjects × 12 obs = 180 obs
+    Test set:     1 subject  × 12 obs = 12 obs
+
+    Inner loop: K-fold CV on the 180 training obs
+      (Use K=5 or K=10; keep all obs from each subject in one fold)
+      For each λ candidate: fit regularized LR on inner train, evaluate on inner val
+    → Select λ* that minimises inner CV error
+
+  Fit regularized LR with λ* on all 180 training obs
+  Evaluate on the 12 test obs
+  Record test error for fold i
+
+Outer estimate: average test error across 16 folds
+```
+
+Critical: λ is selected independently inside each outer fold. Selecting λ once on all 192 obs before the outer loop is leakage — the test subjects' data influenced λ selection.
+
+---
+
+### Q: For the personalized model (LOSO), a student reports "average CV error across all 16 subjects and all 4 seasons." Is this correct?
+
+**Answer**: The question depends on the goal. The personalized model should be evaluated *within* each individual. The correct procedure is to run 4-fold LOSO-CV separately for each subject and report that subject's average error. Averaging across all 16 subjects then gives a population-level estimate of personalized EPE. However, if the question asks for the EPE for a **specific** subject, only their 4-fold LOSO estimate is relevant. The key point: you should not pool observations across subjects when fitting the personalized model — doing so would mix personal data from different individuals and defeat the purpose of personalization.
+
+---
+
+### Q: Why is the personalized model expected to have lower CV error than the generalized model on the wearables dataset?
+
+**Answer**: The personalized model is trained on the same individual it will be tested on. It can learn that person's resting HR, signal amplitudes, and physiological responses. The test fold contains data from the same person — just a different season. The generalized model is tested on a brand-new individual whose physiology was never seen in training. Because there is substantial between-person variability in biosignals (different resting HRs, different skin temperatures), the generalized model faces higher inter-individual variation → higher EPE. The personalized model benefits from within-subject correlation; the generalized model cannot.
+
+---
+
+### Q: The examiner asks: "Can you use AIC instead of LOIO-CV to select the model here?" What is the correct answer?
+
+**Answer**: No. AIC is appropriate as a substitute for LOO-CV only when observations are IID and the model is likelihood-based. Both conditions fail here. First, observations are not IID — they are grouped by individual and are correlated within each group. AIC assumes independent test-error contributions from each observation; with correlated observations from the same subject, this approximation breaks down. Second, even if the model is logistic regression (likelihood-based), the per-observation AIC terms are not independent, so the total AIC does not correctly estimate the grouped-CV error. The correct approach is LOIO-CV, which explicitly respects the group structure.
+
+---
+
+### Q: A new variant: 50 patients × 30 weekly measurements of blood glucose (CGM data) = 1500 observations. Goal: predict HbA1c outcome. Design the CV.
+
+**Answer**:
+- **IID violation**: observations from the same patient share their physiology and disease progression. Random CV leaks patient-specific information.
+- **Additional violation**: time-series structure — future observations cannot be used to predict past outcomes. Temporal leakage if random CV mixes past and future windows for the same patient.
+- **Correct design**: Leave-One-Patient-Out CV (50 folds), where each fold leaves out all 30 observations from one patient. Train on remaining 49 patients × 30 obs = 1470 obs. Test on the left-out patient.
+- **If temporal prediction is the goal** (predict week $t+1$ from weeks $1..t$): use forward-chaining within each patient — train on weeks 1..t, test on week t+1, advance t.
+- **Feature selection / scaling**: must happen inside each outer fold.
+- **EPE measures**: expected prediction error for a new patient not seen during training.
+
+---
+
+### Q: Face-clustering question (2022 variant). Why is NMF preferred over PCA for feature extraction from face images?
+
+**Answer**:
+- **Non-negativity**: pixel intensities are non-negative. PCA components have both positive and negative loadings — a face "feature" would be a mixture of dark and light areas that partially cancel. NMF components are non-negative → purely additive combinations of bright regions → more interpretable as physical parts of a face (eyes, nose, mouth patch).
+- **Parts-based**: Lee & Seung (1999) showed that NMF on face images naturally learns local facial parts. PCA learns global eigenfaces (holistic patterns across the whole face).
+- **Robustness to irrelevant variation**: NMF can represent diverse lighting and expression patterns as different linear combinations of the same parts. PCA variance directions may be dominated by global illumination differences.
+- **Exam one-liner**: *"NMF is preferred because non-negativity leads to additive parts-based features (nose, eye, mouth patches) which are more interpretable and more stable across lighting conditions than the global signed eigenfaces of PCA."*
+
+---
+
+### Q: A tensor dataset: 40 subjects × 100 spectral wavelengths × 15 time points. You fit PARAFAC. How do you select $R$? What does $R=3$ with CORCONDIA = 95% mean?
+
+**Answer**:
+- **Model selection**: use CORCONDIA and split-half FMS jointly. For $R=1,2,3,\ldots$:
+  1. Fit PARAFAC, compute CORCONDIA
+  2. Split subjects into two halves, fit PARAFAC to each half, compute FMS
+  3. Choose largest $R$ before CORCONDIA drops sharply below ~80–90 or FMS becomes unstable
+- **$R=3$, CORCONDIA = 95%**: means that with 3 components, the actual fitted core tensor $\tilde{\mathcal{G}}$ is 95% consistent with being super-diagonal — the model is structurally appropriate, the 3 components are genuine rank-1 contributions without cross-talk. This is a good sign that $R=3$ is the correct rank for this data.
+- **What CORCONDIA < 0 would mean**: the core tensor has strong off-diagonal entries — the PARAFAC structure is violated, $R$ is too large, and the model is trying to decompose noise into artificial components.
+- **Deployment**: the 3 spectral loadings can be interpreted as 3 real fluorophores; 3 subject loadings as their concentrations; 3 time loadings as their kinetic profiles.

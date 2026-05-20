@@ -77,6 +77,11 @@
 | [Q21-BA — Silhouette vs Gap Statistic vs BIC](Q21_BA_silhouette_gap_bic.md) | Choosing number of clusters under different model assumptions | Week 9, strong model-selection comparison |
 | [Q21-BB — PCA vs CCA](Q21_BB_pca_vs_cca.md) | Variance explanation vs cross-block correlation | Week 8, clean two-method comparison |
 | [Q21-BC — Archetypal Analysis vs K-means vs NMF](Q21_BC_aa_kmeans_nmf.md) | Extremes vs centroids vs additive parts | Weeks 9/11, interpretable unsupervised comparison |
+| [Q21-BD — Soft-Margin SVM](Q21_BD_soft_margin_svm.md) | Slack variables, C parameter, hinge loss, dual with 0≤αi≤C | Week 7, very high — SVM hasn't appeared as Q21 |
+| [Q21-BE — Backpropagation](Q21_BE_backpropagation.md) | Chain rule, delta rule, vanishing gradient, ReLU fix | Week 10, high — derivation-type Q21 |
+| [Q21-BF — EM Algorithm](Q21_BF_em_algorithm.md) | E-step/M-step, ELBO, GMM instance, K-means connection | Week 9, medium — framework behind GMM |
+| [Q21-BG — Nested CV and Data Leakage](Q21_BG_nested_cv.md) | Outer/inner loop, three leakage types, 1-SE rule | Weeks 2/3, high — appears in every Q22 context |
+| [Q21-BH — Neural Network Regularization](Q21_BH_nn_regularization.md) | Dropout, weight decay, early stopping, batch norm | Week 10, medium — pairs with backpropagation |
 
 ---
 

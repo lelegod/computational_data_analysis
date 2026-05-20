@@ -74,7 +74,8 @@
               "title": "Bookmarks"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -185,6 +186,11 @@
   },
   "active": "705adebebc0fd142",
   "lastOpenFiles": [
+    "open_questions/Q21/Q21_BH_nn_regularization.md",
+    "open_questions/Q21/Q21_BG_nested_cv.md",
+    "open_questions/Q21/Q21_BF_em_algorithm.md",
+    "open_questions/Q21/Q21_BE_backpropagation.md",
+    "open_questions/Q21/Q21_BD_soft_margin_svm.md",
     "week3/group_questions.md",
     "week6/group_questions.md",
     "week12/group_questions.md",
@@ -207,11 +213,6 @@
     "open_questions/Q21/Q21_AY_corcondia_vs_fms.md",
     "open_questions/Q21/Q21_AX_nn_svm_rf.md",
     "open_questions/Q21/Q21_AW_hierarchical_linkage.md",
-    "open_questions/Q21/Q21_AV_adaboost_vs_gradient_boosting.md",
-    "summary/all/week03.md",
-    "open_questions/Q22/Q22_gait_analysis.md",
-    "open_questions/Q22/Q22_genomics_highdim.md",
-    "open_questions/Q22/Q22_tensor_parafac.md",
     "book/ESLII_print12_toc.pdf",
     "book/ISLP_website.pdf",
     "book",

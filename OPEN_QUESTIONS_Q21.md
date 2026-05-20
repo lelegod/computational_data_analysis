@@ -1112,3 +1112,87 @@ $$s(i)=\frac{b(i)-a(i)}{\max(a(i),b(i))} \quad \text{Gap}(K)=\log U_K-\log W_K \
 **AA objective**: $\min_{S,H}\|X-HXS\|_F^2$ — archetypes $Z=XS$ must be convex combinations of data.  
 **Use AA** when end-member interpretation matters (extreme phenotypes, material mixtures).  
 **Use NMF** when data are naturally non-negative and parts-based additivity is meaningful.
+
+---
+
+## BD — SOFT-MARGIN SVM
+
+**Motivation**: when data is not linearly separable, hard-margin SVM has no solution. Introduce slack variables $\xi_i\ge 0$.
+
+**Primal**: $\min_{\beta,\beta_0,\xi}\frac{1}{2}\|\beta\|^2+C\sum_i\xi_i$ subject to $y_i(x_i^T\beta+\beta_0)\ge 1-\xi_i$, $\xi_i\ge 0$
+
+**Dual**: $\max_\alpha\sum_i\alpha_i-\frac{1}{2}\sum_{ij}\alpha_i\alpha_jy_iy_j\langle x_i,x_j\rangle$ subject to $0\le\alpha_i\le C$, $\sum_i\alpha_iy_i=0$
+
+The only difference from hard-margin: $\alpha_i\le C$ (boxed constraint).
+
+**KKT point types** (for each observation $i$):
+- $\alpha_i=0$: safe point (outside margin, $\xi_i=0$)
+- $0<\alpha_i<C$: support vector on margin ($\xi_i=0$)
+- $\alpha_i=C$: margin violator ($\xi_i>0$, inside or on wrong side)
+
+**$C$ tradeoff**: large $C$ → hard margin (low bias/high variance); small $C$ → wide margin (high bias/low variance).  
+**Hinge loss view**: soft-margin SVM = minimize $\frac{1}{N}\sum_i\max(0,1-y_if_i)+\frac{\lambda}{2}\|\beta\|^2$ — this is ridge-penalized hinge loss.
+
+---
+
+## BE — BACKPROPAGATION
+
+**Forward pass**: $z^{(l)}=W^{(l)}a^{(l-1)}+b^{(l)}$, $a^{(l)}=g(z^{(l)})$ layer by layer.
+
+**Backward pass** (chain rule):
+$$\delta^{(L)}=\nabla_{a^{(L)}}L\odot g'(z^{(L)}), \qquad \delta^{(l)}=(W^{(l+1)T}\delta^{(l+1)})\odot g'(z^{(l)})$$
+$$\frac{\partial L}{\partial W^{(l)}}=\delta^{(l)}a^{(l-1)T}, \qquad \frac{\partial L}{\partial b^{(l)}}=\delta^{(l)}$$
+
+**SGD update**: $W^{(l)}\leftarrow W^{(l)}-\eta\frac{\partial L}{\partial W^{(l)}}$
+
+**Vanishing gradient**: sigmoid/tanh have $g'(z)\in(0,1]$ → product of many small derivatives → near-zero gradients in early layers → early layers barely train.  
+**ReLU fix**: $g(z)=\max(0,z)$, $g'(z)=1$ for $z>0$ → gradient passes through unchanged.  
+**Dead ReLU**: unit stuck at $z<0$ → gradient always 0 → fix: Leaky ReLU $g(z)=\max(0.01z,z)$.
+
+---
+
+## BF — EM ALGORITHM
+
+**Problem**: maximize $\log p(X;\theta)=\log\sum_Z p(X,Z;\theta)$ — sum inside log is intractable.
+
+**ELBO lower bound** (Jensen's inequality):
+$$\log p(X;\theta)\ge\mathcal{L}(q,\theta)=\sum_Z q(Z)\log\frac{p(X,Z;\theta)}{q(Z)}$$
+
+**E-step**: fix $\theta$, maximize $\mathcal{L}$ over $q$ → $q^*(Z)=p(Z\mid X;\theta)$ (posterior).  
+**M-step**: fix $q$, maximize $\mathcal{L}$ over $\theta$ → maximize $E_q[\log p(X,Z;\theta)]$.
+
+**GMM instance**: $Z$ = cluster assignment; E-step = compute $\gamma_{ik}=P(Z_i=k\mid x_i)$; M-step = update $\mu_k,\Sigma_k,\pi_k$.  
+**K-means connection**: K-means is hard-assignment EM for a GMM with $\Sigma_k=\sigma^2 I$ and $\sigma^2\to 0$.  
+**Convergence**: monotonically non-decreasing likelihood; converges to a local (not necessarily global) optimum.
+
+---
+
+## BG — NESTED CV AND DATA LEAKAGE
+
+**Why nested CV**: when hyperparameters must be tuned (e.g., $\lambda$, $K$), single-loop CV gives an optimistically biased error estimate.
+
+**Structure**: outer loop ($K$ folds) estimates test error; inner loop ($K'$ folds, inside each outer training fold) selects hyperparameters.
+
+**Three leakage types**:
+1. **Test contamination**: test observations appear in training
+2. **Selection leakage**: features selected on all data before CV — test-set statistics bias feature ranking
+3. **Preprocessing leakage**: scaling/normalization done on full data — test-set statistics bleed into training
+
+**1-SE rule**: choose the simplest model with CV error $\le$ (minimum CV error $+$ 1 SE) → parsimony when differences are noise.  
+**Why not AIC**: AIC $\approx$ LOO-CV only under IID and correct model — fails for grouped data (wearables) and non-standard losses.  
+**Wearables rule**: hyperparameter tuning ($\lambda$ for regularized LR, depth for RF) must happen inside each LOIO outer fold.
+
+---
+
+## BH — NEURAL NETWORK REGULARIZATION
+
+| Method | Mechanism | When |
+|--------|-----------|------|
+| Weight decay (L2) | Adds $\frac{\lambda}{2}\|W\|^2$ to loss; shrinks weights | Analogous to Ridge regression |
+| Dropout | Zero each unit with prob $p$ at train time; scale by $(1-p)$ at test | Ensemble of thinned networks |
+| Early stopping | Stop when validation error starts increasing | Implicit regularization without changing objective |
+| Batch norm | Normalize activations per mini-batch, then rescale | Reduces internal covariate shift; allows higher $\eta$ |
+
+**Dropout test time**: weights are scaled by $(1-p)$, NOT dropped — predictions are deterministic.  
+**Weight decay gradient**: $\frac{\partial L}{\partial W}+\lambda W$ (extra shrinkage term).  
+**Why NNs need regularization**: parameter count $\gg$ training samples → can memorize training data with zero training error.
